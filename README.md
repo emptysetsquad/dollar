@@ -20,6 +20,15 @@ simple [dashboard](https://github.com/emptysetsquad/dollar-dashboard) for intera
 
 is available [here](https://github.com/emptysetsquad/dollar/blob/master/d%C3%B8llar.pdf).
 
+## contracts
+### mainnet
+- `0x443D2f2755DB5942601fa062Cc248aAA153313D3` **DAO**
+- `0x7d72243247aedb0D1D35787A2942107dD76338d8` **Implementation**
+- `0x36F3FD68E7325a35EB768F1AedaAe9EA0689d723` **Døllar**
+- `0xea9f8bb8B5e8BA3D38628f0E18Ee82300eddBa0E` **Oracle**
+- `0x88ff79eB2Bc5850F27315415da8685282C7610F9` **UniswapV2 USDC:ESD Pair**
+- `0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68` **LP Incentivation Pool**
+
 ## disclaimer
 this project is an experiment, and its contracts are unaudited - we've put a significant amount of work into testing, as well as generally de-risking the design of its core mechanism, however participants should take great caution as bugs resulting in loss of funds are always a possibility.
 
