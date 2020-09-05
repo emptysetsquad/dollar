@@ -29,6 +29,9 @@ is available [here](https://github.com/emptysetsquad/dollar/blob/master/d%C3%B8l
 - `0x88ff79eB2Bc5850F27315415da8685282C7610F9` **UniswapV2 USDC:ESD Pair**
 - `0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68` **LP Incentivation Pool**
 
+## articles
+- [introducing døllar and the {ess}.](https://medium.com/@emptysetsquad/introducing-d%C3%B8llar-and-the-ess-f48222b4e138)
+
 ## disclaimer
 this project is an experiment, and its contracts are unaudited - we've put a significant amount of work into testing, as well as generally de-risking the design of its core mechanism, however participants should take great caution as bugs resulting in loss of funds are always a possibility.
 
