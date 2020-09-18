@@ -1,3 +1,4 @@
+const {ZERO_ADDRESS} = require("@openzeppelin/test-helpers/src/constants");
 const { accounts, contract } = require('@openzeppelin/test-environment');
 
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
@@ -158,6 +159,15 @@ describe('Bonding', function () {
           expect(event.args.value).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(1000));
         });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: ZERO_ADDRESS,
+            to: userAddress
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+        });
       });
 
       describe('partial', function () {
@@ -196,6 +206,15 @@ describe('Bonding', function () {
           expect(event.args.start).to.be.bignumber.equal(new BN(2));
           expect(event.args.value).to.be.bignumber.equal(new BN(500).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(500));
+        });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: ZERO_ADDRESS,
+            to: userAddress
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(500).mul(INITIAL_STAKE_MULTIPLE));
         });
       });
 
@@ -251,6 +270,15 @@ describe('Bonding', function () {
           expect(event.args.value).to.be.bignumber.equal(new BN(250).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(500));
         });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: ZERO_ADDRESS,
+            to: userAddress
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(250).mul(INITIAL_STAKE_MULTIPLE));
+        });
       });
     });
 
@@ -297,6 +325,15 @@ describe('Bonding', function () {
           expect(event.args.value).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(1000));
         });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+        });
       });
 
       describe('partial', function () {
@@ -331,6 +368,15 @@ describe('Bonding', function () {
           expect(event.args.start).to.be.bignumber.equal(new BN(3));
           expect(event.args.value).to.be.bignumber.equal(new BN(800).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(800));
+        });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(800).mul(INITIAL_STAKE_MULTIPLE));
         });
       });
 
@@ -382,6 +428,15 @@ describe('Bonding', function () {
           expect(event.args.value).to.be.bignumber.equal(new BN(800).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(1200));
         });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(800).mul(INITIAL_STAKE_MULTIPLE));
+        });
       });
     });
 
@@ -428,6 +483,15 @@ describe('Bonding', function () {
           expect(event.args.value).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(1000));
         });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+        });
       });
 
       describe('partial', function () {
@@ -462,6 +526,15 @@ describe('Bonding', function () {
           expect(event.args.start).to.be.bignumber.equal(new BN(3));
           expect(event.args.value).to.be.bignumber.equal(new BN(800).mul(INITIAL_STAKE_MULTIPLE));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(800));
+        });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(800).mul(INITIAL_STAKE_MULTIPLE));
         });
       });
 
@@ -512,6 +585,15 @@ describe('Bonding', function () {
           expect(event.args.start).to.be.bignumber.equal(new BN(4));
           expect(event.args.value).to.be.bignumber.equal(new BN(533333333));
           expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(800));
+        });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(533333333));
         });
       });
     });
@@ -575,6 +657,15 @@ describe('Bonding', function () {
         expect(event.args.value).to.be.bignumber.equal(new BN(500).mul(INITIAL_STAKE_MULTIPLE));
         expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(500));
       });
+
+      it('emits Transfer event', async function () {
+        const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+          from: ZERO_ADDRESS,
+          to: userAddress
+        });
+
+        expect(event.args.value).to.be.bignumber.equal(new BN(500).mul(INITIAL_STAKE_MULTIPLE));
+      });
     });
 
     describe('when unbond', function () {
@@ -609,6 +700,15 @@ describe('Bonding', function () {
         expect(event.args.start).to.be.bignumber.equal(new BN(2));
         expect(event.args.value).to.be.bignumber.equal(new BN(500).mul(INITIAL_STAKE_MULTIPLE));
         expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(500));
+      });
+
+      it('emits Transfer event', async function () {
+        const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+          from: userAddress,
+          to: ZERO_ADDRESS
+        });
+
+        expect(event.args.value).to.be.bignumber.equal(new BN(500).mul(INITIAL_STAKE_MULTIPLE));
       });
     });
   });

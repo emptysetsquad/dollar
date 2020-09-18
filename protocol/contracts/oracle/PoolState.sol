@@ -55,6 +55,7 @@ contract PoolStorage {
     struct State {
         Balance balance;
         Provider provider;
+        bool paused;
 
         mapping(address => PoolAccount.State) accounts;
     }

@@ -124,11 +124,26 @@ contract Comptroller is Setters {
             "Cant mint to empty pool"
         );
 
-        uint256 poolAmount = amount.mul(Constants.getOraclePoolRatio()).div(100);
-        dollar().mint(pool(), poolAmount);
+        // Mint small amount to original pool for migration
+        uint256 originalPoolAmount = Constants.getLegacyPoolReward();
+        if (originalPoolAmount > amount) {
+            originalPoolAmount = amount;
+        }
+        dollar().mint(Constants.getLegacyPoolAddress(), originalPoolAmount);
+        uint256 leftOverAmount = amount.sub(originalPoolAmount);
 
-        dollar().mint(address(this), amount.sub(poolAmount));
-        incrementTotalBonded(amount.sub(poolAmount));
+        // Mint pool cut
+        if (leftOverAmount > 0) {
+            uint256 poolAmount = leftOverAmount.mul(Constants.getOraclePoolRatio()).div(100);
+            dollar().mint(pool(), poolAmount);
+            leftOverAmount = leftOverAmount.sub(poolAmount);
+        }
+
+        // Mint dao cut
+        if (leftOverAmount > 0) {
+            dollar().mint(address(this), leftOverAmount);
+            incrementTotalBonded(leftOverAmount);
+        }
 
         balanceCheck();
     }

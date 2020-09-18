@@ -25,6 +25,14 @@ contract PoolSetters is PoolState, PoolGetters {
     using SafeMath for uint256;
 
     /**
+     * Global
+     */
+
+    function pause() internal {
+        _state.paused = true;
+    }
+
+    /**
      * Account
      */
 

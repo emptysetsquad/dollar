@@ -24,6 +24,8 @@ import "./Getters.sol";
 contract Setters is State, Getters {
     using SafeMath for uint256;
 
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
     /**
      * ERC20 Interface
      */
@@ -75,11 +77,15 @@ contract Setters is State, Getters {
     function incrementBalanceOf(address account, uint256 amount) internal {
         _state.accounts[account].balance = _state.accounts[account].balance.add(amount);
         _state.balance.supply = _state.balance.supply.add(amount);
+
+        emit Transfer(address(0), account, amount);
     }
 
     function decrementBalanceOf(address account, uint256 amount, string memory reason) internal {
         _state.accounts[account].balance = _state.accounts[account].balance.sub(amount, reason);
         _state.balance.supply = _state.balance.supply.sub(amount, reason);
+
+        emit Transfer(account, address(0), amount);
     }
 
     function incrementBalanceOfStaged(address account, uint256 amount) internal {

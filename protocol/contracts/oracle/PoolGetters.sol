@@ -59,6 +59,10 @@ contract PoolGetters is PoolState {
         return dollar().balanceOf(address(this)).sub(totalClaimable());
     }
 
+    function paused() public view returns (bool) {
+        return _state.paused;
+    }
+
     /**
      * Account
      */
@@ -89,7 +93,12 @@ contract PoolGetters is PoolState {
         uint256 balanceOfRewardedWithPhantom = totalRewardedWithPhantom
             .mul(balanceOfBonded(account))
             .div(totalBonded);
-        return balanceOfRewardedWithPhantom.sub(balanceOfPhantom(account));
+
+        uint256 balanceOfPhantom = balanceOfPhantom(account);
+        if (balanceOfRewardedWithPhantom > balanceOfPhantom) {
+            return balanceOfRewardedWithPhantom.sub(balanceOfPhantom);
+        }
+        return 0;
     }
 
     function statusOf(address account) public view returns (PoolAccount.Status) {

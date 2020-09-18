@@ -18,6 +18,7 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../external/Require.sol";
 import "../Constants.sol";
 import "./PoolSetters.sol";
@@ -26,10 +27,10 @@ import "./Liquidity.sol";
 contract Pool is PoolSetters, Liquidity {
     using SafeMath for uint256;
 
-    constructor(address dollar, address univ2) public {
-        _state.provider.dao = IDAO(msg.sender);
-        _state.provider.dollar = IDollar(dollar);
-        _state.provider.univ2 = IERC20(univ2);
+    constructor() public {
+        _state.provider.dao = IDAO(Constants.getDaoAddress());
+        _state.provider.dollar = IDollar(Constants.getDollarAddress());
+        _state.provider.univ2 = IERC20(Constants.getPairAddress());
     }
 
     bytes32 private constant FILE = "Pool";
@@ -41,7 +42,7 @@ contract Pool is PoolSetters, Liquidity {
     event Unbond(address indexed account, uint256 start, uint256 value, uint256 newClaimable);
     event Provide(address indexed account, uint256 value, uint256 lessUsdc, uint256 newUniv2);
 
-    function deposit(uint256 value) external onlyFrozen(msg.sender) {
+    function deposit(uint256 value) external onlyFrozen(msg.sender) notPaused {
         univ2().transferFrom(msg.sender, address(this), value);
         incrementBalanceOfStaged(msg.sender, value);
 
@@ -68,7 +69,7 @@ contract Pool is PoolSetters, Liquidity {
         emit Claim(msg.sender, value);
     }
 
-    function bond(uint256 value) external {
+    function bond(uint256 value) external notPaused {
         unfreeze(msg.sender);
 
         uint256 totalRewardedWithPhantom = totalRewarded().add(totalPhantom());
@@ -88,8 +89,15 @@ contract Pool is PoolSetters, Liquidity {
     function unbond(uint256 value) external {
         unfreeze(msg.sender);
 
-        uint256 newClaimable = balanceOfRewarded(msg.sender).mul(value).div(balanceOfBonded(msg.sender));
-        uint256 lessPhantom = balanceOfPhantom(msg.sender).mul(value).div(balanceOfBonded(msg.sender));
+        uint256 balanceOfBonded = balanceOfBonded(msg.sender);
+        Require.that(
+            balanceOfBonded > 0,
+            FILE,
+            "insufficient bonded balance"
+        );
+
+        uint256 newClaimable = balanceOfRewarded(msg.sender).mul(value).div(balanceOfBonded);
+        uint256 lessPhantom = balanceOfPhantom(msg.sender).mul(value).div(balanceOfBonded);
 
         incrementBalanceOfStaged(msg.sender, value);
         incrementBalanceOfClaimable(msg.sender, newClaimable);
@@ -101,7 +109,7 @@ contract Pool is PoolSetters, Liquidity {
         emit Unbond(msg.sender, epoch().add(1), value, newClaimable);
     }
 
-    function provide(uint256 value) external onlyFrozen(msg.sender) {
+    function provide(uint256 value) external onlyFrozen(msg.sender) notPaused {
         Require.that(
             totalBonded() > 0,
             FILE,
@@ -134,6 +142,14 @@ contract Pool is PoolSetters, Liquidity {
         emit Provide(msg.sender, value, lessUsdc, newUniv2);
     }
 
+    function emergencyWithdraw(address token, uint256 value) external onlyDao {
+        IERC20(token).transfer(address(dao()), value);
+    }
+
+    function emergencyPause() external onlyDao {
+        pause();
+    }
+
     function balanceCheck() private {
         Require.that(
             dollar().balanceOf(address(this)) == totalRewarded().add(totalClaimable()),
@@ -153,6 +169,26 @@ contract Pool is PoolSetters, Liquidity {
             statusOf(account) == PoolAccount.Status.Frozen,
             FILE,
             "Not frozen"
+        );
+
+        _;
+    }
+
+    modifier onlyDao() {
+        Require.that(
+            msg.sender == address(dao()),
+            FILE,
+            "Not dao"
+        );
+
+        _;
+    }
+
+    modifier notPaused() {
+        Require.that(
+            !paused(),
+            FILE,
+            "Paused"
         );
 
         _;
