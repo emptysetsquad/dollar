@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./PoolState.sol";
+import "../Constants.sol";
 
 contract PoolGetters is PoolState {
     using SafeMath for uint256;
@@ -27,16 +28,20 @@ contract PoolGetters is PoolState {
      * Global
      */
 
+    function usdc() public view returns (address) {
+        return Constants.getUsdcAddress();
+    }
+
     function dao() public view returns (IDAO) {
-        return _state.provider.dao;
+        return IDAO(Constants.getDaoAddress());
     }
 
     function dollar() public view returns (IDollar) {
-        return _state.provider.dollar;
+        return IDollar(Constants.getDollarAddress());
     }
 
     function univ2() public view returns (IERC20) {
-        return _state.provider.univ2;
+        return IERC20(Constants.getPairAddress());
     }
 
     function totalBonded() public view returns (uint256) {

@@ -27,11 +27,7 @@ import "./Liquidity.sol";
 contract Pool is PoolSetters, Liquidity {
     using SafeMath for uint256;
 
-    constructor() public {
-        _state.provider.dao = IDAO(Constants.getDaoAddress());
-        _state.provider.dollar = IDollar(Constants.getDollarAddress());
-        _state.provider.univ2 = IERC20(Constants.getPairAddress());
-    }
+    constructor() public { }
 
     bytes32 private constant FILE = "Pool";
 
@@ -143,7 +139,7 @@ contract Pool is PoolSetters, Liquidity {
     }
 
     function emergencyWithdraw(address token, uint256 value) external onlyDao {
-        IERC20(token).transfer(Constants.getDaoAddress(), value);
+        IERC20(token).transfer(address(dao()), value);
     }
 
     function emergencyPause() external onlyDao {
@@ -176,7 +172,7 @@ contract Pool is PoolSetters, Liquidity {
 
     modifier onlyDao() {
         Require.that(
-            msg.sender == Constants.getDaoAddress(),
+            msg.sender == address(dao()),
             FILE,
             "Not dao"
         );

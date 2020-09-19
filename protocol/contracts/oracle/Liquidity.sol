@@ -41,11 +41,6 @@ contract Liquidity is PoolGetters {
     }
 
     // overridable for testing
-    function usdc() internal returns (address) {
-        return Constants.getUsdc();
-    }
-
-    // overridable for testing
     function getReserves(address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
         (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
         (uint reserve0, uint reserve1,) = IUniswapV2Pair(UniswapV2Library.pairFor(UNISWAP_FACTORY, tokenA, tokenB)).getReserves();

@@ -65,7 +65,7 @@ library Constants {
      * Getters
      */
 
-    function getUsdc() internal pure returns (address) {
+    function getUsdcAddress() internal pure returns (address) {
         return USDC;
     }
 
