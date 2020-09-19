@@ -143,7 +143,7 @@ contract Pool is PoolSetters, Liquidity {
     }
 
     function emergencyWithdraw(address token, uint256 value) external onlyDao {
-        IERC20(token).transfer(address(dao()), value);
+        IERC20(token).transfer(Constants.getDaoAddress(), value);
     }
 
     function emergencyPause() external onlyDao {
@@ -176,7 +176,7 @@ contract Pool is PoolSetters, Liquidity {
 
     modifier onlyDao() {
         Require.that(
-            msg.sender == address(dao()),
+            msg.sender == Constants.getDaoAddress(),
             FILE,
             "Not dao"
         );

@@ -44,9 +44,13 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     }
 
     modifier incentivized {
+        // Mint advance reward to sender
         uint256 incentive = Constants.getAdvanceIncentive();
         mintToAccount(msg.sender, incentive);
         emit Incentivization(msg.sender, incentive);
+
+        // Mint legacy pool reward for migration
+        mintToAccount(Constants.getLegacyPoolAddress(), Constants.getLegacyPoolReward());
 
         _;
     }

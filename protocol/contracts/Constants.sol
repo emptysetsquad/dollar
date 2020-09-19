@@ -59,7 +59,7 @@ library Constants {
 
     /* Pool Migration */
     address private constant LEGACY_POOL_ADDRESS = address(0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68);
-    uint256 private constant LEGACY_POOL_REWARD = 1e17; // testing - 100, production - 1e17
+    uint256 private constant LEGACY_POOL_REWARD = 1e18; // 1 ESD
 
     /**
      * Getters
