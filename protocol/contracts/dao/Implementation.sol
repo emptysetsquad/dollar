@@ -32,7 +32,7 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
     function initialize() initializer public {
         //TODO: replace with deployed pool
-        _state.provider.pool = address(0);
+        _state.provider.pool = address(0xA5976897BC0081e3895013B08654DfEc50Bcb33F);
     }
 
     function advance() external incentivized {

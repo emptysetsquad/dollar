@@ -29,7 +29,7 @@ library Constants {
     uint256 private constant BOOTSTRAPPING_SPEEDUP_FACTOR = 3; // 30 days @ 8 hours
 
     /* Oracle */
-    address private constant USDC = address(0);
+    address private constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     uint256 private constant ORACLE_RESERVE_MINIMUM = 1e10; // 10,000 USDC
 
     /* Bonding */
