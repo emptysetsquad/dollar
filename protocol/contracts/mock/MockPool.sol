@@ -21,17 +21,34 @@ import "../oracle/Pool.sol";
 
 contract MockPool is Pool {
     address private _usdc;
+    address private _dao;
+    address private _dollar;
+    address private _univ2;
 
-    constructor(address dollar, address usdc, address univ2) Pool(dollar, univ2) public {
+    constructor(address usdc) Pool() public {
         _usdc = usdc;
     }
 
-    function setDao(address dao) external {
-        _state.provider.dao = IDAO(dao);
+    function set(address dao, address dollar, address univ2) external {
+        _dao = dao;
+        _dollar = dollar;
+        _univ2 = univ2;
     }
 
-    function usdc() internal returns (address) {
+    function usdc() public view returns (address) {
         return _usdc;
+    }
+
+    function dao() public view returns (IDAO) {
+        return IDAO(_dao);
+    }
+
+    function dollar() public view returns (IDollar) {
+        return IDollar(_dollar);
+    }
+
+    function univ2() public view returns (IERC20) {
+        return IERC20(_univ2);
     }
 
     function getReserves(address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {

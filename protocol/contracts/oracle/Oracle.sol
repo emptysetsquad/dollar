@@ -133,7 +133,7 @@ contract Oracle is IOracle {
     }
 
     function usdc() internal view returns (address) {
-        return Constants.getUsdc();
+        return Constants.getUsdcAddress();
     }
 
     function pair() external view returns (address) {

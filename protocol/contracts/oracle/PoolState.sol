@@ -39,12 +39,6 @@ contract PoolAccount {
 }
 
 contract PoolStorage {
-    struct Provider {
-        IDAO dao;
-        IDollar dollar;
-        IERC20 univ2;
-    }
-
     struct Balance {
         uint256 staged;
         uint256 claimable;
@@ -54,7 +48,7 @@ contract PoolStorage {
 
     struct State {
         Balance balance;
-        Provider provider;
+        bool paused;
 
         mapping(address => PoolAccount.State) accounts;
     }

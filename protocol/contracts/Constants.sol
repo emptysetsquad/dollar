@@ -29,7 +29,7 @@ library Constants {
     uint256 private constant BOOTSTRAPPING_SPEEDUP_FACTOR = 3; // 30 days @ 8 hours
 
     /* Oracle */
-    address private constant USDC = address(0);
+    address private constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     uint256 private constant ORACLE_RESERVE_MINIMUM = 1e10; // 10,000 USDC
 
     /* Bonding */
@@ -50,14 +50,22 @@ library Constants {
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 1e17; // 10%
-    uint256 private constant ORACLE_POOL_RATIO = 5; // 5%
+    uint256 private constant ORACLE_POOL_RATIO = 20; // 20%
 
+    /* Deployed */
+    address private constant DAO_ADDRESS = address(0x443D2f2755DB5942601fa062Cc248aAA153313D3);
+    address private constant DOLLAR_ADDRESS = address(0x36F3FD68E7325a35EB768F1AedaAe9EA0689d723);
+    address private constant PAIR_ADDRESS = address(0x88ff79eB2Bc5850F27315415da8685282C7610F9);
+
+    /* Pool Migration */
+    address private constant LEGACY_POOL_ADDRESS = address(0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68);
+    uint256 private constant LEGACY_POOL_REWARD = 1e18; // 1 ESD
 
     /**
      * Getters
      */
 
-    function getUsdc() internal pure returns (address) {
+    function getUsdcAddress() internal pure returns (address) {
         return USDC;
     }
 
@@ -111,5 +119,25 @@ library Constants {
 
     function getChainId() internal pure returns (uint256) {
         return CHAIN_ID;
+    }
+
+    function getDaoAddress() internal pure returns (address) {
+        return DAO_ADDRESS;
+    }
+
+    function getDollarAddress() internal pure returns (address) {
+        return DOLLAR_ADDRESS;
+    }
+
+    function getPairAddress() internal pure returns (address) {
+        return PAIR_ADDRESS;
+    }
+
+    function getLegacyPoolAddress() internal pure returns (address) {
+        return LEGACY_POOL_ADDRESS;
+    }
+
+    function getLegacyPoolReward() internal pure returns (uint256) {
+        return LEGACY_POOL_REWARD;
     }
 }

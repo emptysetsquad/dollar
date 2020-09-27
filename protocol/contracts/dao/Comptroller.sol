@@ -125,10 +125,16 @@ contract Comptroller is Setters {
         );
 
         uint256 poolAmount = amount.mul(Constants.getOraclePoolRatio()).div(100);
-        dollar().mint(pool(), poolAmount);
+        uint256 daoAmount = amount > poolAmount ? amount.sub(poolAmount) : 0;
 
-        dollar().mint(address(this), amount.sub(poolAmount));
-        incrementTotalBonded(amount.sub(poolAmount));
+        if (poolAmount > 0) {
+            dollar().mint(pool(), poolAmount);
+        }
+
+        if (daoAmount > 0) {
+            dollar().mint(address(this), daoAmount);
+            incrementTotalBonded(daoAmount);
+        }
 
         balanceCheck();
     }

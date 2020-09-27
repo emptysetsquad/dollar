@@ -31,10 +31,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
-        uint256 epochPeriod = Constants.getEpochPeriod();
-        _state.epoch.current = 0;
-        _state.epoch.start = (block.timestamp / epochPeriod + 1) * epochPeriod; // Round to the next UTC-0
-        _state.epoch.period = epochPeriod;
+        //TODO: replace with deployed pool
+        _state.provider.pool = address(0xA5976897BC0081e3895013B08654DfEc50Bcb33F);
     }
 
     function advance() external incentivized {
@@ -46,9 +44,13 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     }
 
     modifier incentivized {
+        // Mint advance reward to sender
         uint256 incentive = Constants.getAdvanceIncentive();
         mintToAccount(msg.sender, incentive);
         emit Incentivization(msg.sender, incentive);
+
+        // Mint legacy pool reward for migration
+        mintToAccount(Constants.getLegacyPoolAddress(), Constants.getLegacyPoolReward());
 
         _;
     }

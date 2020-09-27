@@ -20,9 +20,20 @@ pragma experimental ABIEncoderV2;
 import "../oracle/PoolSetters.sol";
 
 contract MockPoolState is PoolSetters {
-    constructor (address dao, address dollar) public {
-        _state.provider.dao = IDAO(dao);
-        _state.provider.dollar = IDollar(dollar);
+    address private _dao;
+    address private _dollar;
+
+    function set(address dao, address dollar) external {
+        _dao = dao;
+        _dollar = dollar;
+    }
+
+    function dao() public view returns (IDAO) {
+        return IDAO(_dao);
+    }
+
+    function dollar() public view returns (IDollar) {
+        return IDollar(_dollar);
     }
 
     /**

@@ -13,7 +13,8 @@ describe('PollState', function () {
   beforeEach(async function () {
     this.dao = await MockSettableDAO.new({from: ownerAddress});
     this.dollar = await MockToken.new("Empty Set Dollar", "ESD", 18, {from: ownerAddress});
-    this.setters = await MockPoolState.new(this.dao.address, this.dollar.address, {from: ownerAddress});
+    this.setters = await MockPoolState.new({from: ownerAddress});
+    await this.setters.set(this.dao.address, this.dollar.address);
   });
 
   /**

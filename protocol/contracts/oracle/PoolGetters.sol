@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./PoolState.sol";
+import "../Constants.sol";
 
 contract PoolGetters is PoolState {
     using SafeMath for uint256;
@@ -27,16 +28,20 @@ contract PoolGetters is PoolState {
      * Global
      */
 
+    function usdc() public view returns (address) {
+        return Constants.getUsdcAddress();
+    }
+
     function dao() public view returns (IDAO) {
-        return _state.provider.dao;
+        return IDAO(Constants.getDaoAddress());
     }
 
     function dollar() public view returns (IDollar) {
-        return _state.provider.dollar;
+        return IDollar(Constants.getDollarAddress());
     }
 
     function univ2() public view returns (IERC20) {
-        return _state.provider.univ2;
+        return IERC20(Constants.getPairAddress());
     }
 
     function totalBonded() public view returns (uint256) {
@@ -57,6 +62,10 @@ contract PoolGetters is PoolState {
 
     function totalRewarded() public view returns (uint256) {
         return dollar().balanceOf(address(this)).sub(totalClaimable());
+    }
+
+    function paused() public view returns (bool) {
+        return _state.paused;
     }
 
     /**
@@ -89,7 +98,12 @@ contract PoolGetters is PoolState {
         uint256 balanceOfRewardedWithPhantom = totalRewardedWithPhantom
             .mul(balanceOfBonded(account))
             .div(totalBonded);
-        return balanceOfRewardedWithPhantom.sub(balanceOfPhantom(account));
+
+        uint256 balanceOfPhantom = balanceOfPhantom(account);
+        if (balanceOfRewardedWithPhantom > balanceOfPhantom) {
+            return balanceOfRewardedWithPhantom.sub(balanceOfPhantom);
+        }
+        return 0;
     }
 
     function statusOf(address account) public view returns (PoolAccount.Status) {
