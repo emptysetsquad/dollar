@@ -138,33 +138,20 @@ contract Getters is State {
         return _state.epoch.current;
     }
 
-    function epochStart() public view returns (uint256) {
-        return _state.epoch.start;
-    }
-
-    function epochPeriod() public view returns (uint256) {
-        return _state.epoch.period;
-    }
-
     function epochTime() public view returns (uint256) {
-        uint256 epochStart = epochStart();
+        Constants.EpochStrategy memory current = Constants.getCurrentEpochStrategy();
+        Constants.EpochStrategy memory previous = Constants.getPreviousEpochStrategy();
 
-        if (block.timestamp < epochStart) {
-            return 0;
-        }
+        return block.timestamp < current.start ?
+            epochTimeWithStrategy(previous) :
+            epochTimeWithStrategy(current);
+    }
 
-        uint256 bootstrappingPeriod = epochPeriod().div(Constants.getBootstrappingSpeedupFactor());
-        uint256 bootstrappingTotal = Constants.getBootstrappingPeriod().mul(bootstrappingPeriod);
-
-        if (block.timestamp < epochStart.add(bootstrappingTotal)) {
-            return block.timestamp.sub(epochStart).div(bootstrappingPeriod).add(1);
-        }
-
+    function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
         return block.timestamp
-            .sub(epochStart.add(bootstrappingTotal))
-            .div(_state.epoch.period)
-            .add(1)
-            .add(Constants.getBootstrappingPeriod());
+            .sub(strategy.start)
+            .div(strategy.period)
+            .add(strategy.offset);
     }
 
     function outstandingCoupons(uint256 epoch) public view returns (uint256) {

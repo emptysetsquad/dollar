@@ -36,7 +36,19 @@ library Constants {
     uint256 private constant INITIAL_STAKE_MULTIPLE = 1e6; // 100 ESD -> 100M ESDS
 
     /* Epoch */
-    uint256 private constant EPOCH_PERIOD = 86400; // 1 day
+    struct EpochStrategy {
+        uint256 offset;
+        uint256 start;
+        uint256 period;
+    }
+
+    uint256 private constant PREVIOUS_EPOCH_OFFSET = 91;
+    uint256 private constant PREVIOUS_EPOCH_START = 1600905600;
+    uint256 private constant PREVIOUS_EPOCH_PERIOD = 86400;
+
+    uint256 private constant CURRENT_EPOCH_OFFSET = 0; // TODO: fill in
+    uint256 private constant CURRENT_EPOCH_START = 0; // TODO: fill in
+    uint256 private constant CURRENT_EPOCH_PERIOD = 28800;
 
     /* Governance */
     uint256 private constant GOVERNANCE_PERIOD = 7;
@@ -73,8 +85,20 @@ library Constants {
         return ORACLE_RESERVE_MINIMUM;
     }
 
-    function getEpochPeriod() internal pure returns (uint256) {
-        return EPOCH_PERIOD;
+    function getPreviousEpochStrategy() internal pure returns (EpochStrategy memory) {
+        return EpochStrategy({
+            offset: PREVIOUS_EPOCH_OFFSET,
+            start: PREVIOUS_EPOCH_START,
+            period: PREVIOUS_EPOCH_PERIOD
+        });
+    }
+
+    function getCurrentEpochStrategy() internal pure returns (EpochStrategy memory) {
+        return EpochStrategy({
+            offset: CURRENT_EPOCH_OFFSET,
+            start: CURRENT_EPOCH_START,
+            period: CURRENT_EPOCH_PERIOD
+        });
     }
 
     function getInitialStakeMultiple() internal pure returns (uint256) {
