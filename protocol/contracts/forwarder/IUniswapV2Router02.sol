@@ -15,9 +15,14 @@
 */
 
 pragma solidity ^0.5.17;
+pragma experimental ABIEncoderV2;
 
-contract IDAO {
-    function epoch() external view returns (uint256);
-    function purchaseCoupons(uint256 dollarAmount) external returns (uint256);
-    function transferCoupons(address sender, address recipient, uint256 epoch, uint256 amount) external;
+contract IUniswapV2Router02 {
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
 }
