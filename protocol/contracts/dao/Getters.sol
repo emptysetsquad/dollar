@@ -142,16 +142,21 @@ contract Getters is State {
         Constants.EpochStrategy memory current = Constants.getCurrentEpochStrategy();
         Constants.EpochStrategy memory previous = Constants.getPreviousEpochStrategy();
 
-        return block.timestamp < current.start ?
+        return blockTimestamp() < current.start ?
             epochTimeWithStrategy(previous) :
             epochTimeWithStrategy(current);
     }
 
     function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
-        return block.timestamp
+        return blockTimestamp()
             .sub(strategy.start)
             .div(strategy.period)
             .add(strategy.offset);
+    }
+
+    // Overridable for testing
+    function blockTimestamp() internal view returns (uint256) {
+        return block.timestamp;
     }
 
     function outstandingCoupons(uint256 epoch) public view returns (uint256) {

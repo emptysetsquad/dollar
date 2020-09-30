@@ -5,7 +5,9 @@ const { expect } = require('chai');
 
 const MockState = contract.fromArtifact('MockState');
 
-const BOOTSTRAPPING_PERIOD = 90;
+const BOOTSTRAPPING_END_TIMESTAMP = 1600905600;
+const EPOCH_START = 1602288000;
+const EPOCH_OFFSET = 107;
 
 describe('State', function () {
   const [ ownerAddress, userAddress, candidate] = accounts;
@@ -500,100 +502,72 @@ describe('State', function () {
 
   describe('epochTime', function () {
     beforeEach('call', async function () {
-      this.start = new BN(await time.latest()).addn(3600); // 1 hour in the future
-      this.period = new BN(86400);
-      await this.setters.setEpochParamsE(this.start, this.period);
+      await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP);
     });
 
     describe('before start', function () {
-      it('is 0', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(0));
+      it('is 91', async function () {
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(91));
       });
     });
 
     describe('after one period', function () {
       beforeEach('call', async function () {
-        await time.increase(28800);
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + 86400);
       });
 
       it('has advanced', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(1));
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(92));
       });
     });
 
     describe('after many periods', function () {
       beforeEach('call', async function () {
-        await time.increase(10*28800);
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (10 * 86400));
       });
 
       it('has advanced', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(10));
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(101));
       });
     });
 
-    describe('before last bootstrap advance', function () {
+    describe('before update advance', function () {
       beforeEach('call', async function () {
-        await time.increase(BOOTSTRAPPING_PERIOD*28800);
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400) - 1);
       });
 
       it('has advanced', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(BOOTSTRAPPING_PERIOD));
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(106));
       });
     });
 
-    describe('at lastbootstrap advance', function () {
+    describe('at update advance', function () {
       beforeEach('call', async function () {
-        await time.increase(BOOTSTRAPPING_PERIOD*28800 + 3600);
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400));
       });
 
       it('has advanced', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(BOOTSTRAPPING_PERIOD + 1));
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(107));
       });
     });
 
-    describe('before first non-bootstrap advance', function () {
+    describe('at first after update advance', function () {
       beforeEach('call', async function () {
-        await time.increase(BOOTSTRAPPING_PERIOD*28800 + 86400);
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400) + 28800);
       });
 
       it('has advanced', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(BOOTSTRAPPING_PERIOD + 1));
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(108));
       });
     });
 
-    describe('at first non-bootstrap advance', function () {
+    describe('many after update advance', function () {
       beforeEach('call', async function () {
-        await time.increase(BOOTSTRAPPING_PERIOD*28800 + 86400 + 3600);
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400) + (10 * 28800));
       });
 
       it('has advanced', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(BOOTSTRAPPING_PERIOD + 2));
-      });
-    });
-
-    describe('many after first non-bootstrap advance', function () {
-      beforeEach('call', async function () {
-        await time.increase(BOOTSTRAPPING_PERIOD*28800 + 10*86400 + 3600);
-      });
-
-      it('has advanced', async function () {
-        expect(await this.setters.epochStart()).to.be.bignumber.equal(this.start);
-        expect(await this.setters.epochPeriod()).to.be.bignumber.equal(this.period);
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(BOOTSTRAPPING_PERIOD + 11));
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(117));
       });
     });
   });
@@ -738,13 +712,13 @@ describe('State', function () {
       });
 
       it('is bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(BOOTSTRAPPING_PERIOD)).to.be.equal(true);
+        expect(await this.setters.bootstrappingAt(90)).to.be.equal(true);
       });
     });
 
     describe('bootstrapped', function () {
       it('isnt bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(BOOTSTRAPPING_PERIOD + 1)).to.be.equal(false);
+        expect(await this.setters.bootstrappingAt(91)).to.be.equal(false);
       });
     });
   });

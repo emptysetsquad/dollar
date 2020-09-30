@@ -20,7 +20,11 @@ pragma experimental ABIEncoderV2;
 import "../dao/Setters.sol";
 
 contract MockState is Setters {
-    constructor () public { }
+    uint256 internal _blockTimestamp;
+
+    constructor () public {
+        _blockTimestamp = block.timestamp;
+    }
 
     /**
      * Global
@@ -149,5 +153,17 @@ contract MockState is Setters {
 
     function initializedE(address candidate) external {
         super.initialized(candidate);
+    }
+
+    /**
+     * Mock
+     */
+
+    function setBlockTimestamp(uint256 timestamp) external {
+        _blockTimestamp = timestamp;
+    }
+
+    function blockTimestamp() internal view returns (uint256) {
+        return _blockTimestamp;
     }
 }

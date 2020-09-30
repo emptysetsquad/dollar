@@ -46,13 +46,15 @@ library Constants {
     uint256 private constant PREVIOUS_EPOCH_START = 1600905600;
     uint256 private constant PREVIOUS_EPOCH_PERIOD = 86400;
 
-    uint256 private constant CURRENT_EPOCH_OFFSET = 0; // TODO: fill in
-    uint256 private constant CURRENT_EPOCH_START = 0; // TODO: fill in
+    uint256 private constant CURRENT_EPOCH_OFFSET = 107; // TODO: update before proposal
+    uint256 private constant CURRENT_EPOCH_START = 1602288000; // TODO: update before proposal
     uint256 private constant CURRENT_EPOCH_PERIOD = 28800;
 
     /* Governance */
-    uint256 private constant GOVERNANCE_PERIOD = 7;
+    uint256 private constant GOVERNANCE_PERIOD = 9;
     uint256 private constant GOVERNANCE_QUORUM = 33e16; // 33%
+    uint256 private constant GOVERNANCE_SUPER_MAJORITY = 66e16; // 66%
+    uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
     /* DAO */
     uint256 private constant ADVANCE_INCENTIVE = 1e20; // 100 ESD
@@ -123,6 +125,14 @@ library Constants {
 
     function getGovernanceQuorum() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: GOVERNANCE_QUORUM});
+    }
+
+    function getGovernanceSuperMajority() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: GOVERNANCE_SUPER_MAJORITY});
+    }
+
+    function getGovernanceEmergencyDelay() internal pure returns (uint256) {
+        return GOVERNANCE_EMERGENCY_DELAY;
     }
 
     function getAdvanceIncentive() internal pure returns (uint256) {
