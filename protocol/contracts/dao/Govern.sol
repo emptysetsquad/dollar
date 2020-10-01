@@ -142,7 +142,7 @@ contract Govern is Setters, Permission, Upgradeable {
         );
 
         upgradeTo(candidate);
-        
+
         emit Commit(msg.sender, candidate);
     }
 
