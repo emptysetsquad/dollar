@@ -46,8 +46,8 @@ library Constants {
     uint256 private constant PREVIOUS_EPOCH_START = 1600905600;
     uint256 private constant PREVIOUS_EPOCH_PERIOD = 86400;
 
-    uint256 private constant CURRENT_EPOCH_OFFSET = 107; // TODO: update before proposal
-    uint256 private constant CURRENT_EPOCH_START = 1602288000; // TODO: update before proposal
+    uint256 private constant CURRENT_EPOCH_OFFSET = 106;
+    uint256 private constant CURRENT_EPOCH_START = 1602201600;
     uint256 private constant CURRENT_EPOCH_PERIOD = 28800;
 
     /* Governance */

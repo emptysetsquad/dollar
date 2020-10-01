@@ -531,9 +531,29 @@ describe('State', function () {
       });
     });
 
-    describe('before update advance', function () {
+    describe('one before update advance', function () {
       beforeEach('call', async function () {
-        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400) - 1);
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (14 * 86400));
+      });
+
+      it('has advanced', async function () {
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(105));
+      });
+    });
+
+    describe('right before update advance', function () {
+      beforeEach('call', async function () {
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (15 * 86400) - 1);
+      });
+
+      it('has advanced', async function () {
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(105));
+      });
+    });
+
+    describe('at update advance', function () {
+      beforeEach('call', async function () {
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (15 * 86400));
       });
 
       it('has advanced', async function () {
@@ -541,9 +561,9 @@ describe('State', function () {
       });
     });
 
-    describe('at update advance', function () {
+    describe('at first after update advance', function () {
       beforeEach('call', async function () {
-        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400));
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (15 * 86400) + 28800);
       });
 
       it('has advanced', async function () {
@@ -551,23 +571,13 @@ describe('State', function () {
       });
     });
 
-    describe('at first after update advance', function () {
-      beforeEach('call', async function () {
-        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400) + 28800);
-      });
-
-      it('has advanced', async function () {
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(108));
-      });
-    });
-
     describe('many after update advance', function () {
       beforeEach('call', async function () {
-        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (16 * 86400) + (10 * 28800));
+        await this.setters.setBlockTimestamp(BOOTSTRAPPING_END_TIMESTAMP + (15 * 86400) + (10 * 28800));
       });
 
       it('has advanced', async function () {
-        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(117));
+        expect(await this.setters.epochTime()).to.be.bignumber.equal(new BN(116));
       });
     });
   });

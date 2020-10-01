@@ -140,7 +140,9 @@ contract Govern is Setters, Permission, Upgradeable {
             FILE,
             "Not approved"
         );
+
         upgradeTo(candidate);
+        
         emit Commit(msg.sender, candidate);
     }
 
