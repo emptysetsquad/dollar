@@ -59,6 +59,7 @@ contract Comptroller is Setters {
 
     function increaseDebt(uint256 amount) internal {
         incrementTotalDebt(amount);
+        resetDebt(Constants.getDebtRatioCap());
 
         balanceCheck();
     }
@@ -101,6 +102,16 @@ contract Comptroller is Setters {
         }
 
         return (newRedeemable, lessDebt, newSupply);
+    }
+
+    function resetDebt(Decimal.D256 memory targetDebtRatio) internal {
+        uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply()).asUint256();
+        uint256 currentDebt = totalDebt();
+
+        if (currentDebt > targetDebt) {
+            uint256 lessDebt = currentDebt.sub(targetDebt);
+            decreaseDebt(lessDebt);
+        }
     }
 
     function balanceCheck() private {
