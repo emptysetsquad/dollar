@@ -13,6 +13,10 @@ const FROZEN = new BN(0);
 const FLUID = new BN(1);
 const LOCKED = new BN(2);
 
+function amountToUnvested(amount, epochs) {
+  return amount.mul(new BN(4380 - epochs)).div(new BN(4380));
+}
+
 describe('Bonding', function () {
   const [ ownerAddress, userAddress, userAddress1, userAddress2 ] = accounts;
 
@@ -756,6 +760,160 @@ describe('Bonding', function () {
     describe('when unbond', function () {
       it('reverts', async function () {
         await expectRevert(this.bonding.unbond(1000, {from: userAddress}), "Permission: Not frozen");
+      });
+    });
+  });
+
+  describe('vested', function () {
+    beforeEach(async function () {
+      await this.bonding.mintToE(userAddress, 1000);
+      await this.dollar.approve(this.bonding.address, 1000, {from: userAddress});
+      await this.bonding.deposit(1000, {from: userAddress});
+
+      await this.bonding.bond(1000, {from: userAddress});
+      await this.bonding.incrementEpochE({from: userAddress});
+
+      this.vestTx = await this.bonding.initializeVestingE(userAddress);
+      this.vestTxHash = this.vestTx.tx;
+    });
+
+    it('updates vested user balances', async function () {
+      const amountUnvested = amountToUnvested(new BN(1000).mul(INITIAL_STAKE_MULTIPLE), 1);
+      expect(await this.bonding.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+      expect(await this.bonding.balanceOfBonded(userAddress)).to.be.bignumber.equal(new BN(1000));
+      expect(await this.bonding.balanceOfUnvested(userAddress)).to.be.bignumber.equal(amountUnvested);
+      expect(await this.bonding.hasVesting(userAddress)).to.be.equal(true);
+    });
+
+    it('updates vested dao balances', async function () {
+      const amountUnvested = amountToUnvested(new BN(1000).mul(INITIAL_STAKE_MULTIPLE), 1);
+      expect(await this.dollar.balanceOf(this.bonding.address)).to.be.bignumber.equal(new BN(1000));
+      expect(await this.bonding.totalSupply()).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+      expect(await this.bonding.totalBonded()).to.be.bignumber.equal(new BN(1000));
+      expect(await this.bonding.totalUnvested()).to.be.bignumber.equal(amountUnvested);
+    });
+
+    describe('when unbond', function () {
+      describe('full', function () {
+        it('reverts', async function () {
+          await expectRevert(
+            this.bonding.unbond(new BN(1000).mul(INITIAL_STAKE_MULTIPLE), {from: userAddress}),
+            "Bonding: insufficient vested balance"
+          );
+        });
+      });
+
+      describe('all unvested', function () {
+        beforeEach(async function () {
+          for (let i = 0; i < 10; i++) {
+            await this.bonding.incrementEpochE();
+          }
+
+          const amount = new BN(1000).mul(INITIAL_STAKE_MULTIPLE);
+          this.unvested = amountToUnvested(amount, 11);
+          this.vested = amount.sub(this.unvested);
+          this.result = await this.bonding.unbond(this.vested, {from: userAddress});
+          this.txHash = this.result.tx;
+        });
+
+        it('is fluid', async function () {
+          expect(await this.bonding.statusOf(userAddress)).to.be.bignumber.equal(FLUID);
+        });
+
+        it('updates users balances', async function () {
+          expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(0));
+          expect(await this.bonding.balanceOf(userAddress)).to.be.bignumber.equal(this.unvested);
+          expect(await this.bonding.balanceOfStaged(userAddress)).to.be.bignumber.equal(new BN(2));
+          expect(await this.bonding.balanceOfBonded(userAddress)).to.be.bignumber.equal(new BN(998));
+        });
+
+        it('updates dao balances', async function () {
+          expect(await this.dollar.balanceOf(this.bonding.address)).to.be.bignumber.equal(new BN(1000));
+          expect(await this.bonding.totalSupply()).to.be.bignumber.equal(this.unvested);
+          expect(await this.bonding.totalBonded()).to.be.bignumber.equal(new BN(998));
+          expect(await this.bonding.totalStaged()).to.be.bignumber.equal(new BN(2));
+        });
+
+        it('emits Unbond event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Unbond', {
+            account: userAddress
+          });
+
+          expect(event.args.start).to.be.bignumber.equal(new BN(13));
+          expect(event.args.value).to.be.bignumber.equal(this.vested);
+          expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(2));
+        });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(this.vested);
+        });
+      });
+    });
+
+    describe('when unbondUnderlying', function () {
+      describe('full', function () {
+        it('reverts', async function () {
+          await expectRevert(
+            this.bonding.unbondUnderlying(new BN(1000), {from: userAddress}),
+            "Bonding: insufficient vested balance"
+          );
+        });
+      });
+
+      describe('all unvested', function () {
+        beforeEach(async function () {
+          for (let i = 0; i < 10; i++) {
+            await this.bonding.incrementEpochE();
+          }
+
+          const amount = new BN(1000).mul(INITIAL_STAKE_MULTIPLE);
+          this.unvested = amountToUnvested(amount, 11);
+          this.vested = amount.sub(this.unvested);
+          this.result = await this.bonding.unbondUnderlying(this.vested.div(INITIAL_STAKE_MULTIPLE), {from: userAddress});
+          this.txHash = this.result.tx;
+        });
+
+        it('is fluid', async function () {
+          expect(await this.bonding.statusOf(userAddress)).to.be.bignumber.equal(FLUID);
+        });
+
+        it('updates users balances', async function () {
+          expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(0));
+          expect(await this.bonding.balanceOf(userAddress)).to.be.bignumber.equal(new BN(998).mul(INITIAL_STAKE_MULTIPLE));
+          expect(await this.bonding.balanceOfStaged(userAddress)).to.be.bignumber.equal(new BN(2));
+          expect(await this.bonding.balanceOfBonded(userAddress)).to.be.bignumber.equal(new BN(998));
+        });
+
+        it('updates dao balances', async function () {
+          expect(await this.dollar.balanceOf(this.bonding.address)).to.be.bignumber.equal(new BN(1000));
+          expect(await this.bonding.totalSupply()).to.be.bignumber.equal(new BN(998).mul(INITIAL_STAKE_MULTIPLE));
+          expect(await this.bonding.totalBonded()).to.be.bignumber.equal(new BN(998));
+          expect(await this.bonding.totalStaged()).to.be.bignumber.equal(new BN(2));
+        });
+
+        it('emits Unbond event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Unbond', {
+            account: userAddress
+          });
+
+          expect(event.args.start).to.be.bignumber.equal(new BN(13));
+          expect(event.args.value).to.be.bignumber.equal(new BN(2).mul(INITIAL_STAKE_MULTIPLE));
+          expect(event.args.valueUnderlying).to.be.bignumber.equal(new BN(2));
+        });
+
+        it('emits Transfer event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockBonding, 'Transfer', {
+            from: userAddress,
+            to: ZERO_ADDRESS
+          });
+
+          expect(event.args.value).to.be.bignumber.equal(new BN(2).mul(INITIAL_STAKE_MULTIPLE));
+        });
       });
     });
   });

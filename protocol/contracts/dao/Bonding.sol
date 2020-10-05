@@ -75,6 +75,8 @@ contract Bonding is Setters, Permission {
         unfreeze(msg.sender);
 
         uint256 staged = value.mul(balanceOfBonded(msg.sender)).div(balanceOf(msg.sender));
+
+        checkVesting(msg.sender, value);
         incrementBalanceOfStaged(msg.sender, staged);
         decrementTotalBonded(staged, "Bonding: insufficient total bonded");
         decrementBalanceOf(msg.sender, value, "Bonding: insufficient balance");
@@ -86,10 +88,21 @@ contract Bonding is Setters, Permission {
         unfreeze(msg.sender);
 
         uint256 balance = value.mul(totalSupply()).div(totalBonded());
+
+        checkVesting(msg.sender, balance);
         incrementBalanceOfStaged(msg.sender, value);
         decrementTotalBonded(value, "Bonding: insufficient total bonded");
         decrementBalanceOf(msg.sender, balance, "Bonding: insufficient balance");
 
         emit Unbond(msg.sender, epoch().add(1), balance, value);
+    }
+
+    function checkVesting(address account, uint256 amount) private {
+        uint256 unbondable = balanceOf(account).sub(balanceOfUnvested(account), "insufficient vested balance");
+        Require.that(
+            amount <= unbondable,
+            FILE,
+            "insufficient vested balance"
+        );
     }
 }

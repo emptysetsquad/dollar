@@ -6,8 +6,6 @@ const { expect } = require('chai');
 const MockState = contract.fromArtifact('MockState');
 
 const BOOTSTRAPPING_END_TIMESTAMP = 1600905600;
-const EPOCH_START = 1602288000;
-const EPOCH_OFFSET = 107;
 
 describe('State', function () {
   const [ ownerAddress, userAddress, candidate] = accounts;
@@ -470,7 +468,6 @@ describe('State', function () {
     });
   });
 
-
   describe('decrementAllowanceCoupons', function () {
     describe('when called', function () {
       beforeEach('call', async function () {
@@ -492,6 +489,60 @@ describe('State', function () {
         await expectRevert(
           this.setters.decrementAllowanceCouponsE(userAddress, ownerAddress, 200, "decrementAllowanceCouponsE"),
           "decrementAllowanceCouponsE");
+      });
+    });
+  });
+
+  describe('setupVesting', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.incrementBalanceOfE(userAddress, new BN(1000));
+        await this.setters.setVestingE(userAddress, new BN(1000));
+      });
+
+      it('sets vesting', async function () {
+        expect(await this.setters.hasVesting(userAddress)).to.be.equal(true);
+        expect(await this.setters.balanceOfUnvested(userAddress)).to.be.bignumber.equal(new BN(1000));
+        expect(await this.setters.totalUnvested()).to.be.bignumber.equal(new BN(1000));
+      });
+    });
+  });
+
+  describe('vesting', function () {
+    beforeEach('call', async function () {
+      await this.setters.incrementBalanceOfE(userAddress, new BN(4380000));
+      await this.setters.setVestingE(userAddress, new BN(4380000));
+      await this.setters.incrementEpochE();
+    });
+
+    describe('at 1', function () {
+      it('is correct value', async function () {
+        expect(await this.setters.balanceOfUnvested(userAddress)).to.be.bignumber.equal(new BN(4380000));
+        expect(await this.setters.totalUnvested()).to.be.bignumber.equal(new BN(4380000));
+      });
+    });
+
+    describe('at 2', function () {
+      beforeEach('call', async function () {
+        await this.setters.incrementEpochE();
+      });
+
+      it('is correct value', async function () {
+        expect(await this.setters.balanceOfUnvested(userAddress)).to.be.bignumber.equal(new BN(4379000));
+        expect(await this.setters.totalUnvested()).to.be.bignumber.equal(new BN(4379000));
+      });
+    });
+
+    describe('at 11', function () {
+      beforeEach('call', async function () {
+        for (let i = 0; i < 10; i++) {
+          await this.setters.incrementEpochE();
+        }
+      });
+
+      it('is correct value', async function () {
+        expect(await this.setters.balanceOfUnvested(userAddress)).to.be.bignumber.equal(new BN(4370000));
+        expect(await this.setters.totalUnvested()).to.be.bignumber.equal(new BN(4370000));
       });
     });
   });
@@ -707,28 +758,6 @@ describe('State', function () {
         expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(0));
         expect(await this.setters.outstandingCoupons(1)).to.be.bignumber.equal(new BN(0));
         expect(await this.setters.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(0));
-      });
-    });
-  });
-
-  describe('bootstrappingAt', function () {
-    describe('while bootstrapping', function () {
-      it('is bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(0)).to.be.equal(true);
-      });
-
-      it('is bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(1)).to.be.equal(true);
-      });
-
-      it('is bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(90)).to.be.equal(true);
-      });
-    });
-
-    describe('bootstrapped', function () {
-      it('isnt bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(91)).to.be.equal(false);
       });
     });
   });

@@ -22,9 +22,12 @@ import "../token/Dollar.sol";
 import "./MockState.sol";
 
 contract MockComptroller is Comptroller, MockState {
-    constructor(address pool) public {
+    address internal _treasury;
+
+    constructor(address pool, address treasury) public {
         _state.provider.dollar = new Dollar();
         _state.provider.pool = pool;
+        _treasury = treasury;
     }
 
     function mintToAccountE(address account, uint256 amount) external {
@@ -53,6 +56,14 @@ contract MockComptroller is Comptroller, MockState {
 
     function resetDebtE(uint256 percent) external {
         super.resetDebt(Decimal.ratio(percent, 100));
+    }
+
+    function initializeVestingE(address account) external {
+        super.initializeVesting(account);
+    }
+
+    function treasury() public view returns (address) {
+        return _treasury;
     }
 
     /* For testing only */

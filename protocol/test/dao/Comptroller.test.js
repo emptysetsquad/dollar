@@ -9,10 +9,10 @@ const Dollar = contract.fromArtifact('Dollar');
 const BOOTSTRAPPING_PERIOD = 90;
 
 describe('Comptroller', function () {
-  const [ ownerAddress, userAddress, poolAddress, circulating ] = accounts;
+  const [ ownerAddress, userAddress, poolAddress, circulating, treasury ] = accounts;
 
   beforeEach(async function () {
-    this.comptroller = await MockComptroller.new(poolAddress, {from: ownerAddress, gas: 8000000});
+    this.comptroller = await MockComptroller.new(poolAddress, treasury, {from: ownerAddress, gas: 8000000});
     this.dollar = await Dollar.at(await this.comptroller.dollar());
   });
 
@@ -23,11 +23,18 @@ describe('Comptroller', function () {
       await this.comptroller.decreaseDebtE(debt);
     });
 
-    describe('bootstrapping', function () {
-      describe('on single call', function () {
-        beforeEach(async function () {
-          await this.comptroller.mintToAccountE(userAddress, new BN(100));
-        });
+    this.timeout(30000);
+
+    beforeEach(async function () {
+      for (let i = 0; i < BOOTSTRAPPING_PERIOD + 1; i++) {
+        await this.comptroller.incrementEpochE();
+      }
+    });
+
+    describe('on single call', function () {
+      beforeEach(async function () {
+        await this.comptroller.mintToAccountE(userAddress, new BN(100));
+      });
 
         it('mints new Dollar tokens', async function () {
           expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(10100));
@@ -35,59 +42,16 @@ describe('Comptroller', function () {
           expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(100));
         });
 
-        it('doesnt update total debt', async function () {
-          expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(0));
-        });
-      });
-
-      describe('multiple calls', function () {
-        beforeEach(async function () {
-          await this.comptroller.mintToAccountE(userAddress, new BN(100));
-          await this.comptroller.mintToAccountE(userAddress, new BN(200));
-        });
-
-        it('mints new Dollar tokens', async function () {
-          expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(10300));
-          expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(0));
-          expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(300));
-        });
-
-        it('doesnt update total debt', async function () {
-          expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(0));
-        });
+      it('updates total debt', async function () {
+        expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(100));
       });
     });
 
-    describe('bootstrapped', function () {
-      this.timeout(30000);
-
+    describe('multiple calls', function () {
       beforeEach(async function () {
-        for (let i = 0; i < BOOTSTRAPPING_PERIOD + 1; i++) {
-          await this.comptroller.incrementEpochE();
-        }
+        await this.comptroller.mintToAccountE(userAddress, new BN(100));
+        await this.comptroller.mintToAccountE(userAddress, new BN(200));
       });
-
-      describe('on single call', function () {
-        beforeEach(async function () {
-          await this.comptroller.mintToAccountE(userAddress, new BN(100));
-        });
-
-        it('mints new Dollar tokens', async function () {
-          expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(10100));
-          expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(0));
-          expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(100));
-        });
-
-        it('updates total debt', async function () {
-          expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(100));
-        });
-      });
-
-      describe('multiple calls', function () {
-        beforeEach(async function () {
-          await this.comptroller.mintToAccountE(userAddress, new BN(100));
-          await this.comptroller.mintToAccountE(userAddress, new BN(200));
-        });
 
         it('mints new Dollar tokens', async function () {
           expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(10300));
@@ -95,9 +59,8 @@ describe('Comptroller', function () {
           expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(300));
         });
 
-        it('updates total debt', async function () {
-          expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(300));
-        });
+      it('updates total debt', async function () {
+        expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(300));
       });
     });
   });
@@ -335,6 +298,30 @@ describe('Comptroller', function () {
       it('debt unchanged', async function () {
         expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(10000));
         expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(1000));
+      });
+    });
+  });
+
+  describe('initializeVesting', function () {
+    beforeEach(async function () {
+      await this.comptroller.mintToE(this.comptroller.address, new BN(10000));
+      await this.comptroller.incrementTotalBondedE(new BN(10000));
+      await this.comptroller.incrementBalanceOfE(userAddress, new BN(1000000));
+      await this.comptroller.incrementEpochE();
+
+      await this.comptroller.initializeVestingE(userAddress);
+    });
+
+    describe('simple', function () {
+      it('increases unvest', async function () {
+        expect(await this.comptroller.balanceOfUnvested(userAddress)).to.be.bignumber.equal(new BN(1000000));
+        expect(await this.comptroller.totalUnvested()).to.be.bignumber.equal(new BN(1000000));
+      });
+    });
+
+    describe('twice', function () {
+      it('reverts', async function () {
+        await expectRevert(this.comptroller.initializeVestingE(userAddress), "has vesting");
       });
     });
   });

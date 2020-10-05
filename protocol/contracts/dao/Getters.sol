@@ -71,6 +71,10 @@ contract Getters is State {
         return _state.provider.pool;
     }
 
+    function treasury() public view returns (address) {
+        return Constants.getTreasuryAddress();
+    }
+
     function totalBonded() public view returns (uint256) {
         return _state.balance.bonded;
     }
@@ -91,8 +95,19 @@ contract Getters is State {
         return _state.balance.coupons;
     }
 
+    function totalUnvested() public view returns (uint256) {
+        uint256 epoch = epoch();
+        if (epoch > Constants.getVestingPeriod()) {
+            return 0;
+        }
+
+        return _state1.totalVesting
+            .mul(Constants.getVestingPeriod().sub(epoch).add(1))
+            .div(Constants.getVestingPeriod());
+    }
+
     function totalNet() public view returns (uint256) {
-        return dollar().totalSupply().sub(totalDebt());
+        return dollar().totalSupply().sub(totalDebt()).sub(totalUnvested());
     }
 
     /**
@@ -128,6 +143,25 @@ contract Getters is State {
 
     function allowanceCoupons(address owner, address spender) public view returns (uint256) {
         return _state.accounts[owner].couponAllowances[spender];
+    }
+
+    function hasVesting(address account) public view returns (bool) {
+        return _state1.vesting[account] > 0;
+    }
+
+    function balanceOfUnvested(address account) public view returns (uint256) {
+        uint256 epoch = epoch();
+        if (epoch > Constants.getVestingPeriod()) {
+            return 0;
+        }
+
+        if (!hasVesting(account)) {
+            return 0;
+        }
+
+        return _state1.vesting[account]
+            .mul(Constants.getVestingPeriod().sub(epoch).add(1))
+            .div(Constants.getVestingPeriod());
     }
 
     /**
@@ -177,10 +211,6 @@ contract Getters is State {
 
     function totalBondedAt(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].bonded;
-    }
-
-    function bootstrappingAt(uint256 epoch) public view returns (bool) {
-        return epoch <= Constants.getBootstrappingPeriod();
     }
 
     /**

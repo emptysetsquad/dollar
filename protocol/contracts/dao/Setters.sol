@@ -123,6 +123,11 @@ contract Setters is State, Getters {
             _state.accounts[owner].couponAllowances[spender].sub(amount, reason);
     }
 
+    function setVesting(address account, uint256 amount) internal {
+        _state1.vesting[account] = amount;
+        _state1.totalVesting = _state1.totalVesting.add(amount);
+    }
+
     /**
      * Epoch
      */

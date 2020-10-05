@@ -23,11 +23,6 @@ library Constants {
     /* Chain */
     uint256 private constant CHAIN_ID = 1; // Mainnet
 
-    /* Bootstrapping */
-    uint256 private constant BOOTSTRAPPING_PERIOD = 90;
-    uint256 private constant BOOTSTRAPPING_PRICE = 11e17; // 1.10 USDC
-    uint256 private constant BOOTSTRAPPING_SPEEDUP_FACTOR = 3; // 30 days @ 8 hours
-
     /* Oracle */
     address private constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     uint256 private constant ORACLE_RESERVE_MINIMUM = 1e10; // 10,000 USDC
@@ -76,6 +71,13 @@ library Constants {
     address private constant LEGACY_POOL_ADDRESS = address(0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68);
     uint256 private constant LEGACY_POOL_REWARD = 1e18; // 1 ESD
 
+    /* Vesting */
+    uint256 private constant VESTING_PERIOD = 4380; // 4 Years @ 8 hrs / epoch
+
+    /* Treasury */
+    address private constant TREASURY_ADDRESS = address(0); // TODO: fill in
+    uint256 private constant TREASURY_RATIO = 2; // 2%
+
     /**
      * Getters
      */
@@ -106,18 +108,6 @@ library Constants {
 
     function getInitialStakeMultiple() internal pure returns (uint256) {
         return INITIAL_STAKE_MULTIPLE;
-    }
-
-    function getBootstrappingPeriod() internal pure returns (uint256) {
-        return BOOTSTRAPPING_PERIOD;
-    }
-
-    function getBootstrappingPrice() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: BOOTSTRAPPING_PRICE});
-    }
-
-    function getBootstrappingSpeedupFactor() internal pure returns (uint256) {
-        return BOOTSTRAPPING_SPEEDUP_FACTOR;
     }
 
     function getGovernancePeriod() internal pure returns (uint256) {
@@ -178,5 +168,17 @@ library Constants {
 
     function getLegacyPoolReward() internal pure returns (uint256) {
         return LEGACY_POOL_REWARD;
+    }
+
+    function getVestingPeriod() internal pure returns (uint256) {
+        return VESTING_PERIOD;
+    }
+
+    function getTreasuryAddress() internal pure returns (address) {
+        return TREASURY_ADDRESS;
+    }
+
+    function getTreasuryRatio() internal pure returns (uint256) {
+        return TREASURY_RATIO;
     }
 }

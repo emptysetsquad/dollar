@@ -28,9 +28,7 @@ contract Comptroller is Setters {
 
     function mintToAccount(address account, uint256 amount) internal {
         dollar().mint(account, amount);
-        if (!bootstrappingAt(epoch())) {
-            increaseDebt(amount);
-        }
+        increaseDebt(amount);
 
         balanceCheck();
     }
@@ -105,13 +103,31 @@ contract Comptroller is Setters {
     }
 
     function resetDebt(Decimal.D256 memory targetDebtRatio) internal {
-        uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply()).asUint256();
+        uint256 totalUnvestedUnderlying = totalSupply() == 0 ?
+            0 :
+            totalUnvested().mul(totalBonded()).div(totalSupply());
+
+        uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply().sub(totalUnvestedUnderlying)).asUint256();
         uint256 currentDebt = totalDebt();
 
         if (currentDebt > targetDebt) {
             uint256 lessDebt = currentDebt.sub(targetDebt);
             decreaseDebt(lessDebt);
         }
+
+        balanceCheck();
+    }
+
+    function initializeVesting(address account) internal {
+        Require.that(
+            !hasVesting(account),
+            FILE,
+            "has vesting"
+        );
+
+        setVesting(account, balanceOf(account));
+
+        balanceCheck();
     }
 
     function balanceCheck() private {
@@ -121,10 +137,15 @@ contract Comptroller is Setters {
             "Inconsistent balances"
         );
 
+        uint256 totalUnvestedUnderlying = totalSupply() == 0 ?
+            0 :
+            totalUnvested().mul(totalBonded()).div(totalSupply());
+
         Require.that(
-            totalDebt() <= dollar().totalSupply(),
+            totalDebt() <= dollar().totalSupply().sub(totalUnvestedUnderlying, "Unvested too large"),
             FILE,
-            "Debt too large"
+            "Debt too large",
+            totalUnvested()
         );
     }
 
@@ -136,10 +157,17 @@ contract Comptroller is Setters {
         );
 
         uint256 poolAmount = amount.mul(Constants.getOraclePoolRatio()).div(100);
-        uint256 daoAmount = amount > poolAmount ? amount.sub(poolAmount) : 0;
+        uint256 treasuryAmount = amount.mul(Constants.getTreasuryRatio()).div(100);
+        uint256 allocatedAmount = poolAmount.add(treasuryAmount);
+
+        uint256 daoAmount = amount > allocatedAmount ? amount.sub(allocatedAmount) : 0;
 
         if (poolAmount > 0) {
             dollar().mint(pool(), poolAmount);
+        }
+
+        if (treasuryAmount > 0) {
+            dollar().mint(treasury(), treasuryAmount);
         }
 
         if (daoAmount > 0) {

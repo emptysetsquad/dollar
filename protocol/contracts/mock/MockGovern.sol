@@ -24,7 +24,7 @@ import "./MockComptroller.sol";
 contract MockGovern is Govern, MockComptroller {
     uint256 internal _epochTime;
 
-    constructor() MockComptroller(address(0)) public { }
+    constructor() MockComptroller(address(0), address(0)) public { }
 
     function initialize() public {
         revert("Should not call");

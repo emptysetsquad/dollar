@@ -29,11 +29,9 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
     event Incentivization(address indexed account, uint256 amount);
+    event Vest(address indexed account, uint256 value);
 
     function initialize() initializer public {
-        // Reset debt to 30% if above
-        resetDebt(Decimal.ratio(30, 100));
-
         // Reward committer
         mintToAccount(msg.sender, Constants.getAdvanceIncentive());
     }
@@ -44,6 +42,12 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         Market.step();
 
         emit Advance(epoch(), block.number, block.timestamp);
+    }
+
+    function vest() external {
+        initializeVesting(msg.sender);
+
+        emit Vest(msg.sender, balanceOf(msg.sender));
     }
 
     modifier incentivized {

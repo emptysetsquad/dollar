@@ -290,7 +290,7 @@ describe('Govern', function () {
       });
 
       it('reverts', async function () {
-        await expectRevert(this.govern.commit(this.implB.address, {from: userAddress}), "Govern: Must have quorom");
+        await expectRevert(this.govern.commit(this.implB.address, {from: userAddress}), "Govern: Must have quorum");
       });
     });
 

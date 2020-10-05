@@ -102,7 +102,7 @@ contract Govern is Setters, Permission, Upgradeable {
         Require.that(
             Decimal.ratio(votesFor(candidate), totalBondedAt(endsAfter)).greaterThan(Constants.getGovernanceQuorum()),
             FILE,
-            "Must have quorom"
+            "Must have quorum"
         );
 
         Require.that(

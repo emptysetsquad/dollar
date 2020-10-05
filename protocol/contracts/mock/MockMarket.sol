@@ -22,7 +22,7 @@ import "./MockState.sol";
 import "./MockComptroller.sol";
 
 contract MockMarket is MockState, MockComptroller, Market {
-    constructor(address pool) MockComptroller(pool) public { }
+    constructor(address pool, address treasury) MockComptroller(pool, treasury) public { }
 
     function stepE() external {
         Market.step();

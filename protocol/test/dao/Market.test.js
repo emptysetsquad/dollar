@@ -10,10 +10,10 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const MAX_UINT256 = new BN(2).pow(new BN(256)).subn(1);
 
 describe('Market', function () {
-  const [ ownerAddress, userAddress, poolAddress ] = accounts;
+  const [ ownerAddress, userAddress, poolAddress, treasury ] = accounts;
 
   beforeEach(async function () {
-    this.market = await MockMarket.new(poolAddress, {from: ownerAddress, gas: 8000000});
+    this.market = await MockMarket.new(poolAddress, treasury, {from: ownerAddress, gas: 8000000});
     this.dollar = await Dollar.at(await this.market.dollar());
 
     await this.market.incrementEpochE();

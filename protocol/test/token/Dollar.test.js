@@ -50,11 +50,11 @@ async function signPermit(dollar, privateKey, message) {
 }
 
 describe('Dollar', function () {
-  const [ ownerAddress, userAddress, poolAddress ] = accounts;
+  const [ ownerAddress, userAddress, poolAddress, treasury ] = accounts;
   const [ _, userPrivateKey ] = privateKeys;
 
   beforeEach(async function () {
-    this.dao = await MockComptroller.new(poolAddress, {from: ownerAddress, gas: 8000000});
+    this.dao = await MockComptroller.new(poolAddress, treasury, {from: ownerAddress, gas: 8000000});
     this.dollar = await Dollar.at(await this.dao.dollar());
   });
 

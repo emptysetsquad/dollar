@@ -100,8 +100,17 @@ contract Storage {
         mapping(uint256 => Epoch.State) epochs;
         mapping(address => Candidate.State) candidates;
     }
+
+    struct State1 {
+        uint256 totalVesting;
+        mapping(address => uint256) vesting;
+    }
 }
 
 contract State {
+    // Initial Implementation
     Storage.State _state;
+
+    // Proposal #4: Vesting
+    Storage.State1 _state1;
 }
