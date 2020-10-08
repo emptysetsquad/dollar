@@ -138,33 +138,25 @@ contract Getters is State {
         return _state.epoch.current;
     }
 
-    function epochStart() public view returns (uint256) {
-        return _state.epoch.start;
-    }
-
-    function epochPeriod() public view returns (uint256) {
-        return _state.epoch.period;
-    }
-
     function epochTime() public view returns (uint256) {
-        uint256 epochStart = epochStart();
+        Constants.EpochStrategy memory current = Constants.getCurrentEpochStrategy();
+        Constants.EpochStrategy memory previous = Constants.getPreviousEpochStrategy();
 
-        if (block.timestamp < epochStart) {
-            return 0;
-        }
+        return blockTimestamp() < current.start ?
+            epochTimeWithStrategy(previous) :
+            epochTimeWithStrategy(current);
+    }
 
-        uint256 bootstrappingPeriod = epochPeriod().div(Constants.getBootstrappingSpeedupFactor());
-        uint256 bootstrappingTotal = Constants.getBootstrappingPeriod().mul(bootstrappingPeriod);
+    function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
+        return blockTimestamp()
+            .sub(strategy.start)
+            .div(strategy.period)
+            .add(strategy.offset);
+    }
 
-        if (block.timestamp < epochStart.add(bootstrappingTotal)) {
-            return block.timestamp.sub(epochStart).div(bootstrappingPeriod).add(1);
-        }
-
-        return block.timestamp
-            .sub(epochStart.add(bootstrappingTotal))
-            .div(_state.epoch.period)
-            .add(1)
-            .add(Constants.getBootstrappingPeriod());
+    // Overridable for testing
+    function blockTimestamp() internal view returns (uint256) {
+        return block.timestamp;
     }
 
     function outstandingCoupons(uint256 epoch) public view returns (uint256) {

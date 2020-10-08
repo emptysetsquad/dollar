@@ -22,6 +22,8 @@ import "./MockUpgradeable.sol";
 import "./MockComptroller.sol";
 
 contract MockGovern is Govern, MockComptroller {
+    uint256 internal _epochTime;
+
     constructor() MockComptroller(address(0)) public { }
 
     function initialize() public {
@@ -30,5 +32,13 @@ contract MockGovern is Govern, MockComptroller {
 
     function upgradeToE(address newImplementation) external {
         super.upgradeTo(newImplementation);
+    }
+
+    function setEpochTime(uint256 epochTime) external {
+        _epochTime = epochTime;
+    }
+
+    function epochTime() public view returns (uint256) {
+        return _epochTime;
     }
 }

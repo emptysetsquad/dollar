@@ -8,6 +8,9 @@ const MockGovern = contract.fromArtifact('MockGovern');
 const MockImplA = contract.fromArtifact('MockImplA');
 const MockImplB = contract.fromArtifact('MockImplB');
 
+const VOTE_PERIOD = 9;
+const EMERGENCY_COMMIT_PERIOD = 6;
+
 const UNDECIDED = new BN(0);
 const APPROVE = new BN(1);
 const REJECT = new BN(2);
@@ -53,7 +56,7 @@ describe('Govern', function () {
           await this.govern.incrementTotalBondedE(2000);
 
           await this.govern.vote(this.implB.address, APPROVE, {from: userAddress2});
-          for (let i = 0; i < 7; i++) {
+          for (let i = 0; i < VOTE_PERIOD; i++) {
             await this.govern.incrementEpochE();
           }
         });
@@ -130,7 +133,7 @@ describe('Govern', function () {
           });
 
           expect(event.args.start).to.be.bignumber.equal(new BN(1));
-          expect(event.args.period).to.be.bignumber.equal(new BN(7));
+          expect(event.args.period).to.be.bignumber.equal(new BN(VOTE_PERIOD));
         });
       });
 
@@ -151,9 +154,9 @@ describe('Govern', function () {
           });
         });
 
-        describe('7 epochs', function () {
+        describe('vote period epochs', function () {
           beforeEach(async function () {
-            for (let i = 0; i < 7; i++) {
+            for (let i = 0; i < VOTE_PERIOD; i++) {
               await this.govern.incrementEpochE();
             }
           });
@@ -280,7 +283,7 @@ describe('Govern', function () {
     describe('ended with not enough votes', function () {
       beforeEach(async function () {
         await this.govern.vote(this.implB.address, APPROVE, {from: userAddress});
-        for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < VOTE_PERIOD; i++) {
           await this.govern.snapshotTotalBondedE();
           await this.govern.incrementEpochE();
         }
@@ -295,7 +298,7 @@ describe('Govern', function () {
       beforeEach(async function () {
         await this.govern.vote(this.implB.address, APPROVE, {from: userAddress});
         await this.govern.vote(this.implB.address, REJECT, {from: userAddress2});
-        for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < VOTE_PERIOD; i++) {
           await this.govern.snapshotTotalBondedE();
           await this.govern.incrementEpochE();
         }
@@ -310,7 +313,7 @@ describe('Govern', function () {
       beforeEach(async function () {
         await this.govern.vote(this.implB.address, REJECT, {from: userAddress});
         await this.govern.vote(this.implB.address, APPROVE, {from: userAddress2});
-        for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < VOTE_PERIOD; i++) {
           await this.govern.snapshotTotalBondedE();
           await this.govern.incrementEpochE();
         }
@@ -337,7 +340,7 @@ describe('Govern', function () {
         await this.govern.vote(this.implB.address, REJECT, {from: userAddress});
         await this.govern.vote(this.implB.address, APPROVE, {from: userAddress2});
 
-        for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < VOTE_PERIOD; i++) {
           await this.govern.snapshotTotalBondedE();
           await this.govern.incrementEpochE();
         }
@@ -347,6 +350,79 @@ describe('Govern', function () {
 
       it('reverts', async function () {
         await expectRevert(this.govern.commit(this.implB.address, {from: userAddress}), "Permission: Already initialized");
+      });
+    });
+  });
+
+  describe('emergency commit', function () {
+    beforeEach(async function () {
+      await this.govern.incrementBalanceOfE(userAddress, 2500);
+      await this.govern.incrementBalanceOfE(userAddress2, 4000);
+      await this.govern.incrementBalanceOfE(userAddress3, 3500);
+      await this.govern.incrementTotalBondedE(10000);
+
+      const epoch = await this.govern.epoch();
+      await this.govern.setEpochTime(epoch);
+    });
+
+    describe('before nomination', function () {
+      it('is bonded', async function () {
+        expect(await this.govern.isNominated(this.implB.address)).to.be.equal(false);
+      });
+
+      it('reverts', async function () {
+        await expectRevert(this.govern.emergencyCommit(this.implB.address, {from: userAddress}), "Govern: Not nominated");
+      });
+    });
+
+    describe('while synced', function () {
+      beforeEach(async function () {
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress});
+      });
+
+      it('reverts', async function () {
+        await expectRevert(this.govern.emergencyCommit(this.implB.address, {from: userAddress}), "Govern: Epoch synced");
+      });
+    });
+
+    describe('ended with not enough approve votes', function () {
+      beforeEach(async function () {
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress});
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress3});
+        await this.govern.vote(this.implB.address, REJECT, {from: userAddress2});
+
+        const epoch = await this.govern.epoch();
+        await this.govern.setEpochTime(epoch + EMERGENCY_COMMIT_PERIOD);
+      });
+
+      it('reverts', async function () {
+        await expectRevert(this.govern.emergencyCommit(this.implB.address, {from: userAddress}), "Govern: Must have super majority");
+      });
+    });
+
+    describe('ends successfully', function () {
+      beforeEach(async function () {
+        await this.govern.vote(this.implB.address, REJECT, {from: userAddress});
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress2});
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress3});
+
+        const epoch = await this.govern.epoch();
+        await this.govern.setEpochTime(epoch + EMERGENCY_COMMIT_PERIOD);
+
+        this.result = await this.govern.emergencyCommit(this.implB.address, {from: userAddress});
+        this.txHash = this.result.tx;
+      });
+
+      it('is updated', async function () {
+        expect(await this.govern.implementation()).to.be.equal(this.implB.address);
+        expect(await this.govern.isInitialized(this.implB.address)).to.be.equal(true);
+      });
+
+      it('emits Commit event', async function () {
+        const event = await expectEvent.inTransaction(this.txHash, MockGovern, 'Commit', {
+          account: userAddress,
+          candidate: this.implB.address,
+        });
       });
     });
   });

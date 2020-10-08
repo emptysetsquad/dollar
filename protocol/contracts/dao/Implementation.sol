@@ -31,8 +31,11 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
-        //TODO: replace with deployed pool
-        _state.provider.pool = address(0xA5976897BC0081e3895013B08654DfEc50Bcb33F);
+        _state.epoch.start = 0;
+        _state.epoch.period = 0;
+
+        // Reward committer
+        mintToAccount(msg.sender, Constants.getAdvanceIncentive());
     }
 
     function advance() external incentivized {
