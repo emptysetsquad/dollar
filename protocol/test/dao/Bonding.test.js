@@ -807,9 +807,9 @@ describe('Bonding', function () {
 
     it('has correct snapshots', async function () {
       expect(await this.bonding.totalBondedAt(0)).to.be.bignumber.equal(new BN(0));
-      expect(await this.bonding.totalBondedAt(1)).to.be.bignumber.equal(new BN(1000));
-      expect(await this.bonding.totalBondedAt(2)).to.be.bignumber.equal(new BN(4000));
-      expect(await this.bonding.totalBondedAt(3)).to.be.bignumber.equal(new BN(2000));
+      expect(await this.bonding.totalBondedAt(1)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+      expect(await this.bonding.totalBondedAt(2)).to.be.bignumber.equal(new BN(2000).mul(INITIAL_STAKE_MULTIPLE));
+      expect(await this.bonding.totalBondedAt(3)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
     });
   });
 });
