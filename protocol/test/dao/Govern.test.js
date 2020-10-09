@@ -15,6 +15,8 @@ const UNDECIDED = new BN(0);
 const APPROVE = new BN(1);
 const REJECT = new BN(2);
 
+const INITIAL_STAKE_MULTIPLE = new BN(10).pow(new BN(6)); // 100 ESD -> 100M ESDS
+
 describe('Govern', function () {
   const [ ownerAddress, userAddress, userAddress2, userAddress3 ] = accounts;
 
@@ -39,8 +41,8 @@ describe('Govern', function () {
 
       describe('when not enough stake to propose', function () {
         beforeEach(async function () {
-          await this.govern.incrementBalanceOfE(userAddress, 1);
-          await this.govern.incrementBalanceOfE(userAddress2, 999);
+          await this.govern.incrementBalanceOfE(userAddress, INITIAL_STAKE_MULTIPLE.muln(1));
+          await this.govern.incrementBalanceOfE(userAddress2, INITIAL_STAKE_MULTIPLE.muln(999));
           await this.govern.incrementTotalBondedE(1000);
         });
 
@@ -51,8 +53,8 @@ describe('Govern', function () {
 
       describe('when ended', function () {
         beforeEach(async function () {
-          await this.govern.incrementBalanceOfE(userAddress, 1000);
-          await this.govern.incrementBalanceOfE(userAddress2, 1000);
+          await this.govern.incrementBalanceOfE(userAddress, INITIAL_STAKE_MULTIPLE.muln(1000));
+          await this.govern.incrementBalanceOfE(userAddress2, INITIAL_STAKE_MULTIPLE.muln(1000));
           await this.govern.incrementTotalBondedE(2000);
 
           await this.govern.vote(this.implB.address, APPROVE, {from: userAddress2});
@@ -87,9 +89,9 @@ describe('Govern', function () {
 
     describe('can vote', function () {
       beforeEach(async function () {
-        await this.govern.incrementBalanceOfE(userAddress, 1000);
-        await this.govern.incrementBalanceOfE(userAddress2, 1000);
-        await this.govern.incrementBalanceOfE(userAddress3, 1000);
+        await this.govern.incrementBalanceOfE(userAddress, INITIAL_STAKE_MULTIPLE.muln(1000));
+        await this.govern.incrementBalanceOfE(userAddress2, INITIAL_STAKE_MULTIPLE.muln(1000));
+        await this.govern.incrementBalanceOfE(userAddress3, INITIAL_STAKE_MULTIPLE.muln(1000));
         await this.govern.incrementTotalBondedE(3000);
       });
 
@@ -100,7 +102,7 @@ describe('Govern', function () {
         });
 
         it('sets vote counter correctly', async function () {
-          expect(await this.govern.approveFor(this.implB.address)).to.be.bignumber.equal(new BN(1000));
+          expect(await this.govern.approveFor(this.implB.address)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
           expect(await this.govern.rejectFor(this.implB.address)).to.be.bignumber.equal(new BN(0));
         });
 
@@ -123,7 +125,7 @@ describe('Govern', function () {
           });
 
           expect(event.args.vote).to.be.bignumber.equal(APPROVE);
-          expect(event.args.bonded).to.be.bignumber.equal(new BN(1000));
+          expect(event.args.bonded).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
         });
 
         it('emits Proposal event', async function () {
@@ -176,8 +178,8 @@ describe('Govern', function () {
         });
 
         it('sets vote counter correctly', async function () {
-          expect(await this.govern.approveFor(this.implB.address)).to.be.bignumber.equal(new BN(2000));
-          expect(await this.govern.rejectFor(this.implB.address)).to.be.bignumber.equal(new BN(1000));
+          expect(await this.govern.approveFor(this.implB.address)).to.be.bignumber.equal(new BN(2000).mul(INITIAL_STAKE_MULTIPLE));
+          expect(await this.govern.rejectFor(this.implB.address)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
         });
 
         it('is nominated', async function () {
@@ -203,7 +205,7 @@ describe('Govern', function () {
           });
 
           expect(event.args.vote).to.be.bignumber.equal(APPROVE);
-          expect(event.args.bonded).to.be.bignumber.equal(new BN(1000));
+          expect(event.args.bonded).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
         });
       });
 
@@ -220,7 +222,7 @@ describe('Govern', function () {
 
         it('sets vote counter correctly', async function () {
           expect(await this.govern.approveFor(this.implB.address)).to.be.bignumber.equal(new BN(0));
-          expect(await this.govern.rejectFor(this.implB.address)).to.be.bignumber.equal(new BN(2000));
+          expect(await this.govern.rejectFor(this.implB.address)).to.be.bignumber.equal(new BN(2000).mul(INITIAL_STAKE_MULTIPLE));
         });
 
         it('is nominated', async function () {
@@ -246,7 +248,7 @@ describe('Govern', function () {
           });
 
           expect(event.args.vote).to.be.bignumber.equal(REJECT);
-          expect(event.args.bonded).to.be.bignumber.equal(new BN(1000));
+          expect(event.args.bonded).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
         });
       });
     });
@@ -254,9 +256,9 @@ describe('Govern', function () {
 
   describe('commit', function () {
     beforeEach(async function () {
-      await this.govern.incrementBalanceOfE(userAddress, 2500);
-      await this.govern.incrementBalanceOfE(userAddress2, 4000);
-      await this.govern.incrementBalanceOfE(userAddress3, 3500);
+      await this.govern.incrementBalanceOfE(userAddress, INITIAL_STAKE_MULTIPLE.muln(2500));
+      await this.govern.incrementBalanceOfE(userAddress2, INITIAL_STAKE_MULTIPLE.muln(4000));
+      await this.govern.incrementBalanceOfE(userAddress3, INITIAL_STAKE_MULTIPLE.muln(3500));
       await this.govern.incrementTotalBondedE(10000);
     });
 
@@ -356,9 +358,9 @@ describe('Govern', function () {
 
   describe('emergency commit', function () {
     beforeEach(async function () {
-      await this.govern.incrementBalanceOfE(userAddress, 2500);
-      await this.govern.incrementBalanceOfE(userAddress2, 4000);
-      await this.govern.incrementBalanceOfE(userAddress3, 3500);
+      await this.govern.incrementBalanceOfE(userAddress, INITIAL_STAKE_MULTIPLE.muln(2500));
+      await this.govern.incrementBalanceOfE(userAddress2, INITIAL_STAKE_MULTIPLE.muln(4000));
+      await this.govern.incrementBalanceOfE(userAddress3, INITIAL_STAKE_MULTIPLE.muln(3500));
       await this.govern.incrementTotalBondedE(10000);
 
       const epoch = await this.govern.epoch();

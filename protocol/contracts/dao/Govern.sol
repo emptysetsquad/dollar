@@ -130,7 +130,7 @@ contract Govern is Setters, Permission, Upgradeable {
         );
 
         Require.that(
-            Decimal.ratio(approveFor(candidate), totalBonded()).greaterThan(Constants.getGovernanceSuperMajority()),
+            Decimal.ratio(approveFor(candidate), totalSupply()).greaterThan(Constants.getGovernanceSuperMajority()),
             FILE,
             "Must have super majority"
         );
@@ -151,7 +151,7 @@ contract Govern is Setters, Permission, Upgradeable {
             return false;
         }
 
-        Decimal.D256 memory stake = Decimal.ratio(balanceOf(account), totalBonded());
+        Decimal.D256 memory stake = Decimal.ratio(balanceOf(account), totalSupply());
         return stake.greaterThan(Decimal.ratio(1, 100)); // 1%
     }
 }

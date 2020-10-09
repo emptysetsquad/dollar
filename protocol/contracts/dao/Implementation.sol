@@ -32,9 +32,6 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Vest(address indexed account, uint256 value);
 
     function initialize() initializer public {
-        // Pool 3
-        _state.provider.pool = address(0xBBDA9B2f267b94147cB5b51653237C2F1EE69054);
-
         // Reward committer
         mintToAccount(msg.sender, Constants.getAdvanceIncentive());
     }
