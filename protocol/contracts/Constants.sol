@@ -61,6 +61,7 @@ library Constants {
 
     /* Market */
     uint256 private constant COUPON_EXPIRATION = 90;
+    uint256 private constant DEBT_RATIO_CAP = 35e16; // 35%
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 1e17; // 10%
@@ -141,6 +142,10 @@ library Constants {
 
     function getCouponExpiration() internal pure returns (uint256) {
         return COUPON_EXPIRATION;
+    }
+
+    function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: DEBT_RATIO_CAP});
     }
 
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {

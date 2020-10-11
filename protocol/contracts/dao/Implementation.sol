@@ -31,8 +31,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
-        _state.epoch.start = 0;
-        _state.epoch.period = 0;
+        // Reset debt to 30% if above
+        resetDebt(Decimal.ratio(30, 100));
 
         // Reward committer
         mintToAccount(msg.sender, Constants.getAdvanceIncentive());

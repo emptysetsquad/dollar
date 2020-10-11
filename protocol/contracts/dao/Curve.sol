@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../external/Decimal.sol";
+import "../Constants.sol";
 
 contract Curve {
     using SafeMath for uint256;
@@ -38,7 +39,7 @@ contract Curve {
         uint256 amount
     ) private pure returns (Decimal.D256 memory) {
         Decimal.D256 memory debtRatio = Decimal.ratio(totalDebt, totalSupply);
-        Decimal.D256 memory debtRatioUpperBound = debtRatioUpperBound();
+        Decimal.D256 memory debtRatioUpperBound = Constants.getDebtRatioCap();
 
         uint256 totalSupplyEnd = totalSupply.sub(amount);
         uint256 totalDebtEnd = totalDebt.sub(amount);
@@ -79,10 +80,5 @@ contract Curve {
         return Decimal.one().div(
             Decimal.from(3).mul(Decimal.one().sub(upper)).mul(Decimal.one().sub(lower))
         ).sub(Decimal.ratio(1, 3));
-    }
-
-    // 30%
-    function debtRatioUpperBound() private pure returns (Decimal.D256 memory) {
-        return Decimal.ratio(30, 100);
     }
 }
