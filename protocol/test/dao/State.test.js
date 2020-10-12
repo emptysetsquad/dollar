@@ -624,7 +624,7 @@ describe('State', function () {
 
     describe('when called', function () {
       beforeEach('call', async function () {
-        await this.setters.incrementTotalBondedE(100);
+        await this.setters.incrementBalanceOfE(userAddress, 100);
         await this.setters.snapshotTotalBondedE();
       });
 
@@ -635,11 +635,11 @@ describe('State', function () {
 
     describe('when called multiple times', function () {
       beforeEach('call', async function () {
-        await this.setters.incrementTotalBondedE(100);
+        await this.setters.incrementBalanceOfE(userAddress, 100);
         await this.setters.snapshotTotalBondedE();
         await this.setters.incrementEpochE();
 
-        await this.setters.incrementTotalBondedE(100);
+        await this.setters.incrementBalanceOfE(userAddress, 100);
         await this.setters.snapshotTotalBondedE();
       });
 

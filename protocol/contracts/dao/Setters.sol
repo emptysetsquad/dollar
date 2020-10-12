@@ -132,7 +132,7 @@ contract Setters is State, Getters {
     }
 
     function snapshotTotalBonded() internal {
-        _state.epochs[epoch()].bonded = totalBonded();
+        _state.epochs[epoch()].bonded = totalSupply();
     }
 
     function initializeCouponsExpiration(uint256 epoch, uint256 expiration) internal {
