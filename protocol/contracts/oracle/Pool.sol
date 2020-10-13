@@ -148,13 +148,7 @@ contract Pool is PoolSetters, Liquidity {
 
     function balanceCheck() private {
         Require.that(
-            dollar().balanceOf(address(this)) == totalRewarded().add(totalClaimable()),
-            FILE,
-            "Inconsistent ESD balances"
-        );
-
-        Require.that(
-            univ2().balanceOf(address(this)) == totalStaged().add(totalBonded()),
+            univ2().balanceOf(address(this)) >= totalStaged().add(totalBonded()),
             FILE,
             "Inconsistent UNI-V2 balances"
         );
