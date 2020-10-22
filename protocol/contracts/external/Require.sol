@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-pragma solidity ^0.5.7;
+pragma solidity 0.5.17;
 
 /**
  * @title Require
