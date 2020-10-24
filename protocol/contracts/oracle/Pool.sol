@@ -87,7 +87,7 @@ contract Pool is PoolSetters, Liquidity {
 
         uint256 balanceOfBonded = balanceOfBonded(msg.sender);
         Require.that(
-            balanceOfBonded > 0,
+            balanceOfBonded != 0,
             FILE,
             "insufficient bonded balance"
         );
@@ -107,13 +107,13 @@ contract Pool is PoolSetters, Liquidity {
 
     function provide(uint256 value) external onlyFrozen(msg.sender) notPaused {
         Require.that(
-            totalBonded() > 0,
+            totalBonded() != 0,
             FILE,
             "insufficient total bonded"
         );
 
         Require.that(
-            totalRewarded() > 0,
+            totalRewarded() != 0,
             FILE,
             "insufficient total rewarded"
         );

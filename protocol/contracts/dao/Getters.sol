@@ -146,7 +146,7 @@ contract Getters is State {
     }
 
     function hasVesting(address account) public view returns (bool) {
-        return _state1.vesting[account] > 0;
+        return _state1.vesting[account] != 0;
     }
 
     function balanceOfUnvested(address account) public view returns (uint256) {
@@ -242,7 +242,7 @@ contract Getters is State {
     }
 
     function isNominated(address candidate) public view returns (bool) {
-        return _state.candidates[candidate].start > 0;
+        return _state.candidates[candidate].start != 0;
     }
 
     function isInitialized(address candidate) public view returns (bool) {

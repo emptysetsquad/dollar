@@ -67,7 +67,7 @@ contract Market is Comptroller, Curve {
 
     function purchaseCoupons(uint256 dollarAmount) external returns (uint256) {
         Require.that(
-            dollarAmount > 0,
+            dollarAmount != 0,
             FILE,
             "Must purchase non-zero amount"
         );

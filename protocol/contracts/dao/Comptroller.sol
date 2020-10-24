@@ -84,7 +84,7 @@ contract Comptroller is Setters {
 
         // 2. Eliminate debt
         uint256 totalDebt = totalDebt();
-        if (newSupply > 0 && totalDebt > 0) {
+        if (newSupply != 0 && totalDebt != 0) {
             lessDebt = totalDebt > newSupply ? newSupply : totalDebt;
             decreaseDebt(lessDebt);
 
@@ -95,7 +95,7 @@ contract Comptroller is Setters {
         if (totalBonded() == 0) {
             newSupply = 0;
         }
-        if (newSupply > 0) {
+        if (newSupply != 0) {
             mintToBonded(newSupply);
         }
 
@@ -151,7 +151,7 @@ contract Comptroller is Setters {
 
     function mintToBonded(uint256 amount) private {
         Require.that(
-            totalBonded() > 0,
+            totalBonded() != 0,
             FILE,
             "Cant mint to empty pool"
         );
@@ -162,15 +162,15 @@ contract Comptroller is Setters {
 
         uint256 daoAmount = amount > allocatedAmount ? amount.sub(allocatedAmount) : 0;
 
-        if (poolAmount > 0) {
+        if (poolAmount != 0) {
             dollar().mint(pool(), poolAmount);
         }
 
-        if (treasuryAmount > 0) {
+        if (treasuryAmount != 0) {
             dollar().mint(treasury(), treasuryAmount);
         }
 
-        if (daoAmount > 0) {
+        if (daoAmount != 0) {
             dollar().mint(address(this), daoAmount);
             incrementTotalBonded(daoAmount);
         }

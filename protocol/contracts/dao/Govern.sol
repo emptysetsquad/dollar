@@ -37,7 +37,7 @@ contract Govern is Setters, Permission, Upgradeable {
 
     function vote(address candidate, Candidate.Vote vote) external onlyFrozenOrLocked(msg.sender) {
         Require.that(
-            balanceOf(msg.sender) > 0,
+            balanceOf(msg.sender) != 0,
             FILE,
             "Must have stake"
         );
