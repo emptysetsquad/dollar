@@ -45,15 +45,15 @@ contract Bonding is Setters, Permission {
     }
 
     function deposit(uint256 value) external onlyFrozenOrLocked(msg.sender) {
-        dollar().transferFrom(msg.sender, address(this), value);
         incrementBalanceOfStaged(msg.sender, value);
+        dollar().transferFrom(msg.sender, address(this), value);
 
         emit Deposit(msg.sender, value);
     }
 
     function withdraw(uint256 value) external onlyFrozenOrLocked(msg.sender) {
-        dollar().transfer(msg.sender, value);
         decrementBalanceOfStaged(msg.sender, value, "Bonding: insufficient staged balance");
+        dollar().transfer(msg.sender, value);
 
         emit Withdraw(msg.sender, value);
     }

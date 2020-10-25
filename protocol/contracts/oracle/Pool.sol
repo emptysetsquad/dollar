@@ -39,8 +39,8 @@ contract Pool is PoolSetters, Liquidity {
     event Provide(address indexed account, uint256 value, uint256 lessUsdc, uint256 newUniv2);
 
     function deposit(uint256 value) external onlyFrozen(msg.sender) notPaused {
-        univ2().transferFrom(msg.sender, address(this), value);
         incrementBalanceOfStaged(msg.sender, value);
+        univ2().transferFrom(msg.sender, address(this), value);
 
         balanceCheck();
 
@@ -48,8 +48,8 @@ contract Pool is PoolSetters, Liquidity {
     }
 
     function withdraw(uint256 value) external onlyFrozen(msg.sender) {
-        univ2().transfer(msg.sender, value);
         decrementBalanceOfStaged(msg.sender, value, "Pool: insufficient staged balance");
+        univ2().transfer(msg.sender, value);
 
         balanceCheck();
 
@@ -57,8 +57,8 @@ contract Pool is PoolSetters, Liquidity {
     }
 
     function claim(uint256 value) external onlyFrozen(msg.sender) {
-        dollar().transfer(msg.sender, value);
         decrementBalanceOfClaimable(msg.sender, value, "Pool: insufficient claimable balance");
+        dollar().transfer(msg.sender, value);
 
         balanceCheck();
 

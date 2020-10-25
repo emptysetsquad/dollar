@@ -27,30 +27,30 @@ contract Comptroller is Setters {
     bytes32 private constant FILE = "Comptroller";
 
     function mintToAccount(address account, uint256 amount) internal {
-        dollar().mint(account, amount);
         increaseDebt(amount);
+        dollar().mint(account, amount);
 
         balanceCheck();
     }
 
     function burnFromAccount(address account, uint256 amount) internal {
+        decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
         dollar().transferFrom(account, address(this), amount);
         dollar().burn(amount);
-        decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
 
         balanceCheck();
     }
 
     function redeemToAccount(address account, uint256 amount) internal {
-        dollar().transfer(account, amount);
         decrementTotalRedeemable(amount, "Comptroller: not enough redeemable balance");
+        dollar().transfer(account, amount);
 
         balanceCheck();
     }
 
     function burnRedeemable(uint256 amount) internal {
-        dollar().burn(amount);
         decrementTotalRedeemable(amount, "Comptroller: not enough redeemable balance");
+        dollar().burn(amount);
 
         balanceCheck();
     }
@@ -160,16 +160,16 @@ contract Comptroller is Setters {
         }
 
         if (daoAmount != 0) {
-            dollar().mint(address(this), daoAmount);
             incrementTotalBonded(daoAmount);
+            dollar().mint(address(this), daoAmount);
         }
 
         balanceCheck();
     }
 
     function mintToRedeemable(uint256 amount) private {
-        dollar().mint(address(this), amount);
         incrementTotalRedeemable(amount);
+        dollar().mint(address(this), amount);
 
         balanceCheck();
     }
