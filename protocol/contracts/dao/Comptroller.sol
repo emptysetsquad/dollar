@@ -116,15 +116,9 @@ contract Comptroller is Setters {
 
     function balanceCheck() private {
         Require.that(
-            dollar().balanceOf(address(this)) == totalBonded().add(totalStaged()).add(totalRedeemable()),
+            dollar().balanceOf(address(this)) >= totalBonded().add(totalStaged()).add(totalRedeemable()),
             FILE,
             "Inconsistent balances"
-        );
-
-        Require.that(
-            totalDebt() <= dollar().totalSupply(),
-            FILE,
-            "Debt too large"
         );
     }
 
