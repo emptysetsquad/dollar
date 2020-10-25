@@ -64,7 +64,7 @@ library Constants {
     uint256 private constant DEBT_RATIO_CAP = 35e16; // 35%
 
     /* Regulator */
-    uint256 private constant SUPPLY_CHANGE_LIMIT = 1e17; // 10%
+    uint256 private constant SUPPLY_CHANGE_LIMIT = 3e16; // 3%
     uint256 private constant ORACLE_POOL_RATIO = 20; // 20%
 
     /* Deployed */
