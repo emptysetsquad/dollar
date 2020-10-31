@@ -88,11 +88,12 @@ contract Market is Comptroller, Curve {
         return couponAmount;
     }
 
-    function redeemCoupons(uint256 epoch, uint256 couponAmount) external {
-        decrementBalanceOfCoupons(msg.sender, epoch, couponAmount, "Market: Insufficient coupon balance");
+    function redeemCoupons(uint256 couponEpoch, uint256 couponAmount) external {
+        require(epoch().sub(couponEpoch) >= 2, "Market: Too early to redeem");
+        decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
         redeemToAccount(msg.sender, couponAmount);
 
-        emit CouponRedemption(msg.sender, epoch, couponAmount);
+        emit CouponRedemption(msg.sender, couponEpoch, couponAmount);
     }
 
     function approveCoupons(address spender, uint256 amount) external {

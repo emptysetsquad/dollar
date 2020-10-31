@@ -34,6 +34,7 @@ contract Regulator is Comptroller {
         Decimal.D256 memory price = oracleCapture();
 
         if (price.greaterThan(Decimal.one())) {
+            setDebtToZero();
             growSupply(price);
             return;
         }

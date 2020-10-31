@@ -81,7 +81,7 @@ describe('Regulator', function () {
         });
       });
 
-      describe('(3) - only to bonded', function () {
+      describe('(2) - only to bonded', function () {
         beforeEach(async function () {
           await this.regulator.incrementEpochE(); // 1
           await this.regulator.incrementEpochE(); // 2
@@ -125,59 +125,14 @@ describe('Regulator', function () {
         });
       });
 
-      describe('(2) - only to repay debt', function () {
-        beforeEach(async function () {
-          await this.regulator.incrementEpochE(); // 1
-          await this.regulator.incrementEpochE(); // 2
-
-          await this.regulator.incrementTotalBondedE(1000000);
-          await this.regulator.mintToE(this.regulator.address, 1000000);
-
-          await this.regulator.increaseDebtE(new BN(100000));
-        });
-
-        describe('on step', function () {
-          beforeEach(async function () {
-            await this.oracle.set(101, 100, true);
-            this.result = await this.regulator.stepE();
-            this.txHash = this.result.tx;
-          });
-
-          it('doesnt mint new Dollar tokens', async function () {
-            expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
-            expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
-            expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-            expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
-          });
-
-          it('updates totals', async function () {
-            expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
-            expect(await this.regulator.totalBonded()).to.be.bignumber.equal(new BN(1000000));
-            expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(91000));
-            expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
-            expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
-            expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
-          });
-
-          it('emits SupplyIncrease event', async function () {
-            const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
-
-            expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
-            expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
-            expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(0));
-            expect(event.args.lessDebt).to.be.bignumber.equal(new BN(9000));
-            expect(event.args.newBonded).to.be.bignumber.equal(new BN(0));
-          });
-        });
-      });
-
-      describe('(1) - only refresh redeemable debt', function () {
+      describe('(1) - only refresh redeemable', function () {
         beforeEach(async function () {
           await this.regulator.incrementEpochE(); // 1
 
           await this.regulator.incrementTotalBondedE(1000000);
           await this.regulator.mintToE(this.regulator.address, 1000000);
 
+          await this.regulator.increaseDebtE(new BN(2000));
           await this.regulator.incrementBalanceOfCouponsE(userAddress, 1, new BN(100000));
 
           await this.regulator.incrementEpochE(); // 2
@@ -221,105 +176,7 @@ describe('Regulator', function () {
       });
     });
 
-    describe('(2 + 3) - repay debt then mint to bonded', function () {
-      beforeEach(async function () {
-        await this.regulator.incrementEpochE(); // 1
-        await this.regulator.incrementEpochE(); // 2
-
-        await this.regulator.incrementTotalBondedE(1000000);
-        await this.regulator.mintToE(this.regulator.address, 1000000);
-
-        await this.regulator.increaseDebtE(new BN(2000));
-      });
-
-      describe('on step', function () {
-        beforeEach(async function () {
-          await this.oracle.set(101, 100, true);
-          this.expectedReward = 7980;
-
-          this.result = await this.regulator.stepE();
-          this.txHash = this.result.tx;
-        });
-
-        it('mints new Dollar tokens', async function () {
-          expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedReward)));
-          expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(lessPoolIncentive(1000000, this.expectedReward));
-          expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(poolIncentive(this.expectedReward));
-        });
-
-        it('updates totals', async function () {
-          expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalBonded()).to.be.bignumber.equal(lessPoolIncentive(1000000, this.expectedReward));
-          expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
-        });
-
-        it('emits SupplyIncrease event', async function () {
-          const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
-
-          expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
-          expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
-          expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(0));
-          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(this.expectedReward));
-        });
-      });
-    });
-
-    describe('(1 + 2) - refresh redeemable then repay debt', function () {
-      beforeEach(async function () {
-        await this.regulator.incrementEpochE(); // 1
-
-        await this.regulator.incrementTotalBondedE(1000000);
-        await this.regulator.mintToE(this.regulator.address, 1000000);
-
-        await this.regulator.increaseDebtE(new BN(100000));
-        await this.regulator.incrementBalanceOfCouponsE(userAddress, 1, new BN(2000));
-
-        await this.regulator.incrementEpochE(); // 2
-
-      });
-
-      describe('on step', function () {
-        beforeEach(async function () {
-          await this.oracle.set(101, 100, true);
-          this.expectedLessDebt = 7000;
-
-          this.result = await this.regulator.stepE();
-          this.txHash = this.result.tx;
-        });
-
-        it('mints new Dollar tokens', async function () {
-          expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1002000));
-          expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1002000));
-          expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-          expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
-        });
-
-        it('updates totals', async function () {
-          expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalBonded()).to.be.bignumber.equal(new BN(1000000));
-          expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(100000).sub(new BN(this.expectedLessDebt)));
-          expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(2000));
-          expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(2000));
-        });
-
-        it('emits SupplyIncrease event', async function () {
-          const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
-
-          expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
-          expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
-          expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(2000));
-          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(this.expectedLessDebt));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(0));
-        });
-      });
-    });
-
-    describe('(1 + 2 + 3) - refresh redeemable then repay debt then mint to bonded', function () {
+    describe('(1 + 2) - refresh redeemable then mint to bonded', function () {
       beforeEach(async function () {
         await this.regulator.incrementEpochE(); // 1
 
@@ -336,7 +193,7 @@ describe('Regulator', function () {
       describe('on step', function () {
         beforeEach(async function () {
           await this.oracle.set(101, 100, true);
-          this.expectedReward = 7980
+          this.expectedReward = 10000
 
           this.result = await this.regulator.stepE();
           this.txHash = this.result.tx;
@@ -363,7 +220,7 @@ describe('Regulator', function () {
           expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
           expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
           expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(2000));
-          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000));
+          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
           expect(event.args.newBonded).to.be.bignumber.equal(new BN(this.expectedReward - 2000));
         });
       });
