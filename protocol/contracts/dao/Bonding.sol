@@ -18,6 +18,7 @@ pragma solidity 0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Setters.sol";
 import "./Permission.sol";
 import "../external/Require.sol";
@@ -25,6 +26,7 @@ import "../Constants.sol";
 
 contract Bonding is Setters, Permission {
     using SafeMath for uint256;
+    using SafeERC20 for IDollar;
 
     bytes32 private constant FILE = "Bonding";
 
@@ -46,14 +48,14 @@ contract Bonding is Setters, Permission {
 
     function deposit(uint256 value) external onlyFrozenOrLocked(msg.sender) {
         incrementBalanceOfStaged(msg.sender, value);
-        dollar().transferFrom(msg.sender, address(this), value);
+        dollar().safeTransferFrom(msg.sender, address(this), value);
 
         emit Deposit(msg.sender, value);
     }
 
     function withdraw(uint256 value) external onlyFrozenOrLocked(msg.sender) {
         decrementBalanceOfStaged(msg.sender, value, "Bonding: insufficient staged balance");
-        dollar().transfer(msg.sender, value);
+        dollar().safeTransfer(msg.sender, value);
 
         emit Withdraw(msg.sender, value);
     }

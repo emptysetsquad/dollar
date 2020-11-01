@@ -18,11 +18,13 @@ pragma solidity 0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Setters.sol";
 import "../external/Require.sol";
 
 contract Comptroller is Setters {
     using SafeMath for uint256;
+    using SafeERC20 for IDollar;
 
     bytes32 private constant FILE = "Comptroller";
 
@@ -35,7 +37,7 @@ contract Comptroller is Setters {
 
     function burnFromAccount(address account, uint256 amount) internal {
         decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
-        dollar().transferFrom(account, address(this), amount);
+        dollar().safeTransferFrom(account, address(this), amount);
         dollar().burn(amount);
 
         balanceCheck();
@@ -43,7 +45,7 @@ contract Comptroller is Setters {
 
     function redeemToAccount(address account, uint256 amount) internal {
         decrementTotalRedeemable(amount, "Comptroller: not enough redeemable balance");
-        dollar().transfer(account, amount);
+        dollar().safeTransfer(account, amount);
 
         balanceCheck();
     }

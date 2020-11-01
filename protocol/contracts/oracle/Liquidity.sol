@@ -18,12 +18,15 @@ pragma solidity 0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import '../external/UniswapV2Library.sol';
 import "../Constants.sol";
 import "./PoolGetters.sol";
 
 contract Liquidity is PoolGetters {
+    using SafeERC20 for IERC20;
+
     address private constant UNISWAP_FACTORY = address(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
 
     function addLiquidity(uint256 dollarAmount) internal returns (uint256, uint256) {
@@ -35,8 +38,8 @@ contract Liquidity is PoolGetters {
              UniswapV2Library.quote(dollarAmount, reserveA, reserveB);
 
         address pair = address(univ2());
-        IERC20(dollar).transfer(pair, dollarAmount);
-        IERC20(usdc).transferFrom(msg.sender, pair, usdcAmount);
+        IERC20(dollar).safeTransfer(pair, dollarAmount);
+        IERC20(usdc).safeTransferFrom(msg.sender, pair, usdcAmount);
         return (usdcAmount, IUniswapV2Pair(pair).mint(address(this)));
     }
 

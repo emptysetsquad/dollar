@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "../external/Require.sol";
 import "../Constants.sol";
 import "./PoolSetters.sol";
@@ -26,6 +27,8 @@ import "./Liquidity.sol";
 
 contract Pool is PoolSetters, Liquidity {
     using SafeMath for uint256;
+    using SafeERC20 for IERC20;
+    using SafeERC20 for IDollar;
 
     constructor() public { }
 
@@ -40,7 +43,7 @@ contract Pool is PoolSetters, Liquidity {
 
     function deposit(uint256 value) external onlyFrozen(msg.sender) notPaused {
         incrementBalanceOfStaged(msg.sender, value);
-        univ2().transferFrom(msg.sender, address(this), value);
+        univ2().safeTransferFrom(msg.sender, address(this), value);
 
         balanceCheck();
 
@@ -49,7 +52,7 @@ contract Pool is PoolSetters, Liquidity {
 
     function withdraw(uint256 value) external onlyFrozen(msg.sender) {
         decrementBalanceOfStaged(msg.sender, value, "Pool: insufficient staged balance");
-        univ2().transfer(msg.sender, value);
+        univ2().safeTransfer(msg.sender, value);
 
         balanceCheck();
 
@@ -58,7 +61,7 @@ contract Pool is PoolSetters, Liquidity {
 
     function claim(uint256 value) external onlyFrozen(msg.sender) {
         decrementBalanceOfClaimable(msg.sender, value, "Pool: insufficient claimable balance");
-        dollar().transfer(msg.sender, value);
+        dollar().safeTransfer(msg.sender, value);
 
         balanceCheck();
 
@@ -139,7 +142,7 @@ contract Pool is PoolSetters, Liquidity {
     }
 
     function emergencyWithdraw(address token, uint256 value) external onlyDao {
-        IERC20(token).transfer(address(dao()), value);
+        IERC20(token).safeTransfer(address(dao()), value);
     }
 
     function emergencyPause() external onlyDao {
