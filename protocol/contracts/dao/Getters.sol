@@ -106,8 +106,26 @@ contract Getters is State {
             .div(Constants.getVestingPeriod());
     }
 
+    function totalUnvestedUnderlying() public view returns (uint256) {
+        return totalSupply() == 0 ?
+            0 :
+            totalUnvested().mul(totalBonded()).div(totalSupply());
+    }
+
     function totalNet() public view returns (uint256) {
-        return dollar().totalSupply().sub(totalDebt()).sub(totalUnvested());
+        uint256 totalSupply = dollar().totalSupply();
+        uint256 totalDebt = totalDebt();
+        uint256 totalUnvestedUnderlying = totalUnvestedUnderlying();
+
+        if (totalDebt > totalSupply) {
+            return 0;
+        }
+        totalSupply = totalSupply.sub(totalDebt);
+
+        if (totalUnvestedUnderlying > totalSupply) {
+            return 0;
+        }
+        return totalSupply.sub(totalUnvestedUnderlying);
     }
 
     /**

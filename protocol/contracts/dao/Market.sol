@@ -62,7 +62,8 @@ contract Market is Comptroller, Curve {
     }
 
     function couponPremium(uint256 amount) public view returns (uint256) {
-        return calculateCouponPremium(dollar().totalSupply(), totalDebt(), amount);
+        uint256 vestedTotalSupply = dollar().totalSupply().sub(totalUnvestedUnderlying());
+        return calculateCouponPremium(vestedTotalSupply, totalDebt(), amount);
     }
 
     function purchaseCoupons(uint256 dollarAmount) external returns (uint256) {

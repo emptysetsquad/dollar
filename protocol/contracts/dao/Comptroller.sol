@@ -101,15 +101,14 @@ contract Comptroller is Setters {
             mintToBonded(newSupply);
         }
 
+        //TODO: Remove if Prop #8 passes
+        resetDebt(Constants.getDebtRatioCap());
+
         return (newRedeemable, lessDebt, newSupply);
     }
 
     function resetDebt(Decimal.D256 memory targetDebtRatio) internal {
-        uint256 totalUnvestedUnderlying = totalSupply() == 0 ?
-            0 :
-            totalUnvested().mul(totalBonded()).div(totalSupply());
-
-        uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply().sub(totalUnvestedUnderlying)).asUint256();
+        uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply().sub(totalUnvestedUnderlying())).asUint256();
         uint256 currentDebt = totalDebt();
 
         if (currentDebt > targetDebt) {

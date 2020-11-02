@@ -10,7 +10,7 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const MAX_UINT256 = new BN(2).pow(new BN(256)).subn(1);
 
 describe('Market', function () {
-  const [ ownerAddress, userAddress, poolAddress, treasury ] = accounts;
+  const [ ownerAddress, userAddress, userAddress2, poolAddress, treasury ] = accounts;
 
   beforeEach(async function () {
     this.market = await MockMarket.new(poolAddress, treasury, {from: ownerAddress, gas: 8000000});
@@ -81,6 +81,50 @@ describe('Market', function () {
         expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
         expect(event.args.dollarAmount).to.be.bignumber.equal(new BN(100000));
         expect(event.args.couponAmount).to.be.bignumber.equal(new BN(103703));
+      });
+    });
+
+    describe('on single call with unvested', function () {
+      beforeEach(async function () {
+        await this.market.mintToE(this.market.address, 1000000);
+        await this.market.incrementTotalBondedE(1000000);
+
+        await this.market.incrementTotalDebtE(100000);
+
+        await this.market.incrementBalanceOfE(userAddress, new BN(1000).muln(1000000));
+        await this.market.incrementBalanceOfE(userAddress2, new BN(1000).muln(1000000));
+        await this.market.setVestingE(userAddress, new BN(1000).muln(1000000));
+
+        this.result = await this.market.purchaseCoupons(100000, {from: userAddress});
+        this.txHash = this.result.tx;
+      });
+
+      it('updates user balances', async function () {
+        expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(900000));
+        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(102380));
+      });
+
+      it('shows correct preimum', async function () {
+        expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(900000));
+        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(102380));
+      });
+
+      it('updates dao balances', async function () {
+        expect(await this.dollar.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(1000000));
+        expect(await this.market.totalCoupons()).to.be.bignumber.equal(new BN(102380));
+        expect(await this.market.totalDebt()).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+        expect(await this.market.totalNet()).to.be.bignumber.equal(new BN(1400000));
+      });
+
+      it('emits CouponPurchase event', async function () {
+        const event = await expectEvent.inTransaction(this.txHash, MockMarket, 'CouponPurchase', {
+          account: userAddress,
+        });
+
+        expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
+        expect(event.args.dollarAmount).to.be.bignumber.equal(new BN(100000));
+        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(102380));
       });
     });
 
