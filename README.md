@@ -9,7 +9,7 @@ fully decentralized self-stabilizing dollar.
 - decimals: `18`
 - character: `∅ [U+2205], ∅100`
 - icon:
-
+ss
 ![mfGW7wXg_400x400](https://user-images.githubusercontent.com/62496341/88450825-c183fe00-ce06-11ea-8953-a8ae68f5bed0.jpg)
 
 ## dashboard
