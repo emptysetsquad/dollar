@@ -1,5 +1,5 @@
 /**
- * Use this file to configure your truffle project. It's seeded with some
+ * Use this file to configure your truffle project. It's seeded with some 1
  * common settings for different networks and features like migrations,
  * compilation and testing. Uncomment the ones you need or modify
  * them to suit your project as necessary.
