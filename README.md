@@ -2,7 +2,7 @@
 fully decentralized self-stabilizing dollar.
 
 ## stablecoin
-
+ddd
 - shorthand name: `døllar`
 - full name: `Empty Set Dollar`
 - symbol: `ESD`
