@@ -1,3 +1,7 @@
+/*
+    From: https://github.com/Uniswap/uniswap-v2-periphery/blob/6d03bede0a97c72323fa1c379ed3fdf7231d0b26/contracts/libraries/UniswapV2OracleLibrary.sol
+*/
+
 pragma solidity 0.5.17;
 
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';

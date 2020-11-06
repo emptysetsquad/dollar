@@ -22,6 +22,8 @@ import "../token/IDollar.sol";
 import "../oracle/IOracle.sol";
 import "../external/Decimal.sol";
 
+/// @author Empty Set Squad
+/// @title The per-account state for døllar's DAO
 contract Account {
     enum Status {
         Frozen,
@@ -39,6 +41,8 @@ contract Account {
     }
 }
 
+/// @author Empty Set Squad
+/// @title The per-epoch state for døllar's DAO
 contract Epoch {
     struct Global {
         uint256 start;
@@ -58,6 +62,8 @@ contract Epoch {
     }
 }
 
+/// @author Empty Set Squad
+/// @title The per-candidate election state for døllar's DAO
 contract Candidate {
     enum Vote {
         UNDECIDED,
@@ -75,6 +81,8 @@ contract Candidate {
     }
 }
 
+/// @author Empty Set Squad
+/// @title The state for døllar's DAO
 contract Storage {
     struct Provider {
         IDollar dollar;
@@ -107,6 +115,8 @@ contract Storage {
     }
 }
 
+/// @author Empty Set Squad
+/// @title The instantiate of døllar's DAO state
 contract State {
     // Initial Implementation
     Storage.State _state;

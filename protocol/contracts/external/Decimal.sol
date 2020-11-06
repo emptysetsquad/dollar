@@ -1,4 +1,6 @@
 /*
+    Extended from: https://github.com/dydxprotocol/solo/blob/2d8454e02702fe5bc455b848556660629c3cad36/contracts/protocol/lib/Decimal.sol
+
     Copyright 2019 dYdX Trading Inc.
     Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
 

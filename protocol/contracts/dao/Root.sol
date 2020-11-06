@@ -19,6 +19,8 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/upgrades/contracts/upgradeability/UpgradeabilityProxy.sol";
 
+/// @author Empty Set Squad
+/// @title Root proxy contract for døllar's DAO
 contract Root is UpgradeabilityProxy {
     constructor (address implementation) UpgradeabilityProxy(
         implementation,

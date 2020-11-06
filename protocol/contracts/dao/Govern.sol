@@ -25,6 +25,8 @@ import "../external/Require.sol";
 import "../external/Decimal.sol";
 import "../Constants.sol";
 
+/// @author Empty Set Squad
+/// @title Governance logic for døllar's DAO
 contract Govern is Setters, Permission, Upgradeable {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
@@ -35,6 +37,9 @@ contract Govern is Setters, Permission, Upgradeable {
     event Vote(address indexed account, address indexed candidate, Candidate.Vote vote, uint256 bonded);
     event Commit(address indexed account, address indexed candidate);
 
+    /// @dev Submits a vote for a specific candidate implementation for the sender.
+    /// @param candidate The candidate to vote for.
+    /// @param vote The specific vote type.
     function vote(address candidate, Candidate.Vote vote) external onlyFrozenOrLocked(msg.sender) {
         Require.that(
             balanceOf(msg.sender) != 0,
@@ -84,6 +89,8 @@ contract Govern is Setters, Permission, Upgradeable {
         emit Vote(msg.sender, candidate, vote, bonded);
     }
 
+    /// @dev Commits a candidate implementation if approved.
+    /// @param candidate The candidate to commit.
     function commit(address candidate) external {
         Require.that(
             isNominated(candidate),
@@ -116,6 +123,8 @@ contract Govern is Setters, Permission, Upgradeable {
         emit Commit(msg.sender, candidate);
     }
 
+    /// @dev Commits a candidate implementation before end of election with extra constraints.
+    /// @param candidate The candidate to commit.
     function emergencyCommit(address candidate) external {
         Require.that(
             isNominated(candidate),

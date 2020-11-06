@@ -21,6 +21,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../external/Decimal.sol";
 import "../Constants.sol";
 
+/// @author Empty Set Squad
+/// @title Coupon premium curve for døllar's DAO
 contract Curve {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;

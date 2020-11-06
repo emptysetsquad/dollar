@@ -22,6 +22,8 @@ import "./Curve.sol";
 import "./Comptroller.sol";
 import "../Constants.sol";
 
+/// @author Empty Set Squad
+/// @title Coupon market logic for døllar's DAO
 contract Market is Comptroller, Curve {
     using SafeMath for uint256;
 
@@ -61,11 +63,17 @@ contract Market is Comptroller, Curve {
         emit CouponExpiration(epoch, couponsForEpoch, lessRedeemable, lessDebt, newBonded);
     }
 
+    /// @dev Returns the coupon premium when burning `amount` of ESD for coupons.
+    /// @param amount The amount of ESD to burn.
+    /// @return Coupon premium.
     function couponPremium(uint256 amount) public view returns (uint256) {
         uint256 vestedTotalSupply = dollar().totalSupply().sub(totalUnvestedUnderlying());
         return calculateCouponPremium(vestedTotalSupply, totalDebt(), amount);
     }
 
+    /// @dev Burns senders ESD for the corresponding amount of coupons.
+    /// @param dollarAmount The amount of ESD to burn.
+    /// @return The amount of coupons granted.
     function purchaseCoupons(uint256 dollarAmount) external returns (uint256) {
         Require.that(
             dollarAmount != 0,
@@ -89,6 +97,9 @@ contract Market is Comptroller, Curve {
         return couponAmount;
     }
 
+    /// @dev Redeems coupons for ESD for a specific epoch
+    /// @param epoch The coupon grant epoch.
+    /// @param couponAmount The amount of coupons to redeem.
     function redeemCoupons(uint256 epoch, uint256 couponAmount) external {
         decrementBalanceOfCoupons(msg.sender, epoch, couponAmount, "Market: Insufficient coupon balance");
         redeemToAccount(msg.sender, couponAmount);
@@ -96,6 +107,9 @@ contract Market is Comptroller, Curve {
         emit CouponRedemption(msg.sender, epoch, couponAmount);
     }
 
+    /// @dev Approves coupons to be spent by `spender`.
+    /// @param spender The spender to grant access.
+    /// @param amount The amount that can be spent.
     function approveCoupons(address spender, uint256 amount) external {
         require(spender != address(0), "Market: Coupon approve to the zero address");
 
@@ -104,6 +118,11 @@ contract Market is Comptroller, Curve {
         emit CouponApproval(msg.sender, spender, amount);
     }
 
+    /// @dev Transfers coupons from `sender` to `recipient`.
+    /// @param sender The sender of the coupons.
+    /// @param recipient The recipient of the coupons.
+    /// @param epoch The coupon grant epoch.
+    /// @param amount The amount to be sent.
     function transferCoupons(address sender, address recipient, uint256 epoch, uint256 amount) external {
         require(sender != address(0), "Market: Coupon transfer from the zero address");
         require(recipient != address(0), "Market: Coupon transfer to the zero address");

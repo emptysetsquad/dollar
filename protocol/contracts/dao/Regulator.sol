@@ -22,6 +22,8 @@ import "./Comptroller.sol";
 import "../external/Decimal.sol";
 import "../Constants.sol";
 
+/// @author Empty Set Squad
+/// @title Supply regulation logic for døllar's DAO
 contract Regulator is Comptroller {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;

@@ -24,6 +24,8 @@ import "./Permission.sol";
 import "../external/Require.sol";
 import "../Constants.sol";
 
+/// @author Empty Set Squad
+/// @title Bonding management logic for døllar's DAO
 contract Bonding is Setters, Permission {
     using SafeMath for uint256;
     using SafeERC20 for IDollar;
@@ -46,6 +48,8 @@ contract Bonding is Setters, Permission {
         incrementEpoch();
     }
 
+    /// @dev Deposits `value` ESD into the DAO for the sender.
+    /// @param value The amount to deposit.
     function deposit(uint256 value) external onlyFrozenOrLocked(msg.sender) {
         incrementBalanceOfStaged(msg.sender, value);
         dollar().safeTransferFrom(msg.sender, address(this), value);
@@ -53,6 +57,8 @@ contract Bonding is Setters, Permission {
         emit Deposit(msg.sender, value);
     }
 
+    /// @dev Withdraws `value` ESD from the DAO for the sender.
+    /// @param value The ESD amount to withdraw.
     function withdraw(uint256 value) external onlyFrozenOrLocked(msg.sender) {
         decrementBalanceOfStaged(msg.sender, value, "Bonding: insufficient staged balance");
         dollar().safeTransfer(msg.sender, value);
@@ -60,6 +66,8 @@ contract Bonding is Setters, Permission {
         emit Withdraw(msg.sender, value);
     }
 
+    /// @dev Bonds `value` of already deposited ESD for the sender.
+    /// @param value The ESD amount to bond.
     function bond(uint256 value) external onlyFrozenOrFluid(msg.sender) {
         unfreeze(msg.sender);
 
@@ -73,6 +81,8 @@ contract Bonding is Setters, Permission {
         emit Bond(msg.sender, epoch().add(1), balance, value);
     }
 
+    /// @dev Unbonds `value` of bonded ESDS for the sender.
+    /// @param value The ESDS amount to unbond.
     function unbond(uint256 value) external onlyFrozenOrFluid(msg.sender) {
         unfreeze(msg.sender);
 
@@ -86,6 +96,8 @@ contract Bonding is Setters, Permission {
         emit Unbond(msg.sender, epoch().add(1), value, staged);
     }
 
+    /// @dev Unbonds `value` of bonded ESD for the sender.
+    /// @param value The ESD amount to unbond.
     function unbondUnderlying(uint256 value) external onlyFrozenOrFluid(msg.sender) {
         unfreeze(msg.sender);
 

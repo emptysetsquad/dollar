@@ -1,4 +1,6 @@
 /*
+    From: https://github.com/dydxprotocol/solo/blob/2d8454e02702fe5bc455b848556660629c3cad36/contracts/protocol/lib/Require.sol
+
     Copyright 2019 dYdX Trading Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");

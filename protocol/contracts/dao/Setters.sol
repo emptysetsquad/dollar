@@ -21,6 +21,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./State.sol";
 import "./Getters.sol";
 
+/// @author Empty Set Squad
+/// @title Setters surfacing state for døllar's DAO
 contract Setters is State, Getters {
     using SafeMath for uint256;
 
@@ -30,14 +32,27 @@ contract Setters is State, Getters {
      * ERC20 Interface
      */
 
+    /// @dev Placeholder transfer to conform to ERC20. ESDS cannot currently be approved or transferred.
+    /// @param recipient The recipient of the tokens.
+    /// @param amount The amount of the tokens.
+    /// @return Whether the transfer was successful.
     function transfer(address recipient, uint256 amount) external returns (bool) {
         return false;
     }
 
+    /// @dev Placeholder approve to conform to ERC20. ESDS cannot currently be approved or transferred.
+    /// @param spender The spender of the tokens.
+    /// @param amount The amount of the tokens.
+    /// @return Whether the approval was successful.
     function approve(address spender, uint256 amount) external returns (bool) {
         return false;
     }
 
+    /// @dev Placeholder transferFrom to conform to ERC20. ESDS cannot currently be approved or transferred.
+    /// @param sender The sender of the tokens.
+    /// @param recipient The recipient of the tokens.
+    /// @param amount The amount of the tokens.
+    /// @return Whether the transfer was successful.
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
         return false;
     }

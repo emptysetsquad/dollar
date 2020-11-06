@@ -1,4 +1,6 @@
 /*
+    From: https://github.com/0xProject/0x-monorepo/blob/0e7387550cce05fb62b3e1acd2fe72b3e3eef776/contracts/utils/contracts/src/LibEIP712.sol
+
     Copyright 2019 ZeroEx Intl.
 
     Licensed under the Apache License, Version 2.0 (the "License");

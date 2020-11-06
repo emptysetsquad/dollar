@@ -20,6 +20,8 @@ pragma experimental ABIEncoderV2;
 import "./Setters.sol";
 import "../external/Require.sol";
 
+/// @author Empty Set Squad
+/// @title Permission logic for døllar's DAO
 contract Permission is Setters {
 
     bytes32 private constant FILE = "Permission";

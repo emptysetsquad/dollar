@@ -21,9 +21,8 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/upgrades/contracts/utils/Address.sol";
 import "./State.sol";
 
-/**
- * Based off of, and designed to interface with, openzeppelin/upgrades package
- */
+/// @author Empty Set Squad
+/// @title Upgradability logic for døllar's DAO. Based off of the @openzeppelin/upgrades package.
 contract Upgradeable is State {
     /**
      * @dev Storage slot with the address of the current implementation.

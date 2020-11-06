@@ -24,6 +24,8 @@ import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
 
+/// @author Empty Set Squad
+/// @title Top-level contract for døllar's DAO
 contract Implementation is State, Bonding, Market, Regulator, Govern {
     using SafeMath for uint256;
 
@@ -31,11 +33,13 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
     event Vest(address indexed account, uint256 value);
 
+    /// @dev One-time initialization logic that runs on implementation commit.
     function initialize() initializer public {
         // Reward committer
         mintToAccount(msg.sender, Constants.getAdvanceIncentive());
     }
 
+    /// @dev Advances the epoch and runs accompanying logic
     function advance() external incentivized {
         Bonding.step();
         Regulator.step();
@@ -44,6 +48,7 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         emit Advance(epoch(), block.number, block.timestamp);
     }
 
+    /// @dev Opt-in to vesting schedule for bonded ESD
     function vest() external {
         initializeVesting(msg.sender);
 

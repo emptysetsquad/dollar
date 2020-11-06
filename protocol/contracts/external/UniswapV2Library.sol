@@ -1,3 +1,7 @@
+/*
+    https://github.com/Uniswap/uniswap-v2-periphery/blob/6d03bede0a97c72323fa1c379ed3fdf7231d0b26/contracts/libraries/UniswapV2Library.sol
+*/
+
 pragma solidity 0.5.17;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";

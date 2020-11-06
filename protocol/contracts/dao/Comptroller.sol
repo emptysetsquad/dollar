@@ -22,6 +22,8 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Setters.sol";
 import "../external/Require.sol";
 
+/// @author Empty Set Squad
+/// @title Core accounting management logic for døllar's DAO
 contract Comptroller is Setters {
     using SafeMath for uint256;
     using SafeERC20 for IDollar;
