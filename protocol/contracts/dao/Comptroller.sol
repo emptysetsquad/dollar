@@ -78,7 +78,8 @@ contract Comptroller is Setters {
         uint256 totalCoupons = totalCoupons();
         if (totalRedeemable < totalCoupons) {
             newRedeemable = totalCoupons.sub(totalRedeemable);
-            newRedeemable = newRedeemable > newSupply.mul(couponSupplyRatio()) ? newSupply.mul(couponSupplyRatio()) : newRedeemable;
+            rewardAdjustedSupply = newSupply.mul(couponSupplyRatio());
+            newRedeemable = newRedeemable > rewardAdjustedSupply ? rewardAdjustedSupply : newRedeemable;
             mintToRedeemable(newRedeemable);
 
             newSupply = newSupply.sub(newRedeemable);
