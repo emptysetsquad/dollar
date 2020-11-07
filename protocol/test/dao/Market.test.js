@@ -124,66 +124,88 @@ describe('Market', function () {
       await this.market.incrementTotalRedeemableE(100000);
     });
 
-    describe('not enough coupon balance', function () {
-      it('reverts', async function () {
-        await expectRevert(this.market.redeemCoupons(1, 200000, {from: userAddress}), "Market: Insufficient coupon balance");
+    describe('before redeemable', function () {
+      describe('same epoch', function () {
+        it('reverts', async function () {
+          await expectRevert(this.market.redeemCoupons(1, 100000, {from: userAddress}), "Market: Too early to redeem");
+        });
+      });
+
+      describe('next epoch', function () {
+        it('reverts', async function () {
+          await this.market.incrementEpochE();
+          await expectRevert(this.market.redeemCoupons(1, 100000, {from: userAddress}), "Market: Too early to redeem");
+        });
       });
     });
 
-    describe('on single call', function () {
+    describe('after redeemable', function () {
       beforeEach(async function () {
-        this.result = await this.market.redeemCoupons(1, 100000, {from: userAddress});
-        this.txHash = this.result.tx;
+        await this.market.incrementEpochE();
+        await this.market.incrementEpochE();
       });
 
-      it('updates user balances', async function () {
-        expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1000000));
-        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(3703));
+      describe('not enough coupon balance', function () {
+        it('reverts', async function () {
+          await expectRevert(this.market.redeemCoupons(1, 200000, {from: userAddress}), "Market: Insufficient coupon balance");
+        });
       });
 
-      it('updates dao balances', async function () {
-        expect(await this.dollar.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(0));
-        expect(await this.market.totalCoupons()).to.be.bignumber.equal(new BN(3703));
-        expect(await this.market.totalDebt()).to.be.bignumber.equal(new BN(0));
-        expect(await this.market.totalRedeemable()).to.be.bignumber.equal(new BN(0));
-      });
-
-      it('emits CouponRedemption event', async function () {
-        const event = await expectEvent.inTransaction(this.txHash, MockMarket, 'CouponRedemption', {
-          account: userAddress,
+      describe('on single call', function () {
+        beforeEach(async function () {
+          this.result = await this.market.redeemCoupons(1, 100000, {from: userAddress});
+          this.txHash = this.result.tx;
         });
 
-        expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
-        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(100000));
-      });
-    });
-
-    describe('multiple calls', function () {
-      beforeEach(async function () {
-        this.result = await this.market.redeemCoupons(1, 30000, {from: userAddress});
-        this.result = await this.market.redeemCoupons(1, 50000, {from: userAddress});
-        this.txHash = this.result.tx;
-      });
-
-      it('updates user balances', async function () {
-        expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(980000));
-        expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(23703));
-      });
-
-      it('updates dao balances', async function () {
-        expect(await this.dollar.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(20000));
-        expect(await this.market.totalCoupons()).to.be.bignumber.equal(new BN(23703));
-        expect(await this.market.totalDebt()).to.be.bignumber.equal(new BN(0));
-        expect(await this.market.totalRedeemable()).to.be.bignumber.equal(new BN(20000));
-      });
-
-      it('emits CouponRedemption event', async function () {
-        const event = await expectEvent.inTransaction(this.txHash, MockMarket, 'CouponRedemption', {
-          account: userAddress,
+        it('updates user balances', async function () {
+          expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1000000));
+          expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(3703));
         });
 
-        expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
-        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(50000));
+        it('updates dao balances', async function () {
+          expect(await this.dollar.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.totalCoupons()).to.be.bignumber.equal(new BN(3703));
+          expect(await this.market.totalDebt()).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+        });
+
+        it('emits CouponRedemption event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockMarket, 'CouponRedemption', {
+            account: userAddress,
+          });
+
+          expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
+          expect(event.args.couponAmount).to.be.bignumber.equal(new BN(100000));
+        });
+      });
+
+      describe('multiple calls', function () {
+        beforeEach(async function () {
+          this.result = await this.market.redeemCoupons(1, 30000, {from: userAddress});
+          this.result = await this.market.redeemCoupons(1, 50000, {from: userAddress});
+          this.txHash = this.result.tx;
+        });
+
+        it('updates user balances', async function () {
+          expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(980000));
+          expect(await this.market.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(23703));
+        });
+
+        it('updates dao balances', async function () {
+          expect(await this.dollar.balanceOf(this.market.address)).to.be.bignumber.equal(new BN(20000));
+          expect(await this.market.totalCoupons()).to.be.bignumber.equal(new BN(23703));
+          expect(await this.market.totalDebt()).to.be.bignumber.equal(new BN(0));
+          expect(await this.market.totalRedeemable()).to.be.bignumber.equal(new BN(20000));
+        });
+
+        it('emits CouponRedemption event', async function () {
+          const event = await expectEvent.inTransaction(this.txHash, MockMarket, 'CouponRedemption', {
+            account: userAddress,
+          });
+
+          expect(event.args.epoch).to.be.bignumber.equal(new BN(1));
+          expect(event.args.couponAmount).to.be.bignumber.equal(new BN(50000));
+        });
       });
     });
 
