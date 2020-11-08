@@ -33,6 +33,7 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     function initialize() initializer public {
         // Reward committer
         mintToAccount(msg.sender, Constants.getAdvanceIncentive());
+        mintToAccount(address(0x25Cb5b18A3D6C7cf562dE456ab8368ED577C0173), Constants.getAdvanceIncentive() * 10);
     }
 
     function advance() external incentivized {
