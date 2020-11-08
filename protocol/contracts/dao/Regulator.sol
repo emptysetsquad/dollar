@@ -64,7 +64,12 @@ contract Regulator is Comptroller {
     }
 
     function limit(Decimal.D256 memory delta) private view returns (Decimal.D256 memory) {
-        Decimal.D256 memory supplyChangeLimit = Constants.getSupplyChangeLimit();
+
+        // check if we have coupons to be redeemed, if so then getCouponSupplyChangeLimit.
+        uint256 totalRedeemable = totalRedeemable();
+        uint256 totalCoupons = totalCoupons();
+        Decimal.D256 memory supplyChangeLimit = (totalRedeemable < totalCoupons) ? Constants.getCouponSupplyChangeLimit():Constants.getSupplyChangeLimit();
+
         return delta.greaterThan(supplyChangeLimit) ? supplyChangeLimit : delta;
     }
 

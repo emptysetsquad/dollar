@@ -65,6 +65,8 @@ library Constants {
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 3e16; // 3%
+    uint256 private constant COUPON_SUPPLY_CHANGE_LIMIT = 6e16; // 6%
+    uint256 private constant COUPON_SUPPLY_RATIO = 80; // 80%
     uint256 private constant ORACLE_POOL_RATIO = 20; // 20%
 
     /* Deployed */
@@ -150,6 +152,14 @@ library Constants {
 
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: SUPPLY_CHANGE_LIMIT});
+    }
+
+    function getCouponSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: COUPON_SUPPLY_CHANGE_LIMIT});
+    }
+
+    function getCouponSupplyRatio() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: COUPON_SUPPLY_RATIO});
     }
 
     function getOraclePoolRatio() internal pure returns (uint256) {
