@@ -213,7 +213,7 @@ describe('Market', function () {
       this.timeout(30000);
 
       beforeEach(async function () {
-        for (let i = 0; i < 90; i++) {
+        for (let i = 0; i < 180; i++) {
           await this.market.incrementEpochE();
         }
         await this.market.stepE();
@@ -373,9 +373,9 @@ describe('Market', function () {
 
     describe('on call without expiration', function () {
       it('initializes coupon expiry', async function () {
-        expect(await this.market.couponsExpiration(2)).to.be.bignumber.equal(new BN(92));
-        expect(await this.market.expiringCoupons(92)).to.be.bignumber.equal(new BN(1));
-        expect(await this.market.expiringCouponsAtIndex(92, 0)).to.be.bignumber.equal(new BN(2));
+        expect(await this.market.couponsExpiration(2)).to.be.bignumber.equal(new BN(182));
+        expect(await this.market.expiringCoupons(182)).to.be.bignumber.equal(new BN(1));
+        expect(await this.market.expiringCouponsAtIndex(182, 0)).to.be.bignumber.equal(new BN(2));
       });
     });
 
@@ -389,7 +389,7 @@ describe('Market', function () {
         await this.market.incrementEpochE();
         await this.market.stepE();
 
-        for (let i = 0; i < 89; i++) {
+        for (let i = 0; i < 179; i++) {
           await this.market.incrementEpochE();
         }
         this.result = await this.market.stepE();
@@ -419,7 +419,7 @@ describe('Market', function () {
         await this.market.incrementEpochE();
         this.result = await this.market.stepE();
 
-        for (let i = 0; i < 89; i++) {
+        for (let i = 0; i < 179; i++) {
           await this.market.incrementEpochE();
         }
         this.result = await this.market.stepE();
@@ -456,7 +456,7 @@ describe('Market', function () {
           await this.market.incrementEpochE();
           this.result = await this.market.stepE();
 
-          for (let i = 0; i < 89; i++) {
+          for (let i = 0; i < 179; i++) {
             await this.market.incrementEpochE();
           }
           this.result = await this.market.stepE();
@@ -489,7 +489,7 @@ describe('Market', function () {
 
           this.result = await this.market.stepE();
 
-          for (let i = 0; i < 89; i++) {
+          for (let i = 0; i < 179; i++) {
             await this.market.incrementEpochE();
           }
           this.result = await this.market.stepE();
@@ -521,7 +521,7 @@ describe('Market', function () {
 
           this.result = await this.market.stepE();
 
-          for (let i = 0; i < 89; i++) {
+          for (let i = 0; i < 179; i++) {
             await this.market.incrementEpochE();
           }
           this.result = await this.market.stepE();
@@ -553,7 +553,7 @@ describe('Market', function () {
 
           this.result = await this.market.stepE();
 
-          for (let i = 0; i < 89; i++) {
+          for (let i = 0; i < 179; i++) {
             await this.market.incrementEpochE();
           }
           this.result = await this.market.stepE();

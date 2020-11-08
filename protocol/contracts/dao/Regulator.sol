@@ -68,7 +68,7 @@ contract Regulator is Comptroller {
         // check if we have new coupons to be added to the _state.balance.redeemable, if so then getCouponSupplyChangeLimit.
         uint256 totalRedeemable = totalRedeemable();
         uint256 totalCoupons = totalCoupons();
-        Decimal.D256 memory supplyChangeLimit = (totalRedeemable < totalCoupons) ? Constants.getCouponSupplyChangeLimit():Constants.getSupplyChangeLimit();
+        Decimal.D256 memory supplyChangeLimit = (totalRedeemable < totalCoupons) ? Constants.getCouponSupplyChangeLimit() : Constants.getSupplyChangeLimit();
 
         return delta.greaterThan(supplyChangeLimit) ? supplyChangeLimit : delta;
     }

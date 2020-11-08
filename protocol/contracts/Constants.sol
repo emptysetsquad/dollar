@@ -158,8 +158,8 @@ library Constants {
         return Decimal.D256({value: COUPON_SUPPLY_CHANGE_LIMIT});
     }
 
-    function getCouponSupplyRatio() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: COUPON_SUPPLY_RATIO});
+    function getCouponSupplyRatio() internal pure returns (uint256) {
+        return COUPON_SUPPLY_RATIO;
     }
 
     function getOraclePoolRatio() internal pure returns (uint256) {
