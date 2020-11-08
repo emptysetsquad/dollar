@@ -1,5 +1,5 @@
 {
-  "name": "@emptysetsquad/dollar-protocol",
+  "name": "@emptysetsquad/dollar",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -7,7 +7,9 @@
   "scripts": {
     "build": "npm run compile",
     "compile": "truffle compile",
-    "test": "mocha --timeout 10000 --exit --recursive test"
+    "test": "mocha --timeout 10000 --exit --recursive test",
+    "deploy": "truffle migrate --network mainnet",
+    "verify": "truffle run verify Implementation --network mainnet"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -26,6 +28,6 @@
     "husky": "^4.2.5",
     "mocha": "^7.0.0",
     "truffle-privatekey-provider": "^1.3.0",
-    "verify-on-etherscan": "^1.2.1"
+    "truffle-plugin-verify": "^0.4.0"
   }
 }
