@@ -1,5 +1,4 @@
 **/node_modules
 **/build
-
-.env*
-.idea
+**/dist
+**/generated

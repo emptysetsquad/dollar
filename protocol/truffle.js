@@ -18,9 +18,8 @@
  *
  */
 const PrivateKeyProvider = require('truffle-privatekey-provider');
-const privateKey = process.env.ESD_PRIVATE_KEY;
-const infuraId = process.env.ESD_INFURA_ID;
-const etherscanKey = process.env.ESD_ETHERSCAN_KEY;
+const privateKey = process.env.ESS_PRIVATE_KEY;
+const infuraId = process.env.ESS_INFURA_ID;
 
 module.exports = {
   /**
@@ -52,7 +51,7 @@ module.exports = {
       provider: () => new PrivateKeyProvider(privateKey, 'https://mainnet.infura.io/v3/' + infuraId),
       network_id: 1,          // Mainnet's id
       gas: 5500000,           // Gas sent with each transaction (default: ~6700000)
-      gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
+      gasPrice: 1100000000,  // 20 gwei (in wei) (default: 100 gwei)
       timeoutBlocks: 1440,  // # of blocks before a deployment times out  (minimum/default: 50)
     },
 
@@ -105,11 +104,5 @@ module.exports = {
     }
   },
 
-  plugins: [
-    'truffle-plugin-verify'
-  ],
-
-  api_keys: {
-    etherscan: etherscanKey
-  }
+  plugins: ["solidity-coverage"]
 }
