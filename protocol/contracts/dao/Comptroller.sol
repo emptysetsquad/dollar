@@ -71,19 +71,24 @@ contract Comptroller is Setters {
     }
 
     function increaseSupply(uint256 newSupply) internal returns (uint256, uint256, uint256) {
-        (uint256 newRedeemable, uint256 lessDebt) = (0, 0);
+        (uint256 newRedeemable, uint256 lessDebt, uint256 poolReward) = (0, 0, 0);
 
         // 1. True up redeemable pool
         uint256 totalRedeemable = totalRedeemable();
         uint256 totalCoupons = totalCoupons();
         if (totalRedeemable < totalCoupons) {
 
-            newRedeemable = totalCoupons.sub(totalRedeemable);
-            uint256 rewardAdjustedSupply = newSupply.mul(Constants.getCouponSupplyRatio()).div(100);
-            newRedeemable = newRedeemable > rewardAdjustedSupply ? rewardAdjustedSupply : newRedeemable;
+            uint256 newPotentialRedeemable = totalCoupons.sub(totalRedeemable);
+            newPotentialRedeemable = newPotentialRedeemable > newSupply ? newSupply : newPotentialRedeemable;
+
+
+            poolReward = newPotentialRedeemable.mul(Constants.getOraclePoolRatio()).div(100);
+            newRedeemable = newPotentialRedeemable - poolReward;
+
+            mintToPool(poolReward);
             mintToRedeemable(newRedeemable);
 
-            newSupply = newSupply.sub(newRedeemable);
+            newSupply = newSupply.sub(newPotentialRedeemable);
         }
 
         // 2. Eliminate debt
@@ -103,7 +108,7 @@ contract Comptroller is Setters {
             mintToBonded(newSupply);
         }
 
-        return (newRedeemable, lessDebt, newSupply);
+        return (newRedeemable, lessDebt, newSupply + poolReward);
     }
 
     function resetDebt(Decimal.D256 memory targetDebtRatio) internal {
@@ -134,16 +139,23 @@ contract Comptroller is Setters {
         uint256 poolAmount = amount.mul(Constants.getOraclePoolRatio()).div(100);
         uint256 daoAmount = amount > poolAmount ? amount.sub(poolAmount) : 0;
 
-        if (poolAmount > 0) {
-            dollar().mint(pool(), poolAmount);
-        }
-
-        if (daoAmount > 0) {
-            dollar().mint(address(this), daoAmount);
-            incrementTotalBonded(daoAmount);
-        }
+        mintToPool(poolAmount);
+        mintToDAO(daoAmount);
 
         balanceCheck();
+    }
+
+    function mintToDAO(uint256 amount) private {
+        if (amount > 0) {
+            dollar().mint(address(this), amount);
+            incrementTotalBonded(amount);
+        }
+    }
+
+    function mintToPool(uint256 amount) private {
+        if (amount > 0) {
+            dollar().mint(pool(), amount);
+        }
     }
 
     function mintToRedeemable(uint256 amount) private {

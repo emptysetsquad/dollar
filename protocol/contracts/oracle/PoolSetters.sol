@@ -77,6 +77,6 @@ contract PoolSetters is PoolState, PoolGetters {
     }
 
     function unfreeze(address account) internal {
-        _state.accounts[account].fluidUntil = epoch().add(1);
+        _state.accounts[account].fluidUntil = epoch().add(Constants.getPoolExitLockupEpochs());
     }
 }
