@@ -60,7 +60,7 @@ library Constants {
     uint256 private constant ADVANCE_INCENTIVE = 1e20; // 100 ESD
 
     /* Market */
-    uint256 private constant COUPON_EXPIRATION = 180;
+    uint256 private constant COUPON_EXPIRATION = 90;
     uint256 private constant DEBT_RATIO_CAP = 35e16; // 35%
 
     /* Regulator */
