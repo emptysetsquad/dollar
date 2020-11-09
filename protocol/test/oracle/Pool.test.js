@@ -819,7 +819,7 @@ describe('Pool', function () {
 
         this.poolLockupEpochs = 5;
         for (var i = 0; i < this.poolLockupEpochs; i++) {
-          incrementEpoch(this.dao);
+          await incrementEpoch(this.dao);
         }
         await this.dollar.mint(this.pool.address, 1000);
       });
@@ -891,7 +891,7 @@ describe('Pool', function () {
           await this.pool.deposit(1000, {from: userAddress1});
           await this.pool.bond(1000, {from: userAddress1});
 
-          incrementEpoch(this.dao);
+          await incrementEpoch(this.dao);
           await this.dollar.mint(this.pool.address, 1000);
 
           // 1000 ESD + 3000 USDC
