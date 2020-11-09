@@ -91,16 +91,7 @@ contract Comptroller is Setters {
             newSupply = newSupply.sub(newPotentialRedeemable);
         }
 
-        // 2. Eliminate debt
-        uint256 totalDebt = totalDebt();
-        if (newSupply > 0 && totalDebt > 0) {
-            lessDebt = totalDebt > newSupply ? newSupply : totalDebt;
-            decreaseDebt(lessDebt);
-
-            newSupply = newSupply.sub(lessDebt);
-        }
-
-        // 3. Payout to bonded
+        // 2. Payout to bonded
         if (totalBonded() == 0) {
             newSupply = 0;
         }
