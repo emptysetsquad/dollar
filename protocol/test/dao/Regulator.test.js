@@ -197,6 +197,7 @@ describe('Regulator', function () {
         beforeEach(async function () {
           await this.oracle.set(101, 100, true);
           this.expectedReward = 10000;
+          this.poolReward = 400;
 
           this.result = await this.regulator.stepE();
           this.txHash = this.result.tx;
@@ -204,13 +205,13 @@ describe('Regulator', function () {
 
         it('mints new Dollar tokens', async function () {
           expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedReward)));
-          expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(lessPoolIncentive(1002000, this.expectedReward - 2000));
-          expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(poolIncentive(this.expectedReward - 2000));
+          expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(lessPoolIncentive(1002000, this.expectedReward - 2000).sub(new BN(this.poolReward)));
+          expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(this.poolReward).add(poolIncentive(this.expectedReward - 2000)));
         });
 
         it('updates totals', async function () {
           expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalBonded()).to.be.bignumber.equal(lessPoolIncentive(1000000, this.expectedReward - 2000));
+          expect(await this.regulator.totalBonded()).to.be.bignumber.equal(lessPoolIncentive(1000000, this.expectedReward - 2000).sub(new BN(this.poolReward)));
           expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(0));
           expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
           expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(2000));
