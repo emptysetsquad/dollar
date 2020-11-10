@@ -99,7 +99,7 @@ contract Comptroller is Setters {
             mintToBonded(newSupply);
         }
 
-        return (newRedeemable, lessDebt, newSupply + poolReward);
+        return (newRedeemable, lessDebt, newSupply.add(poolReward));
     }
 
     function resetDebt(Decimal.D256 memory targetDebtRatio) internal {
