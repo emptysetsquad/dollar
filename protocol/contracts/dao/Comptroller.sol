@@ -78,23 +78,23 @@ contract Comptroller is Setters {
         uint256 totalCoupons = totalCoupons();
         if (totalRedeemable < totalCoupons) {
 
-            uint256 newPotentialRedeemable = totalCoupons.sub(totalRedeemable);
-            // If we can clear the outstanding coupon pool to redeemable, then do so
-            if (newPotentialRedeemable < newSupply) {
-                newRedeemable = newPotentialRedeemable;
-            } else {    
-                // else give configured % to pool
-                newPotentialRedeemable = newSupply;
-                poolReward = newPotentialRedeemable.mul(Constants.getOraclePoolRatio()).div(100);
-                newRedeemable = newPotentialRedeemable.sub(poolReward);
-            }
+            // Get new redeemable coupons
+            newRedeemable = totalCoupons.sub(totalRedeemable);
+            // Pad with Pool's potential cut
+            newRedeemable = newRedeemable.mul(100).div(SafeMath.sub(100, Constants.getOraclePoolRatio()));
+            // Cap at newSupply
+            newRedeemable = newRedeemable > newSupply ? newSupply : newRedeemable;
+            // Determine Pool's final cut
+            poolReward = newRedeemable.mul(Constants.getOraclePoolRatio()).div(100);
+            // Determine Redeemable's final cut
+            newRedeemable = newRedeemable.sub(poolReward);
 
             mintToPool(poolReward);
             mintToRedeemable(newRedeemable);
 
-            newSupply = newSupply.sub(newPotentialRedeemable);
+            newSupply = newSupply.sub(poolReward);
+            newSupply = newSupply.sub(newRedeemable);
         }
-
         // 2. Eliminate debt
         uint256 totalDebt = totalDebt();
         if (newSupply > 0 && totalDebt > 0) {
