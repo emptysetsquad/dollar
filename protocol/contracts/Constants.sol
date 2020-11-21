@@ -52,7 +52,7 @@ library Constants {
 
     /* Governance */
     uint256 private constant GOVERNANCE_PERIOD = 9;
-    uint256 private constant GOVERNANCE_QUORUM = 33e16; // 33%
+    uint256 private constant GOVERNANCE_QUORUM = 20e16; // 20%
     uint256 private constant GOVERNANCE_SUPER_MAJORITY = 66e16; // 66%
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 

@@ -256,8 +256,8 @@ describe('Govern', function () {
 
   describe('commit', function () {
     beforeEach(async function () {
-      await this.govern.incrementBalanceOfE(userAddress, INITIAL_STAKE_MULTIPLE.muln(2500));
-      await this.govern.incrementBalanceOfE(userAddress2, INITIAL_STAKE_MULTIPLE.muln(4000));
+      await this.govern.incrementBalanceOfE(userAddress, INITIAL_STAKE_MULTIPLE.muln(2000));
+      await this.govern.incrementBalanceOfE(userAddress2, INITIAL_STAKE_MULTIPLE.muln(4500));
       await this.govern.incrementBalanceOfE(userAddress3, INITIAL_STAKE_MULTIPLE.muln(3500));
       await this.govern.incrementTotalBondedE(10000);
     });
