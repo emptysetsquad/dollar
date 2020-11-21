@@ -226,10 +226,20 @@ describe('PollState', function () {
       });
     });
 
-    describe('when called then advanced', function () {
+    describe('when called then advanced within lockup', function () {
       beforeEach('call', async function () {
         await this.setters.unfreezeE(userAddress);
         await this.dao.set(1);
+      });
+
+      it('is frozen', async function () {
+        expect(await this.setters.statusOf(userAddress)).to.be.bignumber.equal(new BN(1));
+      });
+    });
+    describe('when called then advanced after lockup', function () {
+      beforeEach('call', async function () {
+        await this.setters.unfreezeE(userAddress);
+        await this.dao.set(5);
       });
 
       it('is frozen', async function () {

@@ -58,6 +58,10 @@ library Constants {
 
     /* DAO */
     uint256 private constant ADVANCE_INCENTIVE = 1e20; // 100 ESD
+    uint256 private constant DAO_EXIT_LOCKUP_EPOCHS = 15; // 15 epochs fluid
+
+    /* Pool */
+    uint256 private constant POOL_EXIT_LOCKUP_EPOCHS = 5; // 5 epochs fluid
 
     /* Market */
     uint256 private constant COUPON_EXPIRATION = 90;
@@ -65,6 +69,7 @@ library Constants {
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 3e16; // 3%
+    uint256 private constant COUPON_SUPPLY_CHANGE_LIMIT = 6e16; // 6%
     uint256 private constant ORACLE_POOL_RATIO = 20; // 20%
 
     /* Deployed */
@@ -140,6 +145,14 @@ library Constants {
         return ADVANCE_INCENTIVE;
     }
 
+    function getDAOExitLockupEpochs() internal pure returns (uint256) {
+        return DAO_EXIT_LOCKUP_EPOCHS;
+    }
+
+    function getPoolExitLockupEpochs() internal pure returns (uint256) {
+        return POOL_EXIT_LOCKUP_EPOCHS;
+    }
+
     function getCouponExpiration() internal pure returns (uint256) {
         return COUPON_EXPIRATION;
     }
@@ -150,6 +163,10 @@ library Constants {
 
     function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: SUPPLY_CHANGE_LIMIT});
+    }
+
+    function getCouponSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: COUPON_SUPPLY_CHANGE_LIMIT});
     }
 
     function getOraclePoolRatio() internal pure returns (uint256) {

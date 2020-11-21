@@ -794,22 +794,40 @@ describe('Bonding', function () {
       await this.bonding.unbondUnderlying(2000, {from: userAddress});
 
       await time.increase(86400);
-      await this.bonding.stepE({from: userAddress});
+      for (var i = 0; i < 14; i++) {
+        await this.bonding.stepE({from: userAddress});
+      }
     });
 
-    it('user is frozen', async function () {
-      expect(await this.bonding.statusOf(userAddress)).to.be.bignumber.equal(FROZEN);
+    describe('preceeding epoch cooldown', function() {
+      it('user is fluid', async function () {
+        expect(await this.bonding.statusOf(userAddress)).to.be.bignumber.equal(FLUID);
+      });
+
+      it('is correct epoch', async function () {
+        expect(await this.bonding.epoch()).to.be.bignumber.equal(new BN(17));
+      });
     });
 
-    it('is correct epoch', async function () {
-      expect(await this.bonding.epoch()).to.be.bignumber.equal(new BN(4));
-    });
+    describe ('after epoch lock cooldown', function() {
+      beforeEach(async function () {
+        await this.bonding.stepE({from: userAddress});
+      });
 
-    it('has correct snapshots', async function () {
-      expect(await this.bonding.totalBondedAt(0)).to.be.bignumber.equal(new BN(0));
-      expect(await this.bonding.totalBondedAt(1)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
-      expect(await this.bonding.totalBondedAt(2)).to.be.bignumber.equal(new BN(2000).mul(INITIAL_STAKE_MULTIPLE));
-      expect(await this.bonding.totalBondedAt(3)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
-    });
+      it('user is frozen', async function () {
+        expect(await this.bonding.statusOf(userAddress)).to.be.bignumber.equal(FROZEN);
+      });
+
+      it('is correct epoch', async function () {
+        expect(await this.bonding.epoch()).to.be.bignumber.equal(new BN(18));
+      });
+
+      it('has correct snapshots', async function () {
+        expect(await this.bonding.totalBondedAt(0)).to.be.bignumber.equal(new BN(0));
+        expect(await this.bonding.totalBondedAt(1)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+        expect(await this.bonding.totalBondedAt(2)).to.be.bignumber.equal(new BN(2000).mul(INITIAL_STAKE_MULTIPLE));
+        expect(await this.bonding.totalBondedAt(3)).to.be.bignumber.equal(new BN(1000).mul(INITIAL_STAKE_MULTIPLE));
+      });
+    })
   });
 });
