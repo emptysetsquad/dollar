@@ -77,10 +77,6 @@ library Constants {
     address private constant DOLLAR_ADDRESS = address(0x36F3FD68E7325a35EB768F1AedaAe9EA0689d723);
     address private constant PAIR_ADDRESS = address(0x88ff79eB2Bc5850F27315415da8685282C7610F9);
 
-    /* Pool Migration */
-    address private constant LEGACY_POOL_ADDRESS = address(0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68);
-    uint256 private constant LEGACY_POOL_REWARD = 1e18; // 1 ESD
-
     /**
      * Getters
      */
@@ -187,13 +183,5 @@ library Constants {
 
     function getPairAddress() internal pure returns (address) {
         return PAIR_ADDRESS;
-    }
-
-    function getLegacyPoolAddress() internal pure returns (address) {
-        return LEGACY_POOL_ADDRESS;
-    }
-
-    function getLegacyPoolReward() internal pure returns (uint256) {
-        return LEGACY_POOL_REWARD;
     }
 }
