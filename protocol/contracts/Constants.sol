@@ -51,7 +51,8 @@ library Constants {
     uint256 private constant CURRENT_EPOCH_PERIOD = 28800;
 
     /* Governance */
-    uint256 private constant GOVERNANCE_PERIOD = 9;
+    uint256 private constant GOVERNANCE_PERIOD = 9; // 9 epochs
+    uint256 private constant GOVERNANCE_EXPIRATION = 3; // 3 epochs
     uint256 private constant GOVERNANCE_QUORUM = 20e16; // 20%
     uint256 private constant GOVERNANCE_PROPOSAL_THRESHOLD = 5e15; // 0.5%
     uint256 private constant GOVERNANCE_SUPER_MAJORITY = 66e16; // 66%
@@ -124,6 +125,10 @@ library Constants {
 
     function getGovernancePeriod() internal pure returns (uint256) {
         return GOVERNANCE_PERIOD;
+    }
+
+    function getGovernanceExpiration() internal pure returns (uint256) {
+        return GOVERNANCE_EXPIRATION;
     }
 
     function getGovernanceQuorum() internal pure returns (Decimal.D256 memory) {
