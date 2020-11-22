@@ -7,7 +7,6 @@ const MockRegulator = contract.fromArtifact('MockRegulator');
 const MockSettableOracle = contract.fromArtifact('MockSettableOracle');
 const Dollar = contract.fromArtifact('Dollar');
 
-const LEGACY_POOL_ADDRESS = "0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68";
 const POOL_REWARD_PERCENT = 20;
 
 function lessPoolIncentive(baseAmount, newAmount) {
@@ -154,7 +153,6 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedReward)));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedReward - this.expectedRewardLP)));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(this.expectedRewardLP));
-            expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
           });
 
           it('updates totals', async function () {
@@ -172,7 +170,7 @@ describe('Regulator', function () {
             expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
             expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
             expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
-            expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
+            expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000));
             expect(event.args.newBonded).to.be.bignumber.equal(new BN(this.expectedRewardLP + this.expectedRewardDAO));
           });
         });
@@ -224,7 +222,7 @@ describe('Regulator', function () {
           expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
           expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
           expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(2000));
-          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
+          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000));
           expect(event.args.newBonded).to.be.bignumber.equal(new BN(this.expectedReward - 2000));
         });
       });
@@ -260,7 +258,6 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedReward)));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000).add(new BN(this.expectedReward - this.expectedRewardLP)));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(this.expectedRewardLP));
-            expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
           });
 
           it('updates totals', async function () {
@@ -278,7 +275,7 @@ describe('Regulator', function () {
             expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
             expect(event.args.price).to.be.bignumber.equal(new BN(105).mul(new BN(10).pow(new BN(16))));
             expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
-            expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
+            expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000));
             expect(event.args.newBonded).to.be.bignumber.equal(new BN(this.expectedRewardLP + this.expectedRewardDAO));
           });
         });
@@ -309,7 +306,6 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-            expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
           });
 
           it('updates totals', async function () {
@@ -355,7 +351,6 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-            expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
           });
 
           it('updates totals', async function () {
@@ -402,7 +397,6 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-            expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
           });
 
           it('updates totals', async function () {
@@ -450,7 +444,6 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-            expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
           });
 
           it('updates totals', async function () {
@@ -497,7 +490,6 @@ describe('Regulator', function () {
           expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
           expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
           expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-          expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
         });
 
         it('updates totals', async function () {
@@ -539,7 +531,6 @@ describe('Regulator', function () {
           expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
           expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
           expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
-          expect(await this.dollar.balanceOf(LEGACY_POOL_ADDRESS)).to.be.bignumber.equal(new BN(0));
         });
 
         it('updates totals', async function () {

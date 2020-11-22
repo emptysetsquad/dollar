@@ -53,6 +53,7 @@ library Constants {
     /* Governance */
     uint256 private constant GOVERNANCE_PERIOD = 9;
     uint256 private constant GOVERNANCE_QUORUM = 20e16; // 20%
+    uint256 private constant GOVERNANCE_PROPOSAL_THRESHOLD = 5e15; // 0.5%
     uint256 private constant GOVERNANCE_SUPER_MAJORITY = 66e16; // 66%
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
@@ -127,6 +128,10 @@ library Constants {
 
     function getGovernanceQuorum() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: GOVERNANCE_QUORUM});
+    }
+
+    function getGovernanceProposalThreshold() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: GOVERNANCE_PROPOSAL_THRESHOLD});
     }
 
     function getGovernanceSuperMajority() internal pure returns (Decimal.D256 memory) {
