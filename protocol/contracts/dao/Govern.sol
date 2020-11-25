@@ -100,7 +100,7 @@ contract Govern is Setters, Permission, Upgradeable {
         );
 
         Require.that(
-            epoch() <= endsAfter.add(Constants.getGovernanceExpiration()),
+            epoch() <= endsAfter.add(1).add(Constants.getGovernanceExpiration()),
             FILE,
             "Expired"
         );
