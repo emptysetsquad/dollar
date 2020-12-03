@@ -506,7 +506,7 @@ describe('Market', function () {
         });
       });
 
-      describe('reclaimed some debt', function () {
+      describe('with some debt', function () {
         this.timeout(30000);
 
         beforeEach(async function () {
@@ -533,12 +533,13 @@ describe('Market', function () {
 
           expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
           expect(event.args.couponsExpired).to.be.bignumber.equal(new BN(54662));
-          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(47277));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(0));
+          expect(event.args.lessRedeemable).to.be.bignumber.equal(new BN(47277));
+          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
+          expect(event.args.newBonded).to.be.bignumber.equal(new BN(47277));
         });
       });
 
-      describe('reclaimed all debt and some bonded', function () {
+      describe('with more reclaimed than debt', function () {
         this.timeout(30000);
 
         beforeEach(async function () {
@@ -565,8 +566,9 @@ describe('Market', function () {
 
           expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
           expect(event.args.couponsExpired).to.be.bignumber.equal(new BN(53377));
-          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(20000));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(28446));
+          expect(event.args.lessRedeemable).to.be.bignumber.equal(new BN(48446));
+          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
+          expect(event.args.newBonded).to.be.bignumber.equal(new BN(48446));
         });
       });
     });

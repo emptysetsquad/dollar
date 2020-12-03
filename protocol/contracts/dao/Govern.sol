@@ -100,6 +100,12 @@ contract Govern is Setters, Permission, Upgradeable {
         );
 
         Require.that(
+            epoch() <= endsAfter.add(1).add(Constants.getGovernanceExpiration()),
+            FILE,
+            "Expired"
+        );
+
+        Require.that(
             Decimal.ratio(votesFor(candidate), totalBondedAt(endsAfter)).greaterThan(Constants.getGovernanceQuorum()),
             FILE,
             "Must have quorom"
@@ -152,6 +158,6 @@ contract Govern is Setters, Permission, Upgradeable {
         }
 
         Decimal.D256 memory stake = Decimal.ratio(balanceOf(account), totalSupply());
-        return stake.greaterThan(Decimal.ratio(1, 100)); // 1%
+        return stake.greaterThan(Constants.getGovernanceProposalThreshold());
     }
 }

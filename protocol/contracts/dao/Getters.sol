@@ -126,6 +126,14 @@ contract Getters is State {
         return epoch() >= _state.accounts[account].fluidUntil ? Account.Status.Frozen : Account.Status.Fluid;
     }
 
+    function fluidUntil(address account) public view returns (uint256) {
+        return _state.accounts[account].fluidUntil;
+    }
+
+    function lockedUntil(address account) public view returns (uint256) {
+        return _state.accounts[account].lockedUntil;
+    }
+
     function allowanceCoupons(address owner, address spender) public view returns (uint256) {
         return _state.accounts[owner].couponAllowances[spender];
     }

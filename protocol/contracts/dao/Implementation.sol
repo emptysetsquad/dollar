@@ -32,16 +32,14 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
     function initialize() initializer public {
         // Reward committer
-        mintToAccount(msg.sender, Constants.getAdvanceIncentive());
+        incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
-        mintToAccount(address(0x25Cb5b18A3D6C7cf562dE456ab8368ED577C0173), Constants.getAdvanceIncentive() * 30);
-        mintToAccount(address(0x9541f37c00901E21F1e11f4f90FE8F04E18B7793), Constants.getAdvanceIncentive() * 30);
-        mintToAccount(address(0x8CA440e6e8AD6DbcAbec20Df94DC19047c614a6c), Constants.getAdvanceIncentive() * 10);
-        // New Pool address
-        _state.provider.pool = address(0x4082D11E506e3250009A991061ACd2176077C88f);
+
     }
 
-    function advance() external incentivized {
+    function advance() external {
+        incentivize(msg.sender, Constants.getAdvanceIncentive());
+
         Bonding.step();
         Regulator.step();
         Market.step();
@@ -49,15 +47,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         emit Advance(epoch(), block.number, block.timestamp);
     }
 
-    modifier incentivized {
-        // Mint advance reward to sender
-        uint256 incentive = Constants.getAdvanceIncentive();
-        mintToAccount(msg.sender, incentive);
-        emit Incentivization(msg.sender, incentive);
-
-        // Mint legacy pool reward for migration
-        mintToAccount(Constants.getLegacyPoolAddress(), Constants.getLegacyPoolReward());
-
-        _;
+    function incentivize(address account, uint256 amount) private {
+        mintToAccount(account, amount);
+        emit Incentivization(account, amount);
     }
 }

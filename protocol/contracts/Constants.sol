@@ -51,8 +51,10 @@ library Constants {
     uint256 private constant CURRENT_EPOCH_PERIOD = 28800;
 
     /* Governance */
-    uint256 private constant GOVERNANCE_PERIOD = 9;
-    uint256 private constant GOVERNANCE_QUORUM = 33e16; // 33%
+    uint256 private constant GOVERNANCE_PERIOD = 9; // 9 epochs
+    uint256 private constant GOVERNANCE_EXPIRATION = 2; // 2 + 1 epochs
+    uint256 private constant GOVERNANCE_QUORUM = 20e16; // 20%
+    uint256 private constant GOVERNANCE_PROPOSAL_THRESHOLD = 5e15; // 0.5%
     uint256 private constant GOVERNANCE_SUPER_MAJORITY = 66e16; // 66%
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
@@ -76,10 +78,6 @@ library Constants {
     address private constant DAO_ADDRESS = address(0x443D2f2755DB5942601fa062Cc248aAA153313D3);
     address private constant DOLLAR_ADDRESS = address(0x36F3FD68E7325a35EB768F1AedaAe9EA0689d723);
     address private constant PAIR_ADDRESS = address(0x88ff79eB2Bc5850F27315415da8685282C7610F9);
-
-    /* Pool Migration */
-    address private constant LEGACY_POOL_ADDRESS = address(0xdF0Ae5504A48ab9f913F8490fBef1b9333A68e68);
-    uint256 private constant LEGACY_POOL_REWARD = 1e18; // 1 ESD
 
     /**
      * Getters
@@ -129,8 +127,16 @@ library Constants {
         return GOVERNANCE_PERIOD;
     }
 
+    function getGovernanceExpiration() internal pure returns (uint256) {
+        return GOVERNANCE_EXPIRATION;
+    }
+
     function getGovernanceQuorum() internal pure returns (Decimal.D256 memory) {
         return Decimal.D256({value: GOVERNANCE_QUORUM});
+    }
+
+    function getGovernanceProposalThreshold() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: GOVERNANCE_PROPOSAL_THRESHOLD});
     }
 
     function getGovernanceSuperMajority() internal pure returns (Decimal.D256 memory) {
@@ -187,13 +193,5 @@ library Constants {
 
     function getPairAddress() internal pure returns (address) {
         return PAIR_ADDRESS;
-    }
-
-    function getLegacyPoolAddress() internal pure returns (address) {
-        return LEGACY_POOL_ADDRESS;
-    }
-
-    function getLegacyPoolReward() internal pure returns (uint256) {
-        return LEGACY_POOL_REWARD;
     }
 }
