@@ -433,7 +433,7 @@ describe('Market', function () {
         expect(event.args.couponsExpired).to.be.bignumber.equal(new BN(103703));
         expect(event.args.lessRedeemable).to.be.bignumber.equal(new BN(100000));
         expect(event.args.lessDebt).to.be.bignumber.equal(new BN(0));
-        expect(event.args.newBonded).to.be.bignumber.equal(new BN(0));
+        expect(event.args.newBonded).to.be.bignumber.equal(new BN(22500));
       });
     });
 
