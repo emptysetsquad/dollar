@@ -31,6 +31,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
+        // Bootstrap Treasury
+        incentivize(Constants.getTreasuryAddress(), 5e23);
         // Reward committer
         incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
