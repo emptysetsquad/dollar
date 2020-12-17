@@ -31,12 +31,14 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
-        // Bootstrap Treasury
-        incentivize(Constants.getTreasuryAddress(), 5e23);
         // Reward committer
         incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
+        incentivize(address(0x739e3aD76c6BBe301e6e358a1f8326F31ab89335), 2500e18);
 
+        // Cut the debt to 40% to ease any potential premium shock
+        uint256 decreaseAmount = totalDebt().mul(3).div(5);
+        decreaseDebt(decreaseAmount);
     }
 
     function advance() external {
