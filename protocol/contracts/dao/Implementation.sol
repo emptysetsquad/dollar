@@ -36,7 +36,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         // Reward committer
         incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
-
+        incentivize(address(0xC85170886A7F34e1365E2aA04486ae8F1106F783), 1000e18);
+        incentivize(address(0xD8bCa431135F1b906c545834C0740f240F2BC2A7), 1500e18);
     }
 
     function advance() external {

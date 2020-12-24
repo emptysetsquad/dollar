@@ -7,8 +7,8 @@ const MockRegulator = contract.fromArtifact('MockRegulator');
 const MockSettableOracle = contract.fromArtifact('MockSettableOracle');
 const Dollar = contract.fromArtifact('Dollar');
 
-const POOL_REWARD_PERCENT = 20;
-const TREASURY_REWARD_BIPS = 250;
+const POOL_REWARD_BIPS = 1250;
+const TREASURY_REWARD_BIPS = 1000;
 const TREASURY_ADDRESS = '0x460661bd4A5364A3ABCc9cfc4a8cE7038d05Ea22';
 
 function lessPoolAndTreasuryIncentive(baseAmount, newAmount) {
@@ -16,7 +16,7 @@ function lessPoolAndTreasuryIncentive(baseAmount, newAmount) {
 }
 
 function poolIncentive(newAmount) {
-  return new BN(newAmount * POOL_REWARD_PERCENT / 100);
+  return new BN(newAmount * POOL_REWARD_BIPS / 10000);
 }
 
 function treasuryIncentive(newAmount) {
@@ -152,8 +152,8 @@ describe('Regulator', function () {
             this.expectedReward = 10000;
             this.expectedRewardCoupons = 7750;
             this.expectedRewardDAO = 0;
-            this.expectedRewardLP = 2000;
-            this.expectedRewardTreasury = 250;
+            this.expectedRewardLP = 1250;
+            this.expectedRewardTreasury = 1000;
 
             this.result = await this.regulator.stepE();
             this.txHash = this.result.tx;
@@ -207,8 +207,8 @@ describe('Regulator', function () {
           await this.oracle.set(101, 100, true);
           this.bondedReward = 5750;
           this.newRedeemable = 2000;
-          this.poolReward = 2000;
-          this.treasuryReward = 250;
+          this.poolReward = 1250;
+          this.treasuryReward = 1000;
 
           this.result = await this.regulator.stepE();
           this.txHash = this.result.tx;
@@ -261,8 +261,8 @@ describe('Regulator', function () {
             this.expectedReward = 50000;
             this.expectedRewardCoupons = 38750;
             this.expectedRewardDAO = 0;
-            this.expectedRewardLP = 10000;
-            this.expectedRewardTreasury = 1250;
+            this.expectedRewardLP = 6250;
+            this.expectedRewardTreasury = 5000;
 
             this.result = await this.regulator.stepE();
             this.txHash = this.result.tx;
