@@ -17,7 +17,7 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "../oracle/IDAO.sol";
+import "../Interfaces.sol";
 
 contract MockSettableDAO is IDAO {
     uint256 internal _epoch;
@@ -28,5 +28,9 @@ contract MockSettableDAO is IDAO {
 
     function epoch() external view returns (uint256) {
         return _epoch;
+    }
+
+    function mintToReserve(uint256 amount) external {
+        //TODO: implement for tests
     }
 }

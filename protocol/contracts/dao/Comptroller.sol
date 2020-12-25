@@ -18,13 +18,21 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./Permission.sol";
 import "./Setters.sol";
 import "../external/Require.sol";
 
-contract Comptroller is Setters {
+
+contract Comptroller is Setters, Permission {
     using SafeMath for uint256;
 
     bytes32 private constant FILE = "Comptroller";
+
+    function mintToReserve(uint256 amount) external onlyReserve {
+        dollar().mint(reserve(), amount);
+
+        balanceCheck();
+    }
 
     function mintToAccount(address account, uint256 amount) internal {
         dollar().mint(account, amount);

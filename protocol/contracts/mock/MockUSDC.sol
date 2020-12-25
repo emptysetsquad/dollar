@@ -17,7 +17,7 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "../oracle/IUSDC.sol";
+import "../Interfaces.sol";
 
 contract MockUSDC is IUSDC {
     bool private _blacklisted;

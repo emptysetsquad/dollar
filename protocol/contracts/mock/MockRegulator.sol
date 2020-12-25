@@ -18,7 +18,7 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "../dao/Regulator.sol";
-import "../oracle/IOracle.sol";
+import "../Interfaces.sol";
 import "./MockComptroller.sol";
 import "./MockState.sol";
 

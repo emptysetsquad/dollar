@@ -18,8 +18,7 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
-import "../token/IDollar.sol";
-import "../oracle/IOracle.sol";
+import "../Interfaces.sol";
 import "../external/Decimal.sol";
 
 contract Account {

@@ -57,4 +57,14 @@ contract Permission is Setters {
 
         _;
     }
+
+    modifier onlyReserve {
+        Require.that(
+            msg.sender == reserve(),
+            FILE,
+            "Not reserve"
+        );
+
+        _;
+    }
 }

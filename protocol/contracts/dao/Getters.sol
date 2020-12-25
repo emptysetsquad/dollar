@@ -71,6 +71,10 @@ contract Getters is State {
         return _state.provider.pool;
     }
 
+    function reserve() public view returns (address) {
+        return Constants.getReserveAddress();
+    }
+
     function totalBonded() public view returns (uint256) {
         return _state.balance.bonded;
     }

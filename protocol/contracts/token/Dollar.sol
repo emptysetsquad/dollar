@@ -21,7 +21,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/access/roles/MinterRole.sol";
 import "./Permittable.sol";
-import "./IDollar.sol";
+import "../Interfaces.sol";
 
 
 contract Dollar is IDollar, MinterRole, ERC20Detailed, Permittable, ERC20Burnable  {
