@@ -18,7 +18,7 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "../external/Decimal.sol";
-import "../oracle/IOracle.sol";
+import "../Interfaces.sol";
 
 contract MockSettableOracle is IOracle {
     Decimal.D256 internal _price;

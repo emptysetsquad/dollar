@@ -22,9 +22,15 @@ import "../token/Dollar.sol";
 import "./MockState.sol";
 
 contract MockComptroller is Comptroller, MockState {
+    address private _reserve;
+
     constructor(address pool) public {
         _state.provider.dollar = new Dollar();
         _state.provider.pool = pool;
+    }
+
+    function reserve() public view returns (address) {
+        return _reserve;
     }
 
     function mintToAccountE(address account, uint256 amount) external {
@@ -58,5 +64,18 @@ contract MockComptroller is Comptroller, MockState {
     /* For testing only */
     function mintToE(address account, uint256 amount) external {
         dollar().mint(account, amount);
+    }
+
+    function setReserve(address reserve) external {
+        _reserve = reserve;
+    }
+
+    function setReserveParams(uint256 mintRateCap, uint256 burnRateCap) external {
+        IReserve(reserve()).setMintRateCap(mintRateCap);
+        IReserve(reserve()).setBurnRateCap(burnRateCap);
+    }
+
+    function setReserveOrder(address makerToken, address takerToken, uint256 price, uint256 amount) external {
+        IReserve(reserve()).registerOrder(makerToken, takerToken, price, amount);
     }
 }

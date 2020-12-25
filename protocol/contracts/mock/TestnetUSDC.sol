@@ -19,7 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "../oracle/IUSDC.sol";
+import "../Interfaces.sol";
 
 contract TestnetUSDC is ERC20Detailed, ERC20Burnable, IUSDC {
     constructor()
