@@ -67,7 +67,7 @@ library Constants {
 
     /* Market */
     uint256 private constant COUPON_EXPIRATION = 90;
-    uint256 private constant DEBT_RATIO_CAP = 35e16; // 35%
+    uint256 private constant DEBT_RATIO_CAP = 15e16; // 15%
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 3e16; // 3%

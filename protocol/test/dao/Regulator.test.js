@@ -490,7 +490,7 @@ describe('Regulator', function () {
           await this.regulator.incrementTotalBondedE(1000000);
           await this.regulator.mintToE(this.regulator.address, 1000000);
 
-          await this.regulator.increaseDebtE(new BN(345000));
+          await this.regulator.increaseDebtE(new BN(145000));
 
           await this.regulator.incrementEpochE(); // 2
         });
@@ -514,7 +514,7 @@ describe('Regulator', function () {
             it('updates totals', async function () {
               expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalBonded()).to.be.bignumber.equal(new BN(1000000));
-              expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(345000).add(new BN(this.expectedDebt)));
+              expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(145000).add(new BN(this.expectedDebt)));
               expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
