@@ -60,20 +60,20 @@ describe('Curve', function () {
     });
   });
 
-  describe('100000-70000-10000: 0.384083 (above threshold) - should add 3840', function () {
+  describe('100000-70000-10000: 0.5625 (above threshold) - should add 5625', function () {
     it('returns correct amount', async function () {
-      expect(await this.curve.calculateCouponsE(100000, 70000, 10000)).to.be.bignumber.equal(new BN(3840));
+      expect(await this.curve.calculateCouponsE(100000, 70000, 10000)).to.be.bignumber.equal(new BN(5625));
     });
   });
 
   /* 60000/100000 -> 5000/45000
    * 0.6 -> 1/9
-   * 0.6 - 0.15 (above threshold) + 1/9 - 0.15 (below threshold)
-   * (0.45 * 0.384083 + (0.15-1/9) * 0.323529) / (0.6-1/9) = 0.379266
+   * 0.6 - 0.2 (above threshold) + 1/9 - 0.2 (below threshold)
+   * (0.4 * 0.5625 + (0.2-1/9) * 0.40625) / (0.6-1/9) = 0.5340909
    */
-  describe('100000-60000-55000: 20859 (above and below threshold) - should add 20859', function () {
+  describe('100000-60000-55000: 29374 (above and below threshold) - should add 29374', function () {
     it('returns correct amount', async function () {
-      expect(await this.curve.calculateCouponsE(100000, 60000, 55000)).to.be.bignumber.equal(new BN(20859));
+      expect(await this.curve.calculateCouponsE(100000, 60000, 55000)).to.be.bignumber.equal(new BN(29374));
     });
   });
 });
