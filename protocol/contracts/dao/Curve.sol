@@ -61,14 +61,14 @@ contract Curve {
         return curveMean(debtRatioEnd, debtRatio);
     }
 
-    // 1/(3(1-R)^2)-1/3
+    // 1/((1-R)^2)-1
     function curve(Decimal.D256 memory debtRatio) private pure returns (Decimal.D256 memory) {
         return Decimal.one().div(
-            Decimal.from(3).mul((Decimal.one().sub(debtRatio)).pow(2))
-        ).sub(Decimal.ratio(1, 3));
+            (Decimal.one().sub(debtRatio)).pow(2)
+        ).sub(Decimal.one());
     }
 
-    // 1/(3(1-R)(1-R'))-1/3
+    // 1/((1-R)(1-R'))-1
     function curveMean(
         Decimal.D256 memory lower,
         Decimal.D256 memory upper
@@ -78,7 +78,7 @@ contract Curve {
         }
 
         return Decimal.one().div(
-            Decimal.from(3).mul(Decimal.one().sub(upper)).mul(Decimal.one().sub(lower))
-        ).sub(Decimal.ratio(1, 3));
+            (Decimal.one().sub(upper)).mul(Decimal.one().sub(lower))
+        ).sub(Decimal.one());
     }
 }
