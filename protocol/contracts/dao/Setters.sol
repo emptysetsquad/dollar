@@ -123,6 +123,11 @@ contract Setters is State, Getters {
             _state.accounts[owner].couponAllowances[spender].sub(amount, reason);
     }
 
+    function setVLock(address account, uint256 amount) internal {
+        _state1.vLocked[account] = amount;
+        _state1.totalVLocked = _state1.totalVLocked.add(amount);
+    }
+
     /**
      * Epoch
      */

@@ -82,6 +82,10 @@ library Constants {
     address private constant TREASURY_ADDRESS = address(0x460661bd4A5364A3ABCc9cfc4a8cE7038d05Ea22);
     address private constant RESERVE_ADDRESS = address(0); //TODO: fill in after deploy
 
+    /* VLock */
+    uint256 private constant VLOCK_START = 1598313600;
+    uint256 private constant VLOCK_DURATION = 126230400; // (365.25 * 4) * 86400;
+
     /**
      * Getters
      */
@@ -208,5 +212,13 @@ library Constants {
 
     function getReserveAddress() internal pure returns (address) {
         return RESERVE_ADDRESS;
+    }
+
+    function getVLockStart() internal pure returns (uint256) {
+        return VLOCK_START;
+    }
+
+    function getVLockDuration() internal pure returns (uint256) {
+        return VLOCK_DURATION;
     }
 }

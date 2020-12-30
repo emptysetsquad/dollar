@@ -99,8 +99,16 @@ contract Storage {
         mapping(uint256 => Epoch.State) epochs;
         mapping(address => Candidate.State) candidates;
     }
+
+    struct State1 {
+        uint256 totalVLocked;
+        mapping(address => uint256) vLocked;
+    }
 }
 
 contract State {
     Storage.State _state;
+
+    // EIP-13: vLock
+    Storage.State1 _state1;
 }

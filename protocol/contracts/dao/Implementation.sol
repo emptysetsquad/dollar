@@ -35,11 +35,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
 
-        // Initialize reserve
-        IReserve reserve = IReserve(Constants.getReserveAddress());
-        reserve.registerOrder(Constants.getDollarAddress(), Constants.getUsdcAddress(), 110e16, uint256(-1));
-        reserve.setBurnRateCap(1e16); // 1%
-        reserve.setMintRateCap(1e16); // 1%
+        // Initialize vLocks
+        initializeVLock(address(0)); // TODO: Add list of vLocks
     }
 
     function advance() external {

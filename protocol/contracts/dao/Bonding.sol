@@ -32,6 +32,7 @@ contract Bonding is Setters, Permission {
     event Withdraw(address indexed account, uint256 value);
     event Bond(address indexed account, uint256 start, uint256 value, uint256 valueUnderlying);
     event Unbond(address indexed account, uint256 start, uint256 value, uint256 valueUnderlying);
+    event VLock(address indexed account, uint256 amount);
 
     function step() internal {
         Require.that(
@@ -71,25 +72,50 @@ contract Bonding is Setters, Permission {
         emit Bond(msg.sender, epoch().add(1), balance, value);
     }
 
+
     function unbond(uint256 value) external onlyFrozenOrFluid(msg.sender) {
         unfreeze(msg.sender);
 
         uint256 staged = value.mul(balanceOfBonded(msg.sender)).div(balanceOf(msg.sender));
-        incrementBalanceOfStaged(msg.sender, staged);
-        decrementTotalBonded(staged, "Bonding: insufficient total bonded");
-        decrementBalanceOf(msg.sender, value, "Bonding: insufficient balance");
 
-        emit Unbond(msg.sender, epoch().add(1), value, staged);
+        unbondInternal(staged, value);
     }
 
     function unbondUnderlying(uint256 value) external onlyFrozenOrFluid(msg.sender) {
         unfreeze(msg.sender);
 
         uint256 balance = value.mul(totalSupply()).div(totalBonded());
-        incrementBalanceOfStaged(msg.sender, value);
-        decrementTotalBonded(value, "Bonding: insufficient total bonded");
+
+        unbondInternal(value, balance);
+    }
+
+    function unbondInternal(uint256 underlying, uint256 balance) private {
+        checkVLock(msg.sender, balance);
+        incrementBalanceOfStaged(msg.sender, underlying);
+        decrementTotalBonded(underlying, "Bonding: insufficient total bonded");
         decrementBalanceOf(msg.sender, balance, "Bonding: insufficient balance");
 
-        emit Unbond(msg.sender, epoch().add(1), balance, value);
+        emit Unbond(msg.sender, epoch().add(1), balance, underlying);
+    }
+
+    function initializeVLock(address account) internal {
+        Require.that(
+            !hasVLock(account),
+            FILE,
+            "has vlock"
+        );
+
+        setVLock(account, balanceOf(account));
+
+        emit VLock(account, balanceOf(account));
+    }
+
+    function checkVLock(address account, uint256 amount) private {
+        uint256 unbondable = balanceOf(account).sub(balanceOfVLocked(account), "insufficient unlocked balance");
+        Require.that(
+            amount <= unbondable,
+            FILE,
+            "insufficient unlocked balance"
+        );
     }
 }

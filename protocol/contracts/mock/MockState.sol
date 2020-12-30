@@ -94,6 +94,10 @@ contract MockState is Setters {
         super.decrementAllowanceCoupons(owner, spender, amount, reason);
     }
 
+    function setVLockE(address account, uint256 amount) external {
+        super.setVLock(account, amount);
+    }
+
     /**
      * Epoch
      */

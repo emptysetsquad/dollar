@@ -9,6 +9,10 @@ const BOOTSTRAPPING_END_TIMESTAMP = 1600905600;
 const EPOCH_START = 1602288000;
 const EPOCH_OFFSET = 107;
 
+function vLocked(locked, now) {
+  return new BN(Math.floor(locked * (126230400 - (now - 1598313600)) / 126230400));
+}
+
 describe('State', function () {
   const [ ownerAddress, userAddress, candidate] = accounts;
 
@@ -509,6 +513,66 @@ describe('State', function () {
         await expectRevert(
           this.setters.decrementAllowanceCouponsE(userAddress, ownerAddress, 200, "decrementAllowanceCouponsE"),
           "decrementAllowanceCouponsE");
+      });
+    });
+  });
+
+  describe('setupVLock', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.incrementBalanceOfE(userAddress, new BN(1000));
+        await this.setters.incrementTotalBondedE(new BN(1000));
+        await this.setters.setVLockE(userAddress, new BN(1000));
+      });
+
+      it('sets vlock', async function () {
+        const amount = vLocked(1000, await time.latest());
+        expect(await this.setters.hasVLock(userAddress)).to.be.equal(true);
+        expect(await this.setters.balanceOfVLocked(userAddress)).to.be.bignumber.equal(new BN(amount));
+        expect(await this.setters.balanceOfVLockedUnderlying(userAddress)).to.be.bignumber.equal(new BN(amount));
+        expect(await this.setters.totalVLocked()).to.be.bignumber.equal(new BN(amount));
+        expect(await this.setters.totalVLockedUnderlying()).to.be.bignumber.equal(new BN(amount));
+      });
+    });
+  });
+
+  describe('vLock', function () {
+    beforeEach('call', async function () {
+      await this.setters.incrementBalanceOfE(userAddress, new BN(1000000));
+      await this.setters.setVLockE(userAddress, new BN(1000000));
+      await this.setters.incrementEpochE();
+      this.startTime = await time.latest();
+    });
+
+    describe('start', function () {
+      it('is correct value', async function () {
+        const amount = vLocked(1000000, await time.latest());
+        expect(await this.setters.balanceOfVLocked(userAddress)).to.be.bignumber.equal(amount);
+        expect(await this.setters.totalVLocked()).to.be.bignumber.equal(amount);
+      });
+    });
+
+    describe('at 2', function () {
+      beforeEach('call', async function () {
+        await time.increase(86400);
+      });
+
+      it('is correct value', async function () {
+        const amount = vLocked(1000000, await time.latest());
+        expect(await this.setters.balanceOfVLocked(userAddress)).to.be.bignumber.equal(amount);
+        expect(await this.setters.totalVLocked()).to.be.bignumber.equal(amount);
+      });
+    });
+
+    describe('at 11', function () {
+      beforeEach('call', async function () {
+        await time.increase(86400 * 10);
+      });
+
+      it('is correct value', async function () {
+        const amount = vLocked(1000000, await time.latest());
+        expect(await this.setters.balanceOfVLocked(userAddress)).to.be.bignumber.equal(amount);
+        expect(await this.setters.totalVLocked()).to.be.bignumber.equal(amount);
       });
     });
   });

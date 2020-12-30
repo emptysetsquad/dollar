@@ -99,6 +99,27 @@ contract Getters is State {
         return dollar().totalSupply().sub(totalDebt());
     }
 
+    function totalVLocked() public view returns (uint256) {
+        return vLockProgress().mul(_state1.totalVLocked).asUint256();
+    }
+
+    function totalVLockedUnderlying() public view returns (uint256) {
+        return totalSupply() == 0 ? 0 : totalVLocked().mul(totalBonded()).div(totalSupply());
+    }
+
+    function vLockProgress() private view returns (Decimal.D256 memory) {
+        if (block.timestamp < Constants.getVLockStart()) {
+            return Decimal.one();
+        }
+        if (block.timestamp > Constants.getVLockStart().add(Constants.getVLockDuration())) {
+            return Decimal.zero();
+        }
+        return Decimal.one().sub(
+            Decimal.ratio(
+                block.timestamp.sub(Constants.getVLockStart()),
+                Constants.getVLockDuration()));
+    }
+
     /**
      * Account
      */
@@ -140,6 +161,18 @@ contract Getters is State {
 
     function allowanceCoupons(address owner, address spender) public view returns (uint256) {
         return _state.accounts[owner].couponAllowances[spender];
+    }
+
+    function hasVLock(address account) public view returns (bool) {
+        return _state1.vLocked[account] != 0;
+    }
+
+    function balanceOfVLocked(address account) public view returns (uint256) {
+        return vLockProgress().mul(_state1.vLocked[account]).asUint256();
+    }
+
+    function balanceOfVLockedUnderlying(address account) public view returns (uint256) {
+        return totalSupply() == 0 ? 0 : totalBonded().mul(balanceOfVLocked(account)).div(totalSupply());
     }
 
     /**

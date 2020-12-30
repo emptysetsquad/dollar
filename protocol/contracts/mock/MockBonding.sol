@@ -27,4 +27,8 @@ contract MockBonding is MockComptroller, Bonding {
     function stepE() external {
         Bonding.step();
     }
+
+    function initializeVLockE(address account) external {
+        super.initializeVLock(account);
+    }
 }
