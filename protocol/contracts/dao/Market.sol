@@ -18,6 +18,7 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@abdk-libraries-solidity/ABDKMath64x64.sol";
 import "./Curve.sol";
 import "./Comptroller.sol";
 import "../Constants.sol";
@@ -65,7 +66,7 @@ contract Market is Comptroller, Curve {
         return calculateCouponPremium(dollar().totalSupply(), totalDebt(), amount);
     }
 
-    function purchaseCoupons(uint256 dollarAmount) external returns (uint256) {
+    function purchaseCoupons(uint256 couponEpoch, uint256 dollarAmount) external returns (uint256) {
         Require.that(
             dollarAmount > 0,
             FILE,
@@ -78,8 +79,17 @@ contract Market is Comptroller, Curve {
             "Not enough debt"
         );
 
-        uint256 epoch = epoch();
-        uint256 couponAmount = dollarAmount.add(couponPremium(dollarAmount));
+        uint256 epochMultiplier = Decimal.one().div(couponEpoch, Constants.getCouponExpiration());
+        uint256 defaultPremium = couponPremium(dollarAmount);
+        uit256 discountedPremium = defaultPremium.div(
+            uit256(
+                ln(math.e + epochMultiplier)
+            ).pow(2)
+        );
+        uint256 actualEpoch = epochMultiplier.mul(Constants.getCouponExpiration());
+        uint256 epoch = epoch().add(actualEpoch);
+        
+        uint256 couponAmount = dollarAmount.add(discountedPremium);
         burnFromAccount(msg.sender, dollarAmount);
         incrementBalanceOfCoupons(msg.sender, epoch, couponAmount);
 
