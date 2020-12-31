@@ -22,17 +22,24 @@ import "@abdk-libraries-solidity/ABDKMath64x64.sol";
 import "./Curve.sol";
 import "./Comptroller.sol";
 import "../Constants.sol";
+import "../external/Decimal.sol";
 
 contract Market is Comptroller, Curve {
     using SafeMath for uint256;
 
     bytes32 private constant FILE = "Market";
 
+    /* Euler's number  */
+    uint256 private constant eN = 115792089237316195423570985008687907853269984664;
+    uint256 private constant eD = 42597529080697662913911602080600932014987715856;
+    uint256 private constant e = eN.div(eD);
+
     event CouponExpiration(uint256 indexed epoch, uint256 couponsExpired, uint256 lessRedeemable, uint256 lessDebt, uint256 newBonded);
     event CouponPurchase(address indexed account, uint256 indexed epoch, uint256 dollarAmount, uint256 couponAmount);
     event CouponRedemption(address indexed account, uint256 indexed epoch, uint256 couponAmount);
     event CouponTransfer(address indexed from, address indexed to, uint256 indexed epoch, uint256 value);
     event CouponApproval(address indexed owner, address indexed spender, uint256 value);
+
 
     function step() internal {
         // Expire prior coupons
@@ -83,7 +90,7 @@ contract Market is Comptroller, Curve {
         uint256 defaultPremium = couponPremium(dollarAmount);
         uit256 discountedPremium = defaultPremium.div(
             uit256(
-                ln(math.e + epochMultiplier)
+                ln(e + epochMultiplier)
             ).pow(2)
         );
         uint256 actualEpoch = epochMultiplier.mul(Constants.getCouponExpiration());
