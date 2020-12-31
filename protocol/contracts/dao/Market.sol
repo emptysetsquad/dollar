@@ -87,7 +87,7 @@ contract Market is Comptroller, Curve {
 
         uint256 epochMultiplier = couponEpoch.div(Constants.getCouponExpiration());
         uint256 defaultPremium = couponPremium(dollarAmount);
-        uit256 discountedPremium = defaultPremium.div(
+        uint256 discountedPremium = defaultPremium.div(
             uit256(
                 ln(e + epochMultiplier)
             ).pow(2)
