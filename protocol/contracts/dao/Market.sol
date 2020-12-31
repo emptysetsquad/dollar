@@ -22,7 +22,6 @@ import "@abdk-libraries-solidity/ABDKMath64x64.sol";
 import "./Curve.sol";
 import "./Comptroller.sol";
 import "../Constants.sol";
-import "../external/Decimal.sol";
 
 contract Market is Comptroller, Curve {
     using SafeMath for uint256;
@@ -86,7 +85,7 @@ contract Market is Comptroller, Curve {
             "Not enough debt"
         );
 
-        uint256 epochMultiplier = Decimal.one().div(couponEpoch, Constants.getCouponExpiration());
+        uint256 epochMultiplier = couponEpoch.div(Constants.getCouponExpiration());
         uint256 defaultPremium = couponPremium(dollarAmount);
         uit256 discountedPremium = defaultPremium.div(
             uit256(
