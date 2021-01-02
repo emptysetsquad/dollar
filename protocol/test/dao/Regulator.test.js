@@ -490,7 +490,7 @@ describe('Regulator', function () {
           await this.regulator.incrementTotalBondedE(1000000);
           await this.regulator.mintToE(this.regulator.address, 1000000);
 
-          await this.regulator.increaseDebtE(new BN(145000));
+          await this.regulator.increaseDebtE(new BN(195000));
 
           await this.regulator.incrementEpochE(); // 2
         });
