@@ -113,8 +113,7 @@ contract Auction is Comptroller {
             for (uint256 i = 0; i < bids.length; i++) {
                 if (totalDebt() >= bids[i].dollarAmount) {
                     if (!getCouponBidderStateRejected(bids[i].bidder) && !getCouponBidderStateRejected(bids[i].bidder)) {
-                        // adds the maturity to the epoch call, subtracts off the base amount
-                        uint256 epoch = epoch().add(bids[i].couponMaturityEpoch).sub(Constants.getCouponExpiration());
+                        uint256 epoch = epoch().add(bids[i].couponMaturityEpoch);
                         burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
                         incrementBalanceOfCoupons(bids[i].bidder, epoch, bids[i].couponAmount);
                         emit CouponPurchase(bids[i].bidder, epoch, dollarAmount, bids[i].couponAmount);
