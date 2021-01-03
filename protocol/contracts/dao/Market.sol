@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@abdk-libraries-solidity/ABDKMath64x64.sol";
+import "./Auction.sol";
 import "./Curve.sol";
 import "./Comptroller.sol";
 import "../Constants.sol";
@@ -38,8 +39,7 @@ contract Market is Comptroller, Curve {
     event CouponRedemption(address indexed account, uint256 indexed epoch, uint256 couponAmount);
     event CouponTransfer(address indexed from, address indexed to, uint256 indexed epoch, uint256 value);
     event CouponApproval(address indexed owner, address indexed spender, uint256 value);
-
-
+    
     function step() internal {
         // Expire prior coupons
         for (uint256 i = 0; i < expiringCoupons(epoch()); i++) {
@@ -132,5 +132,33 @@ contract Market is Comptroller, Curve {
         }
 
         emit CouponTransfer(sender, recipient, epoch, amount);
+    }
+
+    function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) returns external (bool success) {
+        /* TODO:
+            Need to select best based on price (lowest yield / maxCouponAmount)
+            Need to select based on shortest maturity (1 epoch min)
+        */
+        
+        // reject coupon amounts of 0
+        Require.that(
+            maxCouponAmount > 0,
+            FILE,
+            "Your coupon amount is too low"
+        );
+
+        // reject payments of 0
+        Require.that(
+            dollarAmount > 0,
+            FILE,
+            "Your price is too low"
+        );
+
+        setRelYield(dollarAmount.div(maxCouponAmount));
+        setRelMaturity(couponEpochExpiry);
+        setCouponBidderState(msg.sender, couponEpochExpiry, dollarAmount, maxCouponAmount);
+        setCouponBidderStateIndex(getCouponAuctionBidIndex(), msg.sender);
+        incrementCouponAuctionBids();
+        return true;
     }
 }

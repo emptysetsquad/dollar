@@ -149,6 +149,56 @@ contract Setters is State, Getters {
         _state.epochs[epoch].coupons.outstanding = 0;
     }
 
+    function setCouponAuction(Auction auction) internal  {
+        if(!_state.epochs[epoch()].auction) {
+            _state.epochs[epoch()].auction = auction;
+        }
+    }
+
+    function cancelCounponAuction(uint256 epoch) internal {
+        if ((epoch() - 1) == epoch) {
+            _state.epochs[epoch].auction.canceled = true;
+        }
+    }
+
+    function settleCouponAuction(uint256 epoch) internal {
+        if ((epoch() - 1) == epoch) {
+            _state.epochs[epoch].auction.finished = true;
+        }
+    }
+
+    function setCouponBidderState(address bidder, uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) internal {
+        CouponBidderState storage bidderState = _state.epochs[epoch()].auction.couponBidderState[bidder];
+
+        bidderState.couponMaturityEpoch = couponEpochExpiry;  // revisit this
+        bidderState.dollarAmount = dollarAmount;
+        bidderState.couponAmount = maxCouponAmount;
+    }
+
+    function setCouponBidderStateIndex(uint256 index, address bidder) internal {
+        _state.epochs[epoch()].auction.couponBidder[index] = bidder;
+    }
+
+    function incrementCouponAuctionBids() internal {
+        _state.epochs[epoch()].auction._totalBids++;
+    }
+
+    function setRelYield(uint256 yield) internal {
+        if (yield > _state.epochs[epoch()].auction.maxYield) {
+            _state.epochs[epoch()].auction.maxYield = yield;
+        } else if (yield < _state.epochs[epoch()].auction.minYield) {
+            _state.epochs[epoch()].auction.minYield = yield;
+        }
+    }
+    setRelMaturity(uint256 couponEpochExpiry) internal {
+        if (couponEpochExpiry > _state.epochs[epoch()].auction.maxMaturity) {
+            _state.epochs[epoch()].auction.maxMaturity = couponEpochExpiry;
+        } else if (couponEpochExpiry < _state.epochs[epoch()].auction.minMaturity) {
+            _state.epochs[epoch()].auction.minMaturity = couponEpochExpiry;
+        }
+    }
+        
+
     /**
      * Governance
      */

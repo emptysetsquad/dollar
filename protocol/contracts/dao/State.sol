@@ -52,10 +52,31 @@ contract Epoch {
         uint256[] expiring;
     }
 
+    struct CouponBidderState {
+        uint256 couponMaturityEpoch;
+        uint256 dollarAmount;
+        uint256 couponAmount;
+        bool selected;
+        bool rejected;
+    }
+
+    struct Auction {
+        bool canceled;
+        bool finished;
+        uint256 minMaturity;
+        uint256 maxMaturity;
+        uint256 minYield;
+        uint256 maxYield;
+        uint256 _totalBids;
+        mapping(uint256 => address) couponBidder;
+        mapping(address => CouponBidderState) couponBidderState;
+    }
+
     struct State {
         uint256 bonded;
         Coupons coupons;
-    }
+        Auction auction;
+    }    
 }
 
 contract Candidate {

@@ -191,6 +191,14 @@ contract Getters is State {
         return epoch <= Constants.getBootstrappingPeriod();
     }
 
+    function getCouponAuctionAtEpoch(uint256 epoch) internal returns (Auction){
+        return _state.epochs[epoch].auction;
+    }
+
+    function getCouponAuctionBids() internal returns (uint256){
+        return _state.epochs[epoch].auction._totalBids;
+    }
+
     /**
      * Governance
      */

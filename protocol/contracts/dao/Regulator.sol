@@ -34,11 +34,16 @@ contract Regulator is Comptroller {
         Decimal.D256 memory price = oracleCapture();
 
         if (price.greaterThan(Decimal.one())) {
+            /* TODO: Cancel any outstanding previous coupon auction */
+            
             growSupply(price);
             return;
         }
 
         if (price.lessThan(Decimal.one())) {
+            /* TODO: If any outstanding previous auction, fill acceptable bids for coupons, if none cancel previous auction */
+
+            /* TODO:  Launch new auction for this epoch */
             shrinkSupply(price);
             return;
         }
