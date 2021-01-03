@@ -18,8 +18,6 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@abdk-libraries-solidity/ABDKMath64x64.sol";
-import "./Auction.sol";
 import "./Curve.sol";
 import "./Comptroller.sol";
 import "../Constants.sol";
@@ -28,11 +26,6 @@ contract Market is Comptroller, Curve {
     using SafeMath for uint256;
 
     bytes32 private constant FILE = "Market";
-
-    /* Euler's number  */
-    uint256 private constant eN = 115792089237316195423570985008687907853269984664;
-    uint256 private constant eD = 42597529080697662913911602080600932014987715856;
-    uint256 private constant e = eN.div(eD);
 
     event CouponExpiration(uint256 indexed epoch, uint256 couponsExpired, uint256 lessRedeemable, uint256 lessDebt, uint256 newBonded);
     event CouponPurchase(address indexed account, uint256 indexed epoch, uint256 dollarAmount, uint256 couponAmount);
