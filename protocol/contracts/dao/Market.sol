@@ -72,7 +72,7 @@ contract Market is Comptroller, Curve {
         return calculateCouponPremium(dollar().totalSupply(), totalDebt(), amount);
     }
 
-    function purchaseCoupons(uint256 couponEpoch, uint256 dollarAmount) external returns (uint256) {
+    function purchaseCoupons(uint256 dollarAmount) external returns (uint256) {
         Require.that(
             dollarAmount > 0,
             FILE,
@@ -85,17 +85,8 @@ contract Market is Comptroller, Curve {
             "Not enough debt"
         );
 
-        uint256 epochMultiplier = couponEpoch.div(Constants.getCouponExpiration());
-        uint256 defaultPremium = couponPremium(dollarAmount);
-        uint256 discountedPremium = defaultPremium.div(
-            uit256(
-                ln(e + epochMultiplier)
-            ).pow(2)
-        );
-        uint256 actualEpoch = epochMultiplier.mul(Constants.getCouponExpiration());
-        uint256 epoch = epoch().add(actualEpoch);
-        
-        uint256 couponAmount = dollarAmount.add(discountedPremium);
+        uint256 epoch = epoch();
+        uint256 couponAmount = dollarAmount.add(couponPremium(dollarAmount));
         burnFromAccount(msg.sender, dollarAmount);
         incrementBalanceOfCoupons(msg.sender, epoch, couponAmount);
 
@@ -134,12 +125,7 @@ contract Market is Comptroller, Curve {
         emit CouponTransfer(sender, recipient, epoch, amount);
     }
 
-    function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) returns external (bool success) {
-        /* TODO:
-            Need to select best based on price (lowest yield / maxCouponAmount)
-            Need to select based on shortest maturity (1 epoch min)
-        */
-        
+    function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) returns external (bool success) {        
         // reject coupon amounts of 0
         Require.that(
             maxCouponAmount > 0,
@@ -154,7 +140,7 @@ contract Market is Comptroller, Curve {
             "Your price is too low"
         );
 
-        setRelYield(dollarAmount.div(maxCouponAmount));
+        setRelYield(maxCouponAmount.div(dollarAmount));
         setRelMaturity(couponEpochExpiry);
         setCouponBidderState(msg.sender, couponEpochExpiry, dollarAmount, maxCouponAmount);
         setCouponBidderStateIndex(getCouponAuctionBidIndex(), msg.sender);

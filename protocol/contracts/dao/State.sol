@@ -57,6 +57,7 @@ contract Epoch {
         uint256 dollarAmount;
         uint256 couponAmount;
         uint256 distance;
+        address bidder;
         bool selected;
         bool rejected;
     }

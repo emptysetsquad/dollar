@@ -199,6 +199,14 @@ contract Getters is State {
         return _state.epochs[epoch].auction._totalBids;
     }
 
+    function getCouponBidderStateSelected(address bidder) internal returns (bool) {
+        return _state.epochs[epoch()].auction.couponBidderState[bidder].selected;
+    }
+
+    function getCouponBidderStateRejected(address bidder) internal returns (bool) {
+        return _state.epochs[epoch()].auction.couponBidderState[bidder].rejected;
+    }
+
     /**
      * Governance
      */

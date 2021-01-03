@@ -170,9 +170,18 @@ contract Setters is State, Getters {
     function setCouponBidderState(address bidder, uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) internal {
         CouponBidderState storage bidderState = _state.epochs[epoch()].auction.couponBidderState[bidder];
 
-        bidderState.couponMaturityEpoch = couponEpochExpiry;  // revisit this
+        bidderState.couponMaturityEpoch = couponEpochExpiry;
         bidderState.dollarAmount = dollarAmount;
         bidderState.couponAmount = maxCouponAmount;
+        bidderState.bidder = bidder;
+    }
+
+    function setCouponBidderStateSelected(address bidder) internal {
+        _state.epochs[epoch()].auction.couponBidderState[bidder].selected = true;
+    }
+
+    function setCouponBidderStateRejected(address bidder) internal {
+        _state.epochs[epoch()].auction.couponBidderState[bidder].rejected = true;
     }
 
     function setCouponBidderStateIndex(uint256 index, address bidder) internal {

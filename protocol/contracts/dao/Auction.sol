@@ -18,16 +18,12 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./Setters.sol";
-import "../external/Require.sol";
+import "./Comptroller.sol";
 
-contract Auction is Setters {
+contract Auction is Comptroller {
     using SafeMath for uint256;
-    bytes32 private constant FILE = "Auction";
 
-    event CouponAuctionCreated();
-    event CouponAuctionCanceled();
-    event CouponAuctionSettled();
+    event AuctionCouponPurchase(address indexed account, uint256 indexed epoch, uint256 dollarAmount, uint256 couponAmount);
 
     function sortBidsByDistance(Epoch.CouponBidderState[] bids) public constant internal returns(Epoch.CouponBidderState[]) {
        quickSort(bids, uint256(0), uint256(bids.length - 1));
@@ -71,35 +67,32 @@ contract Auction is Setters {
         newAuction.minYield = 1000000000000000000000000;
         newAuction.maxYield = 0;
         setAuction(newAuction);
-        CouponAuctionCreated(newAuction);
     }
 
     function cancelCouponAuction() internal returns (bool success) {
         // can only cancel previous auction when in next epoch
         cancelAuction(epoch() - 1);
-        emit CouponAuctionCanceled();
         return true;
     }
 
-    /* TODO: in the begining of the next epoch, all the available best bids that meet the specification will have their funds withdraw and coupons orders placed for the amount, premium, and maturity up to the amount of debt avaiable, the rest will have their funds sent back to them and */
     function settleCouponAuction() internal returns (bool success) {
-        if (!isCouponAuctionFinished() && !isCouponAuctionCanceled){
+        if (!isCouponAuctionFinished() && !isCouponAuctionCanceled()) {
             
             uint256 minMaturity = getMinMaturity();
             uint256 maxMaturity = getMaxMaturity();
             uint256 minYield = getMinYield();
             uint256 maxYield = getMaxYield();
 
-            Epoch.CouponBidderState[] memory bids; 
+            Epoch.CouponBidderState[] memory bids;
             
             // loop over bids and compute distance
-            for(uint256 i = 0 ; i < getCouponAuctionBids(); i++) {
+            for (uint256 i = 0; i < getCouponAuctionBids(); i++) {
                 uint256 couponMaturityEpoch = getCouponBidderState(getCouponBidderAtIndex(i)).couponMaturityEpoch;
                 uint256 couponAmount = getCouponBidderState(getCouponBidderAtIndex(i)).couponAmount;
                 uint256 dollarAmount = getCouponBidderState(getCouponBidderAtIndex(i)).dollarAmount;
 
-                uint256 yieldRel = dollarAmount.div(
-                    couponAmount
+                uint256 yieldRel = couponAmount.div(
+                    dollarAmount
                 ).div(
                     maxYield.sub(minYield)
                 );
@@ -110,17 +103,30 @@ contract Auction is Setters {
                 uint256 sumSquared = yieldRel.pow(2) + maturityRel.pow(2);
                 uint256 distance = sqrt(sumSquared);
                 getCouponBidderState(getCouponBidderAtIndex(i)).distance = distance;
-
                 bids.push(getCouponBidderState(getCouponBidderAtIndex(i)).distance);
             }
 
             // sort bids
             sortBidsByDistance(bids);
 
-            // assign coupons untill filled, reject the rest
-
-        }
-
-        return true;
+            // assign coupons until totalDebt filled, reject the rest
+            for (uint256 i = 0; i < bids.length; i++) {
+                if (totalDebt() >= bids[i].dollarAmount) {
+                    if (!getCouponBidderStateRejected(bids[i].bidder) && !getCouponBidderStateRejected(bids[i].bidder)) {
+                        // adds the maturity to the epoch call, subtracts off the base amount
+                        uint256 epoch = epoch().add(bids[i].couponMaturityEpoch).sub(Constants.getCouponExpiration());
+                        burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
+                        incrementBalanceOfCoupons(bids[i].bidder, epoch, bids[i].couponAmount);
+                        emit CouponPurchase(bids[i].bidder, epoch, dollarAmount, bids[i].couponAmount);
+                        setCouponBidderStateSelected(bids[i].bidder);
+                    }
+                } else {
+                    setCouponBidderStateRejected(bids[i].bidder);
+                } 
+            }
+            return true;
+        } else {
+            return true;
+        }        
     }
 }
