@@ -60,13 +60,8 @@ contract Auction is Market {
     }
 
     function createCouponAuction() internal {
-        Auction newAuction = new Auction(this);
-        newAuction._totalBids = 0;
-        newAuction.minMaturity = 1000000000000000000000000;
-        newAuction.maxMaturity = 0;
-        newAuction.minYield = 1000000000000000000000000;
-        newAuction.maxYield = 0;
-        setCouponAuction(address(newAuction));
+        Auction newAuction = this;
+        setCouponAuction(newAuction);
     }
 
     function cancelCouponAuction() internal returns (bool success) {
@@ -78,18 +73,18 @@ contract Auction is Market {
     function settleCouponAuction() internal returns (bool success) {
         if (!isCouponAuctionFinished() && !isCouponAuctionCanceled()) {
             
-            uint256 minMaturity = getMinMaturity();
-            uint256 maxMaturity = getMaxMaturity();
-            uint256 minYield = getMinYield();
-            uint256 maxYield = getMaxYield();
+            uint256 minMaturity = getCouponAuctionMinMaturity();
+            uint256 maxMaturity = getCouponAuctionMaxMaturity();
+            uint256 minYield = getCouponAuctionMinYield();
+            uint256 maxYield = getCouponAuctionMaxYield();
 
             Epoch.CouponBidderState[] memory bids;
             
             // loop over bids and compute distance
             for (uint256 i = 0; i < getCouponAuctionBids(); i++) {
-                uint256 couponMaturityEpoch = getCouponBidderState(getCouponBidderAtIndex(i)).couponMaturityEpoch;
-                uint256 couponAmount = getCouponBidderState(getCouponBidderAtIndex(i)).couponAmount;
-                uint256 dollarAmount = getCouponBidderState(getCouponBidderAtIndex(i)).dollarAmount;
+                uint256 couponMaturityEpoch = getCouponBidderState(getCouponBidderStateIndex(i)).couponMaturityEpoch;
+                uint256 couponAmount = getCouponBidderState(getCouponBidderStateIndex(i)).couponAmount;
+                uint256 dollarAmount = getCouponBidderState(getCouponBidderStateIndex(i)).dollarAmount;
 
                 uint256 yieldRel = couponAmount.div(
                     dollarAmount
@@ -102,8 +97,8 @@ contract Auction is Market {
 
                 uint256 sumSquared = yieldRel.pow(2) + maturityRel.pow(2);
                 uint256 distance = sqrt(sumSquared);
-                getCouponBidderState(getCouponBidderAtIndex(i)).distance = distance;
-                bids.push(getCouponBidderState(getCouponBidderAtIndex(i)).distance);
+                getCouponBidderState(getCouponBidderStateIndex(i)).distance = distance;
+                bids.push(getCouponBidderState(getCouponBidderStateIndex(i)).distance);
             }
 
             // sort bids

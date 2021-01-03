@@ -133,8 +133,8 @@ contract Market is Comptroller, Curve {
             "Your price is too low"
         );
 
-        setRelYield(maxCouponAmount.div(dollarAmount));
-        setRelMaturity(couponEpochExpiry);
+        setCouponAuctionRelYield(maxCouponAmount.div(dollarAmount));
+        setCouponAuctionRelMaturity(couponEpochExpiry);
         setCouponBidderState(msg.sender, couponEpochExpiry, dollarAmount, maxCouponAmount);
         setCouponBidderStateIndex(getCouponAuctionBids(), msg.sender);
         incrementCouponAuctionBids();

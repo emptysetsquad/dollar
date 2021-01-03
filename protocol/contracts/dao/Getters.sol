@@ -191,15 +191,15 @@ contract Getters is State {
         return epoch <= Constants.getBootstrappingPeriod();
     }
 
-    function getCouponAuctionAtEpoch(uint256 epoch) internal returns (address) {
-        return address(_state.epochs[epoch].auction);
+    function getCouponAuctionAtEpoch(uint256 epoch) internal returns (Epoch.Auction storage) {
+        return _state.epochs[epoch].auction;
     }
 
     function getCouponAuctionBids() internal returns (uint256) {
-        return _state.epochs[epoch].auction._totalBids;
+        return _state.epochs[epoch()].auction._totalBids;
     }
 
-    function getCouponBidderState(address bidder) internal return (Epoch.CouponBidderState) {
+    function getCouponBidderState(address bidder) internal returns (Epoch.CouponBidderState storage) {
         return _state.epochs[epoch()].auction.couponBidderState[bidder];
     }
 
@@ -211,27 +211,31 @@ contract Getters is State {
         return _state.epochs[epoch()].auction.couponBidderState[bidder].rejected;
     }
 
+    function getCouponBidderStateIndex(uint256 index) internal returns (address) {
+        return _state.epochs[epoch()].auction.couponBidder[index];
+    }
+
     function isCouponAuctionFinished() internal returns (bool){
-        return _state.epochs[epoch].auction.finished;
+        return _state.epochs[epoch()].auction.finished;
     }
 
     function isCouponAuctionCanceled() internal returns (bool){
-        return _state.epochs[epoch].auction.canceled;
+        return _state.epochs[epoch()].auction.canceled;
     }
 
-    function getMinMaturity() internal returns (uint256) {
+    function getCouponAuctionMinMaturity() internal returns (uint256) {
         return _state.epochs[epoch()].auction.minMaturity;
     }
 
-    function getMaxMaturity() internal returns (uint256) {
+    function getCouponAuctionMaxMaturity() internal returns (uint256) {
         return _state.epochs[epoch()].auction.maxMaturity;
     }
 
-    function getMinYield() internal returns (uint256) {
+    function getCouponAuctionMinYield() internal returns (uint256) {
         return _state.epochs[epoch()].auction.minYield;
     }
 
-    function getMaxYield() internal returns (uint256) {
+    function getCouponAuctionMaxYield() internal returns (uint256) {
         return _state.epochs[epoch()].auction.maxYield;
     }
 
