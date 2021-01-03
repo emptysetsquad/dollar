@@ -190,7 +190,7 @@ contract Setters is State, Getters {
             _state.epochs[epoch()].auction.minYield = yield;
         }
     }
-    setRelMaturity(uint256 couponEpochExpiry) internal {
+    function setRelMaturity(uint256 couponEpochExpiry) internal {
         if (couponEpochExpiry > _state.epochs[epoch()].auction.maxMaturity) {
             _state.epochs[epoch()].auction.maxMaturity = couponEpochExpiry;
         } else if (couponEpochExpiry < _state.epochs[epoch()].auction.minMaturity) {

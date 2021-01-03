@@ -56,6 +56,7 @@ contract Epoch {
         uint256 couponMaturityEpoch;
         uint256 dollarAmount;
         uint256 couponAmount;
+        uint256 distance;
         bool selected;
         bool rejected;
     }
