@@ -118,7 +118,7 @@ contract Market is Comptroller, Curve {
         emit CouponTransfer(sender, recipient, epoch, amount);
     }
 
-    function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) returns external (bool success) {        
+    function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) external returns (bool success) {        
         // reject coupon amounts of 0
         Require.that(
             maxCouponAmount > 0,
@@ -136,7 +136,7 @@ contract Market is Comptroller, Curve {
         setRelYield(maxCouponAmount.div(dollarAmount));
         setRelMaturity(couponEpochExpiry);
         setCouponBidderState(msg.sender, couponEpochExpiry, dollarAmount, maxCouponAmount);
-        setCouponBidderStateIndex(getCouponAuctionBidIndex(), msg.sender);
+        setCouponBidderStateIndex(getCouponAuctionBids(), msg.sender);
         incrementCouponAuctionBids();
         return true;
     }

@@ -18,14 +18,14 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./Comptroller.sol";
+import "./Market.sol";
 
-contract Auction is Comptroller {
+contract Auction is Market {
     using SafeMath for uint256;
 
     event AuctionCouponPurchase(address indexed account, uint256 indexed epoch, uint256 dollarAmount, uint256 couponAmount);
 
-    function sortBidsByDistance(Epoch.CouponBidderState[] bids) public constant internal returns(Epoch.CouponBidderState[]) {
+    function sortBidsByDistance(Epoch.CouponBidderState[] memory bids) internal returns(Epoch.CouponBidderState[] memory) {
        quickSort(bids, uint256(0), uint256(bids.length - 1));
        return bids;
     }
@@ -39,7 +39,7 @@ contract Auction is Comptroller {
             while (arr[uint256(i)].distance < pivot) i++;
             while (pivot < arr[uint256(j)].distance) j--;
             if (i <= j) {
-                (arr[uint256(i)]., arr[uint256(j)]) = (arr[uint256(j)], arr[uint256(i)]);
+                (arr[uint256(i)], arr[uint256(j)]) = (arr[uint256(j)], arr[uint256(i)]);
                 i++;
                 j--;
             }
@@ -66,12 +66,12 @@ contract Auction is Comptroller {
         newAuction.maxMaturity = 0;
         newAuction.minYield = 1000000000000000000000000;
         newAuction.maxYield = 0;
-        setAuction(newAuction);
+        setCouponAuction(address(newAuction));
     }
 
     function cancelCouponAuction() internal returns (bool success) {
         // can only cancel previous auction when in next epoch
-        cancelAuction(epoch() - 1);
+        cancelCounponAuction(epoch() - 1);
         return true;
     }
 
@@ -116,7 +116,7 @@ contract Auction is Comptroller {
                         uint256 epoch = epoch().add(bids[i].couponMaturityEpoch);
                         burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
                         incrementBalanceOfCoupons(bids[i].bidder, epoch, bids[i].couponAmount);
-                        emit CouponPurchase(bids[i].bidder, epoch, dollarAmount, bids[i].couponAmount);
+                        emit CouponPurchase(bids[i].bidder, epoch, bids[i].dollarAmount, bids[i].couponAmount);
                         setCouponBidderStateSelected(bids[i].bidder);
                     }
                 } else {
