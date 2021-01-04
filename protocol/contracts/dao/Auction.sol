@@ -18,10 +18,11 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./Market.sol";
+import "./Comptroller.sol";
+import "../Constants.sol";
 import "../external/Decimal.sol";
 
-contract Auction is Market {
+contract Auction is Comptroller {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
@@ -105,7 +106,7 @@ contract Auction is Market {
                         uint256 epoch = epoch().add(bids[i].couponMaturityEpoch);
                         burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
                         incrementBalanceOfCoupons(bids[i].bidder, epoch, bids[i].couponAmount);
-                        emit CouponPurchase(bids[i].bidder, epoch, bids[i].dollarAmount, bids[i].couponAmount);
+                        emit AuctionCouponPurchase(bids[i].bidder, epoch, bids[i].dollarAmount, bids[i].couponAmount);
                         setCouponBidderStateSelected(bids[i].bidder);
                     }
                 } else {
