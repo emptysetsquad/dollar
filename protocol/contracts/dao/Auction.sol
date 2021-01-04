@@ -19,9 +19,13 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Market.sol";
+import "../external/Decimal.sol";
 
 contract Auction is Market {
     using SafeMath for uint256;
+    using Decimal for Decimal.D256;
+
+    Epoch.CouponBidderState[] private bids;
 
     event AuctionCouponPurchase(address indexed account, uint256 indexed epoch, uint256 dollarAmount, uint256 couponAmount);
 
@@ -50,7 +54,7 @@ contract Auction is Market {
             quickSort(arr, i, right);
     }
 
-    function sqrt(uint256 x) internal returns (uint256 y) {
+    function sqrt(uint256 x) internal pure returns (uint256 y) {
         uint256 z = x.add(1).div(2);
         y = x;
         while (z < y) {
@@ -59,26 +63,13 @@ contract Auction is Market {
         }
     }
 
-    function createCouponAuction() internal {
-        Auction newAuction = this;
-        setCouponAuction(newAuction);
-    }
-
-    function cancelCouponAuction() internal returns (bool success) {
-        // can only cancel previous auction when in next epoch
-        cancelCounponAuction(epoch() - 1);
-        return true;
-    }
-
-    function settleCouponAuction() internal returns (bool success) {
+    function settleCouponAuction() public returns (bool success) {
         if (!isCouponAuctionFinished() && !isCouponAuctionCanceled()) {
             
             uint256 minMaturity = getCouponAuctionMinMaturity();
             uint256 maxMaturity = getCouponAuctionMaxMaturity();
             uint256 minYield = getCouponAuctionMinYield();
-            uint256 maxYield = getCouponAuctionMaxYield();
-
-            Epoch.CouponBidderState[] memory bids;
+            uint256 maxYield = getCouponAuctionMaxYield();            
             
             // loop over bids and compute distance
             for (uint256 i = 0; i < getCouponAuctionBids(); i++) {
@@ -95,10 +86,13 @@ contract Auction is Market {
                     maxMaturity.sub(minMaturity)
                 );
 
-                uint256 sumSquared = yieldRel.pow(2) + maturityRel.pow(2);
+                uint256 yieldRelSquared = Decimal.zero().add(yieldRel).pow(2).asUint256();
+                uint256 maturityRelSquared = Decimal.zero().add(maturityRel).pow(2).asUint256();
+
+                uint256 sumSquared = yieldRelSquared.add(maturityRelSquared);
                 uint256 distance = sqrt(sumSquared);
                 getCouponBidderState(getCouponBidderStateIndex(i)).distance = distance;
-                bids.push(getCouponBidderState(getCouponBidderStateIndex(i)).distance);
+                bids.push(getCouponBidderState(getCouponBidderStateIndex(i)));
             }
 
             // sort bids

@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Comptroller.sol";
+import "./Auction.sol";
 import "../external/Decimal.sol";
 import "../Constants.sol";
 
@@ -34,16 +35,29 @@ contract Regulator is Comptroller {
         Decimal.D256 memory price = oracleCapture();
 
         if (price.greaterThan(Decimal.one())) {
-            /* TODO: Cancel any outstanding previous coupon auction */
-            
+            Epoch.AuctionState storage auction = getCouponAuctionAtEpoch(epoch());
+
+            //check for outstanding auction, if exists cancel it
+            if (auction.couponAuction != address(0)){
+                cancelCouponAuctionAtEpoch(epoch());
+            }
+
             growSupply(price);
             return;
         }
 
         if (price.lessThan(Decimal.one())) {
-            /* TODO: If any outstanding previous auction, fill acceptable bids for coupons, if none cancel previous auction */
+            Epoch.AuctionState storage auction = getCouponAuctionAtEpoch(epoch());
 
-            /* TODO:  Launch new auction for this epoch */
+            //check for outstanding auction, if exists settle it and start a new one
+            if (auction.couponAuction != address(0)){
+                Auction currentCouponAuction = Auction(auction.couponAuction);
+                bool isAuctionSettled = currentCouponAuction.settleCouponAuction();
+                finishCouponAuctionAtEpoch(epoch());
+            }
+            Auction newCouponAuction = new Auction();
+            initCouponAuction(address(newCouponAuction));
+            
             shrinkSupply(price);
             return;
         }

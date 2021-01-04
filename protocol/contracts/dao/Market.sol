@@ -20,6 +20,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Curve.sol";
 import "./Comptroller.sol";
+import "./Auction.sol";
 import "../Constants.sol";
 
 contract Market is Comptroller, Curve {

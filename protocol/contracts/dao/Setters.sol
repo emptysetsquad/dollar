@@ -149,8 +149,8 @@ contract Setters is State, Getters {
         _state.epochs[epoch].coupons.outstanding = 0;
     }
 
-    function setCouponAuction(Epoch.Auction storage auction) internal  {
-        _state.epochs[epoch()].auction = auction;
+    function initCouponAuction(address auction) internal  {
+        _state.epochs[epoch()].auction.couponAuction = auction;
         _state.epochs[epoch()].auction._totalBids = 0;
         _state.epochs[epoch()].auction.minMaturity = 1000000000000000000000000;
         _state.epochs[epoch()].auction.maxMaturity = 0;
@@ -158,11 +158,11 @@ contract Setters is State, Getters {
         _state.epochs[epoch()].auction.maxYield = 0;
     }
 
-    function cancelCounponAuction(uint256 epoch) internal {
+    function cancelCouponAuctionAtEpoch(uint256 epoch) internal {
         _state.epochs[epoch].auction.canceled = true;
     }
 
-    function settleCouponAuction(uint256 epoch) internal {
+    function finishCouponAuctionAtEpoch(uint256 epoch) internal {
          _state.epochs[epoch].auction.finished = true;
     }
 

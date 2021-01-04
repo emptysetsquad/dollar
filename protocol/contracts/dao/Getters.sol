@@ -191,51 +191,51 @@ contract Getters is State {
         return epoch <= Constants.getBootstrappingPeriod();
     }
 
-    function getCouponAuctionAtEpoch(uint256 epoch) internal returns (Epoch.Auction storage) {
+    function getCouponAuctionAtEpoch(uint256 epoch) internal view returns (Epoch.AuctionState storage) {
         return _state.epochs[epoch].auction;
     }
 
-    function getCouponAuctionBids() internal returns (uint256) {
+    function getCouponAuctionBids() internal view returns (uint256) {
         return _state.epochs[epoch()].auction._totalBids;
     }
 
-    function getCouponBidderState(address bidder) internal returns (Epoch.CouponBidderState storage) {
+    function getCouponBidderState(address bidder) internal view returns (Epoch.CouponBidderState storage) {
         return _state.epochs[epoch()].auction.couponBidderState[bidder];
     }
 
-    function getCouponBidderStateSelected(address bidder) internal returns (bool) {
+    function getCouponBidderStateSelected(address bidder) internal view returns (bool) {
         return _state.epochs[epoch()].auction.couponBidderState[bidder].selected;
     }
 
-    function getCouponBidderStateRejected(address bidder) internal returns (bool) {
+    function getCouponBidderStateRejected(address bidder) internal view returns (bool) {
         return _state.epochs[epoch()].auction.couponBidderState[bidder].rejected;
     }
 
-    function getCouponBidderStateIndex(uint256 index) internal returns (address) {
+    function getCouponBidderStateIndex(uint256 index) internal view returns (address) {
         return _state.epochs[epoch()].auction.couponBidder[index];
     }
 
-    function isCouponAuctionFinished() internal returns (bool){
+    function isCouponAuctionFinished() internal view returns (bool){
         return _state.epochs[epoch()].auction.finished;
     }
 
-    function isCouponAuctionCanceled() internal returns (bool){
+    function isCouponAuctionCanceled() internal view returns (bool){
         return _state.epochs[epoch()].auction.canceled;
     }
 
-    function getCouponAuctionMinMaturity() internal returns (uint256) {
+    function getCouponAuctionMinMaturity() internal view returns (uint256) {
         return _state.epochs[epoch()].auction.minMaturity;
     }
 
-    function getCouponAuctionMaxMaturity() internal returns (uint256) {
+    function getCouponAuctionMaxMaturity() internal view returns (uint256) {
         return _state.epochs[epoch()].auction.maxMaturity;
     }
 
-    function getCouponAuctionMinYield() internal returns (uint256) {
+    function getCouponAuctionMinYield() internal view returns (uint256) {
         return _state.epochs[epoch()].auction.minYield;
     }
 
-    function getCouponAuctionMaxYield() internal returns (uint256) {
+    function getCouponAuctionMaxYield() internal view returns (uint256) {
         return _state.epochs[epoch()].auction.maxYield;
     }
 

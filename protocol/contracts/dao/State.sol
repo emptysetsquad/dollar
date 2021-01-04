@@ -62,7 +62,7 @@ contract Epoch {
         bool rejected;
     }
 
-    struct Auction {
+    struct AuctionState {
         bool canceled;
         bool finished;
         uint256 minMaturity;
@@ -72,12 +72,13 @@ contract Epoch {
         uint256 _totalBids;
         mapping(uint256 => address) couponBidder;
         mapping(address => CouponBidderState) couponBidderState;
+        address couponAuction;
     }
 
     struct State {
         uint256 bonded;
         Coupons coupons;
-        Auction auction;
+        AuctionState auction;
     }    
 }
 
