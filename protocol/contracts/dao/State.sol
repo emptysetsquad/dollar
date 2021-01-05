@@ -53,7 +53,7 @@ contract Epoch {
     }
 
     struct CouponBidderState {
-        uint256 couponMaturityEpoch;
+        uint256 couponExpiryEpoch;
         uint256 dollarAmount;
         uint256 couponAmount;
         uint256 distance;
@@ -65,13 +65,21 @@ contract Epoch {
     struct AuctionState {
         bool canceled;
         bool finished;
-        uint256 minMaturity;
-        uint256 maxMaturity;
+        uint256 minExpiry;
+        uint256 maxExpiry;
+        uint256 minExpiryFilled;
+        uint256 maxExpiryFilled;
+        uint256 avgExpiryFilled;
         uint256 minYield;
         uint256 maxYield;
+        uint256 minYieldFilled;
+        uint256 maxYieldFilled;
+        uint256 avgYieldFilled;
         uint256 minDollarAmount;
         uint256 maxDollarAmount;
         uint256 _totalBids;
+        uint256 totalFilled;
+        uint256 bidToCover;
         mapping(uint256 => address) couponBidder;
         mapping(address => CouponBidderState) couponBidderState;
         address couponAuction;

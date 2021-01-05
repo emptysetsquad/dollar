@@ -154,12 +154,44 @@ contract MockState is Setters {
     function setCouponAuctionRelYieldE(uint256 yield) external {
         super.setCouponAuctionRelYield(yield);
     }
-    function setCouponAuctionRelMaturityE(uint256 couponEpochExpiry) external {
-        super.setCouponAuctionRelMaturity(couponEpochExpiry);
+    function setCouponAuctionRelExpiryE(uint256 couponEpochExpiry) external {
+        super.setCouponAuctionRelExpiry(couponEpochExpiry);
     }
 
     function setCouponAuctionRelDollarAmountE(uint256 couponDollarAmount) external {
         super.setCouponAuctionRelDollarAmount(couponDollarAmount);
+    }
+
+    function setMinExpiryFilledE(uint256 minExpiryFilled) external {
+        super.setMinExpiryFilled(minExpiryFilled);
+    }
+    
+    function setMaxExpiryFilledE(uint256 maxExpiryFilled) external {
+        super.setMaxExpiryFilled(maxExpiryFilled);
+    }
+    
+    function setAvgExpiryFilledE(uint256 avgExpiryFilled) external {
+        super.setAvgExpiryFilled(avgExpiryFilled);
+    }
+    
+    function setMinYieldFilledE(uint256 minYieldFilled) external {
+        super.setMinYieldFilled(minYieldFilled);
+    }
+    
+    function setMaxYieldFilledE(uint256 maxYieldFilled) external {
+        super.setMaxYieldFilled(maxYieldFilled);
+    }
+    
+    function setAvgYieldFilledE(uint256 avgYieldFilled) external {
+        super.setAvgYieldFilled(avgYieldFilled);
+    }
+    
+    function setBidToCoverE(uint256 bidToCover) external {
+        super.setBidToCover(bidToCover);
+    }
+    
+    function setTotalFilledE(uint256 totalFilled) external {
+        super.setTotalFilled(totalFilled);
     }
 
     /**

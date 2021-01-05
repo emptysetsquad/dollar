@@ -789,10 +789,34 @@ describe('State', function () {
   describe('setCouponAuctionRelYield', function () {
   });
 
-  describe('setCouponAuctionRelMaturity', function () {
+  describe('setCouponAuctionRelExpiry', function () {
   });
 
   describe('setCouponAuctionRelDollarAmount', function () {
+  });
+
+  describe('setMinExpiryFilled', function () {
+  });
+
+  describe('setMaxExpiryFilled', function () {
+  });
+
+  describe('setAvgExpiryFilled', function () {
+  });
+
+  describe('setMinYieldFilled', function () {
+  });
+
+  describe('setMaxYieldFilled', function () {
+  });
+
+  describe('setAvgYieldFilled', function () {
+  });
+
+  describe('setBidToCover', function () {
+  });
+
+  describe('setTotalFilled', function () {
   });
 
   /**

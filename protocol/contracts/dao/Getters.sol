@@ -223,12 +223,12 @@ contract Getters is State {
         return _state.epochs[epoch()].auction.canceled;
     }
 
-    function getCouponAuctionMinMaturity() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.minMaturity;
+    function getCouponAuctionMinExpiry() internal view returns (uint256) {
+        return _state.epochs[epoch()].auction.minExpiry;
     }
 
-    function getCouponAuctionMaxMaturity() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.maxMaturity;
+    function getCouponAuctionMaxExpiry() internal view returns (uint256) {
+        return _state.epochs[epoch()].auction.maxExpiry;
     }
 
     function getCouponAuctionMinYield() internal view returns (uint256) {
@@ -245,6 +245,38 @@ contract Getters is State {
 
     function getCouponAuctionMaxDollarAmount() internal view returns (uint256) {
         return _state.epochs[epoch()].auction.maxDollarAmount;
+    }
+
+    function getMinExpiryFilled(uint256 epoch) public view returns (uint256) {
+        return _state.epochs[epoch].auction.minExpiryFilled;
+    }
+    
+    function getMaxExpiryFilled(uint256 epoch) public view returns (uint256)  {
+        return _state.epochs[epoch].auction.maxExpiryFilled;
+    }
+    
+    function getAvgExpiryFilled(uint256 epoch) public view returns (uint256)  {
+        return _state.epochs[epoch].auction.avgExpiryFilled;
+    }
+    
+    function getMinYieldFilled(uint256 epoch) public view returns (uint256)  {
+        return _state.epochs[epoch].auction.minYieldFilled;
+    }
+    
+    function getMaxYieldFilled(uint256 epoch) public view returns (uint256)  {
+        return _state.epochs[epoch].auction.maxYieldFilled;
+    }
+    
+    function getAvgYieldFilled(uint256 epoch) public view returns (uint256)  {
+        return _state.epochs[epoch].auction.avgYieldFilled;
+    }
+    
+    function getBidToCover(uint256 epoch) public view returns (uint256)  {
+        return _state.epochs[epoch].auction.bidToCover;
+    }
+    
+    function getTotalFilled(uint256 epoch) public view returns (uint256)  {
+        return _state.epochs[epoch].auction.totalFilled;
     }
 
     /**

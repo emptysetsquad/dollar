@@ -152,8 +152,8 @@ contract Setters is State, Getters {
     function initCouponAuction(address auction) internal  {
         _state.epochs[epoch()].auction.couponAuction = auction;
         _state.epochs[epoch()].auction._totalBids = 0;
-        _state.epochs[epoch()].auction.minMaturity = 1000000000000000000000000;
-        _state.epochs[epoch()].auction.maxMaturity = 0;
+        _state.epochs[epoch()].auction.minExpiry = 1000000000000000000000000;
+        _state.epochs[epoch()].auction.maxExpiry = 0;
         _state.epochs[epoch()].auction.minYield = 1000000000000000000000000;
         _state.epochs[epoch()].auction.maxYield = 0;
         _state.epochs[epoch()].auction.minDollarAmount = 1000000000000000000000000;
@@ -171,7 +171,7 @@ contract Setters is State, Getters {
     function setCouponBidderState(address bidder, uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) internal {
         Epoch.CouponBidderState storage bidderState = _state.epochs[epoch()].auction.couponBidderState[bidder];
 
-        bidderState.couponMaturityEpoch = couponEpochExpiry;
+        bidderState.couponExpiryEpoch = couponEpochExpiry;
         bidderState.dollarAmount = dollarAmount;
         bidderState.couponAmount = maxCouponAmount;
         bidderState.bidder = bidder;
@@ -201,11 +201,11 @@ contract Setters is State, Getters {
         }
     }
     
-    function setCouponAuctionRelMaturity(uint256 couponEpochExpiry) internal {
-        if (couponEpochExpiry > _state.epochs[epoch()].auction.maxMaturity) {
-            _state.epochs[epoch()].auction.maxMaturity = couponEpochExpiry;
-        } else if (couponEpochExpiry < _state.epochs[epoch()].auction.minMaturity) {
-            _state.epochs[epoch()].auction.minMaturity = couponEpochExpiry;
+    function setCouponAuctionRelExpiry(uint256 couponEpochExpiry) internal {
+        if (couponEpochExpiry > _state.epochs[epoch()].auction.maxExpiry) {
+            _state.epochs[epoch()].auction.maxExpiry = couponEpochExpiry;
+        } else if (couponEpochExpiry < _state.epochs[epoch()].auction.minExpiry) {
+            _state.epochs[epoch()].auction.minExpiry = couponEpochExpiry;
         }
     }
 
@@ -215,6 +215,38 @@ contract Setters is State, Getters {
         } else if (couponDollarAmount < _state.epochs[epoch()].auction.minDollarAmount) {
             _state.epochs[epoch()].auction.minDollarAmount = couponDollarAmount;
         }
+    }
+
+    function setMinExpiryFilled(uint256 minExpiryFilled) internal {
+        _state.epochs[epoch()].auction.minExpiryFilled = minExpiryFilled;
+    }
+    
+    function setMaxExpiryFilled(uint256 maxExpiryFilled) internal {
+        _state.epochs[epoch()].auction.maxExpiryFilled = maxExpiryFilled;
+    }
+    
+    function setAvgExpiryFilled(uint256 avgExpiryFilled) internal {
+        _state.epochs[epoch()].auction.avgExpiryFilled = avgExpiryFilled;
+    }
+    
+    function setMinYieldFilled(uint256 minYieldFilled) internal {
+        _state.epochs[epoch()].auction.minYieldFilled = minYieldFilled;
+    }
+    
+    function setMaxYieldFilled(uint256 maxYieldFilled) internal {
+        _state.epochs[epoch()].auction.maxYieldFilled = maxYieldFilled;
+    }
+    
+    function setAvgYieldFilled(uint256 avgYieldFilled) internal {
+        _state.epochs[epoch()].auction.avgYieldFilled = avgYieldFilled;
+    }
+    
+    function setBidToCover(uint256 bidToCover) internal {
+        _state.epochs[epoch()].auction.bidToCover = bidToCover;
+    }
+    
+    function setTotalFilled(uint256 totalFilled) internal {
+        _state.epochs[epoch()].auction.totalFilled = totalFilled;
     }
         
 
