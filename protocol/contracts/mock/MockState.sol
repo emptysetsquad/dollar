@@ -119,6 +119,49 @@ contract MockState is Setters {
        super.eliminateOutstandingCoupons(epoch);
     }
 
+    function initCouponAuctionE(address auction) external  {
+        super.initCouponAuction(auction);
+    }
+
+    function cancelCouponAuctionAtEpochE(uint256 epoch) external {
+        super.cancelCouponAuctionAtEpoch(epoch);
+    }
+
+    function finishCouponAuctionAtEpochE(uint256 epoch) external {
+        super.finishCouponAuctionAtEpoch(epoch);
+    }
+
+    function setCouponBidderStateE(address bidder, uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) external {
+        super.setCouponBidderState(bidder, couponEpochExpiry, dollarAmount, maxCouponAmount);
+    }
+
+    function setCouponBidderStateSelectedE(address bidder) external {
+        super.setCouponBidderStateSelected(bidder);
+    }
+
+    function setCouponBidderStateRejectedE(address bidder) external {
+        super.setCouponBidderStateRejected(bidder);
+    }
+
+    function setCouponBidderStateIndexE(uint256 index, address bidder) external {
+        super.setCouponBidderStateIndex(index, bidder);
+    }
+
+    function incrementCouponAuctionBidsE() external {
+        super.incrementCouponAuctionBids();
+    }
+
+    function setCouponAuctionRelYieldE(uint256 yield) external {
+        super.setCouponAuctionRelYield(yield);
+    }
+    function setCouponAuctionRelMaturityE(uint256 couponEpochExpiry) external {
+        super.setCouponAuctionRelMaturity(couponEpochExpiry);
+    }
+
+    function setCouponAuctionRelDollarAmountE(uint256 couponDollarAmount) external {
+        super.setCouponAuctionRelDollarAmount(couponDollarAmount);
+    }
+
     /**
      * Governance
      */

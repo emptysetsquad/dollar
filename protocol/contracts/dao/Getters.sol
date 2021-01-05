@@ -239,6 +239,14 @@ contract Getters is State {
         return _state.epochs[epoch()].auction.maxYield;
     }
 
+    function getCouponAuctionMinDollarAmount() internal view returns (uint256) {
+        return _state.epochs[epoch()].auction.minDollarAmount;
+    }
+
+    function getCouponAuctionMaxDollarAmount() internal view returns (uint256) {
+        return _state.epochs[epoch()].auction.maxDollarAmount;
+    }
+
     /**
      * Governance
      */

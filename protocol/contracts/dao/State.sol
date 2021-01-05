@@ -69,6 +69,8 @@ contract Epoch {
         uint256 maxMaturity;
         uint256 minYield;
         uint256 maxYield;
+        uint256 minDollarAmount;
+        uint256 maxDollarAmount;
         uint256 _totalBids;
         mapping(uint256 => address) couponBidder;
         mapping(address => CouponBidderState) couponBidderState;

@@ -70,7 +70,9 @@ contract Auction is Comptroller {
             uint256 minMaturity = getCouponAuctionMinMaturity();
             uint256 maxMaturity = getCouponAuctionMaxMaturity();
             uint256 minYield = getCouponAuctionMinYield();
-            uint256 maxYield = getCouponAuctionMaxYield();            
+            uint256 maxYield = getCouponAuctionMaxYield(); 
+            uint256 minDollarAmount = getCouponAuctionMinDollarAmount();
+            uint256 maxDollarAmount = getCouponAuctionMinDollarAmount();            
             
             // loop over bids and compute distance
             for (uint256 i = 0; i < getCouponAuctionBids(); i++) {
@@ -86,11 +88,16 @@ contract Auction is Comptroller {
                 uint256 maturityRel = couponMaturityEpoch.div(
                     maxMaturity.sub(minMaturity)
                 );
+                uint256 dollarRelMax = dollarAmount.div(
+                    maxDollarAmount.sub(minDollarAmount)
+                );
+                uint256 dollarRel = Decimal.one().sub(dollarRelMax).asUint256();
 
                 uint256 yieldRelSquared = Decimal.zero().add(yieldRel).pow(2).asUint256();
                 uint256 maturityRelSquared = Decimal.zero().add(maturityRel).pow(2).asUint256();
+                uint256 dollarRelSquared = Decimal.zero().add(dollarRel).pow(2).asUint256();
 
-                uint256 sumSquared = yieldRelSquared.add(maturityRelSquared);
+                uint256 sumSquared = yieldRelSquared.add(maturityRelSquared).add(dollarRelSquared);
                 uint256 distance = sqrt(sumSquared);
                 getCouponBidderState(getCouponBidderStateIndex(i)).distance = distance;
                 bids.push(getCouponBidderState(getCouponBidderStateIndex(i)));

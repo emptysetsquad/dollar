@@ -750,6 +750,51 @@ describe('State', function () {
     });
   });
 
+  
+  describe('initCouponAuction', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        // need to create mock auction object and pass into this
+        await this.setters.initCouponAuctionE(1);
+      });
+
+      it('has auction set', async function () {
+        // need to check that auction address exists, non zero and has all the other states initializd properly
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).to.be.bignumber.equal(new BN(91));
+      });
+    });
+  });
+
+  describe('cancelCouponAuctionAtEpoch', function () {
+  });
+
+  describe('finishCouponAuctionAtEpoch', function () {
+  });
+
+  describe('setCouponBidderState', function () {
+  });
+
+  describe('setCouponBidderStateSelected', function () {
+  });
+
+  describe('setCouponBidderStateRejected', function () {
+  });
+
+  describe('setCouponBidderStateIndex', function () {
+  });
+
+  describe('incrementCouponAuctionBids', function () {
+  });
+
+  describe('setCouponAuctionRelYield', function () {
+  });
+
+  describe('setCouponAuctionRelMaturity', function () {
+  });
+
+  describe('setCouponAuctionRelDollarAmount', function () {
+  });
+
   /**
    * Governance
    */

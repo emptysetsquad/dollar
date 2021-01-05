@@ -146,6 +146,7 @@ contract Market is Comptroller, Curve {
 
         uint256 epoch = epoch().add(couponEpochExpiry);
         setCouponAuctionRelYield(maxCouponAmount.div(dollarAmount));
+        setCouponAuctionRelDollarAmount(dollarAmount);
         setCouponAuctionRelMaturity(epoch);
         setCouponBidderState(msg.sender, epoch, dollarAmount, maxCouponAmount);
         setCouponBidderStateIndex(getCouponAuctionBids(), msg.sender);
