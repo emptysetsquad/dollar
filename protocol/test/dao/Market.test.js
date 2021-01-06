@@ -168,10 +168,6 @@ describe('Market', function () {
     });
 
     describe('no debt', function () {
-      it('total net is correct', async function () {
-        expect(await this.market.totalNet()).to.be.bignumber.equal(new BN(1000000));
-      });
-
       it('reverts', async function () {
         await expectRevert(this.market.placeCouponAuctionBid(1, 100000, 100000000), "Market: Not enough debt");
       });
@@ -181,17 +177,15 @@ describe('Market', function () {
       beforeEach(async function () {
         await this.market.incrementTotalDebtE(100000);
         this.result = await this.market.placeCouponAuctionBid(1, 100, 500, {from: userAddress});
-        this.txHash = this.result.tx;
       });
 
       it('emits CouponBidPlaced event', async function () {
-        const event = await expectEvent.inTransaction(this.txHash, MockMarket, 'CouponBidPlaced', {
+        const event = await expectEvent(this.result, 'CouponBidPlaced', {
           account: userAddress,
         });
-
         expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
         expect(event.args.dollarAmount).to.be.bignumber.equal(new BN(100));
-        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(500));
+        expect(event.args.maxCouponAmount).to.be.bignumber.equal(new BN(500));
       });
     });
 
@@ -201,18 +195,17 @@ describe('Market', function () {
         await this.market.placeCouponAuctionBid(1, 1000, 50000, {from: userAddress});
         await this.market.placeCouponAuctionBid(1, 2000, 50000, {from: userAddress});
         this.result = await this.market.placeCouponAuctionBid(2, 1000, 50000, {from: userAddress});
-        this.txHash = this.result.tx;
       });
 
 
       it('emits CouponBidPlaced event', async function () {
-        const event = await expectEvent.inTransaction(this.txHash, MockMarket, 'CouponPurchase', {
+        const event = await expectEvent(this.result, 'CouponBidPlaced', {
           account: userAddress,
         });
 
         expect(event.args.epoch).to.be.bignumber.equal(new BN(3));
-        expect(event.args.dollarAmount).to.be.bignumber.equal(new BN(2000));
-        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(50000));
+        expect(event.args.dollarAmount).to.be.bignumber.equal(new BN(1000));
+        expect(event.args.maxCouponAmount).to.be.bignumber.equal(new BN(50000));
       });
     });
 
