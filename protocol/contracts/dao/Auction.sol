@@ -26,6 +26,8 @@ contract Auction is Comptroller {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
+    bytes32 private constant FILE = "Auction";
+
     Epoch.CouponBidderState[] private bids;
 
     uint256 private totalFilled = 0;
@@ -70,7 +72,7 @@ contract Auction is Comptroller {
         }
     }
 
-    function settleCouponAuction() public returns (bool success) {
+    function settleCouponAuction() public onlyDao returns (bool success) {
         if (!isCouponAuctionFinished() && !isCouponAuctionCanceled()) {
             
             uint256 minExpiry = getCouponAuctionMinExpiry();
@@ -166,5 +168,15 @@ contract Auction is Comptroller {
         } else {
             return false;
         }        
+    }
+
+    modifier onlyDao() {
+        Require.that(
+            msg.sender == Constants.getDaoAddress(),
+            FILE,
+            "Not dao"
+        );
+
+        _;
     }
 }
