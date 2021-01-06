@@ -191,7 +191,7 @@ describe('Market', function () {
 
         expect(event.args.epoch).to.be.bignumber.equal(new BN(2));
         expect(event.args.dollarAmount).to.be.bignumber.equal(new BN(100));
-        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(500)));
+        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(500));
       });
     });
 
@@ -212,7 +212,7 @@ describe('Market', function () {
 
         expect(event.args.epoch).to.be.bignumber.equal(new BN(3));
         expect(event.args.dollarAmount).to.be.bignumber.equal(new BN(2000));
-        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(50000)));
+        expect(event.args.couponAmount).to.be.bignumber.equal(new BN(50000));
       });
     });
 

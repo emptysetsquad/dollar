@@ -4,6 +4,7 @@ const { BN, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const MockState = contract.fromArtifact('MockState');
+const MockAuction = contract.fromArtifact('MockAuction');
 
 const BOOTSTRAPPING_END_TIMESTAMP = 1600905600;
 const EPOCH_START = 1602288000;
@@ -14,6 +15,7 @@ describe('State', function () {
 
   beforeEach(async function () {
     this.setters = await MockState.new({from: ownerAddress});
+    this.auction = await MockAuction.new({from: ownerAddress});
   });
 
   /**
@@ -754,69 +756,264 @@ describe('State', function () {
   describe('initCouponAuction', function () {
     describe('when called', function () {
       beforeEach('call', async function () {
-        // need to create mock auction object and pass into this
-        await this.setters.initCouponAuctionE(1);
+        await this.setters.initCouponAuctionE(this.auction);
       });
 
       it('has auction set', async function () {
-        // need to check that auction address exists, non zero and has all the other states initializd properly
-        expect(await this.setters.getCouponAuctionAtEpoch(1)).to.be.bignumber.equal(new BN(91));
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).to.be.equal(this.auction);
       });
     });
   });
 
   describe('cancelCouponAuctionAtEpoch', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.cancelCouponAuctionAtEpochE(1);
+      });
+
+      it('has auction cancled', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).canceled.to.be.equal(true);
+      });
+    });
   });
 
   describe('finishCouponAuctionAtEpoch', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.finishCouponAuctionAtEpochE(1);
+      });
+
+      it('has auction finished', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).finished.to.be.equal(true);
+      });
+    });
   });
 
   describe('setCouponBidderState', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setCouponBidderStateE(userAddress, 1, 100, 500);
+      });
+
+      it('has bidder state set', async function () {
+        expect(await this.setters.getCouponBidderState(userAddress)).couponExpiryEpoch.to.be.equal(new BN(1));
+        expect(await this.setters.getCouponBidderState(userAddress)).dollarAmount.to.be.equal(new BN(100));
+        expect(await this.setters.getCouponBidderState(userAddress)).couponAmount.to.be.equal(new BN(500));
+        expect(await this.setters.getCouponBidderState(userAddress)).couponAmount.to.be.equal(userAddress);
+      });
+    });
   });
 
   describe('setCouponBidderStateSelected', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setCouponBidderStateE(userAddress, 1, 100, 500);
+        await this.setters.setCouponBidderStateSelectedE(userAddress);
+      });
+
+      it('has bidder bid selected', async function () {
+        expect(await this.setters.getCouponBidderState(userAddress)).selected.to.be.equal(true);
+      });
+    });
   });
 
   describe('setCouponBidderStateRejected', function () {
-  });
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setCouponBidderStateE(userAddress, 1, 100, 500);
+        await this.setters.setCouponBidderStateRejectedE(userAddress);
+      });
 
+      it('has bidder bid rejected', async function () {
+        expect(await this.setters.getCouponBidderState(userAddress)).rejected.to.be.equal(true);
+      });
+    });
+  });
   describe('setCouponBidderStateIndex', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setCouponBidderStateE(userAddress, 1, 100, 500);
+        await this.setters.setCouponBidderStateIndexE(1, userAddress);
+      });
+
+      it('has bidder state index at specific index set to bidder', async function () {
+        expect(await this.setters.getCouponBidderStateIndexE(1)).to.be.equal(userAddress);
+      });
+    });
   });
 
   describe('incrementCouponAuctionBids', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.incrementCouponAuctionBidsE();
+      });
+
+      it('has bidder state index at specific index set to bidder', async function () {
+        expect(await this.setters.getCouponAuctionBids()).to.be.equal(new BN(1));
+      });
+    });
   });
 
   describe('setCouponAuctionRelYield', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setCouponAuctionRelYieldE(10);
+        await this.setters.setCouponAuctionRelYieldE(100);
+      });
+
+      it('has min yield set to 10', async function () {
+        expect(await this.setters.getCouponAuctionMinYield()).to.be.equal(new BN(10));
+      });
+      it('has max yield set to 100', async function () {
+        expect(await this.setters.getCouponAuctionMaxYield()).to.be.equal(new BN(100));
+      });
+    });
   });
 
   describe('setCouponAuctionRelExpiry', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setCouponAuctionRelExpiryE(10);
+        await this.setters.setCouponAuctionRelExpiryE(100);
+      });
+
+      it('has min expiry set to 10', async function () {
+        expect(await this.setters.getCouponAuctionMinExpiry()).to.be.equal(new BN(10));
+      });
+      it('has max expiry set to 100', async function () {
+        expect(await this.setters.getCouponAuctionMaxExpiry()).to.be.equal(new BN(100));
+      });
+    });
   });
 
   describe('setCouponAuctionRelDollarAmount', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setCouponAuctionRelDollarAmountE(10);
+        await this.setters.setCouponAuctionRelDollarAmountE(100);
+      });
+
+      it('has min dollar amount set to 10', async function () {
+        expect(await this.setters.getCouponAuctionMinDollarAmount()).to.be.equal(new BN(10));
+      });
+      it('has max dollar amount set to 100', async function () {
+        expect(await this.setters.getCouponAuctionMaxDollarAmount()).to.be.equal(new BN(100));
+      });
+    });
   });
 
   describe('setMinExpiryFilled', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setMinExpiryFilledE(10);
+      });
+
+      it('has min expiry filled set to 10', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).minExpiryFilled.to.be.equal(new BN(10));
+      });
+    });
   });
 
   describe('setMaxExpiryFilled', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setMaxExpiryFilledE(10);
+      });
+
+      it('has max expiry filled set to 10', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).maxExpiryFilled.to.be.equal(new BN(10));
+      });
+    });
   });
 
   describe('setAvgExpiryFilled', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setAvgExpiryFilled(10);
+      });
+
+      it('has avg expiry filled set to 10', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).avgExpiryFilled.to.be.equal(new BN(10));
+      });
+    });
   });
 
   describe('setMinYieldFilled', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setMinYieldFilledE(10);
+      });
+
+      it('has min yield filled set to 10', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).minYieldFilled.to.be.equal(new BN(10));
+      });
+    });
   });
 
   describe('setMaxYieldFilled', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setMaxYieldFilledE(10);
+      });
+
+      it('has max yield filled set to 10', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).maxYieldFilled.to.be.equal(new BN(10));
+      });
+    });
   });
 
   describe('setAvgYieldFilled', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setAvgYieldFilledE(10);
+      });
+
+      it('has avg yield filled set to 10', async function () {
+        expect(await this.setters.getCouponAuctionAtEpoch(1)).avgYieldFilled.to.be.equal(new BN(10));
+      });
+    });
   });
 
   describe('setBidToCover', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setBidToCoverE(10);
+      });
+
+      it('has bid to cover set to 10', async function () {
+        expect(await this.setters.getBidToCover(1)).bidToCover.to.be.equal(new BN(10));
+      });
+    });
   });
 
   describe('setTotalFilled', function () {
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.initCouponAuctionE(this.auction);
+        await this.setters.setTotalFilledE(100);
+      });
+
+      it('has total bids filled to 100', async function () {
+        expect(await this.setters.getTotalFilled(1)).totalFilled.to.be.equal(new BN(100));
+      });
+    });
   });
 
   /**
