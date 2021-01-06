@@ -10,8 +10,8 @@ fully decentralized self-stabilizing dollar.
 - character: `∅ [U+2205], ∅100`
 - icons:
 
-![mfGW7wXg_400x400](https://emptyset.finance/logo/esd_logo_circle.png)
-![mfGW7wXg_400x400](https://emptyset.finance/logo/esd_logo_square.png)
+![mfGW7wXg_400x400](https://raw.githubusercontent.com/emptysetsquad/dollar-dashboard/master/public/logo/esd_logo_circle.png)
+![mfGW7wXg_400x400](https://raw.githubusercontent.com/emptysetsquad/dollar-dashboard/master/public/logo/esd_logo_square.png)
 
 ## dashboard
 
@@ -27,7 +27,7 @@ is available [here](https://github.com/emptysetsquad/dollar/blob/master/d%C3%B8l
 - `0x36F3FD68E7325a35EB768F1AedaAe9EA0689d723` **Døllar**
 - `0xea9f8bb8B5e8BA3D38628f0E18Ee82300eddBa0E` **Oracle**
 - `0x88ff79eB2Bc5850F27315415da8685282C7610F9` **UniswapV2 USDC:ESD Pair**
-- `0xBBDA9B2f267b94147cB5b51653237C2F1EE69054` **LP Incentivation Pool**
+- `0x4082d11e506e3250009a991061acd2176077c88f` **LP Incentivation Pool**
 
 ## audit
 
