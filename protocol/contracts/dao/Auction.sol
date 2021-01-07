@@ -154,7 +154,8 @@ contract Auction is Comptroller {
                         totalFilled++;
                     }
                 } else {
-                    setCouponBidderStateRejected(bids[i].bidder);
+                    /* setCouponBidderStateRejected(bids[i].bidder); or just break and close the auction */
+                    break;
                 } 
             }
 

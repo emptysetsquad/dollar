@@ -150,14 +150,16 @@ contract Setters is State, Getters {
     }
 
     function initCouponAuction(address auction) internal  {
-        _state.epochs[epoch()].auction.couponAuction = auction;
-        _state.epochs[epoch()].auction._totalBids = 0;
-        _state.epochs[epoch()].auction.minExpiry = 1000000000000000000000000;
-        _state.epochs[epoch()].auction.maxExpiry = 0;
-        _state.epochs[epoch()].auction.minYield = 1000000000000000000000000;
-        _state.epochs[epoch()].auction.maxYield = 0;
-        _state.epochs[epoch()].auction.minDollarAmount = 1000000000000000000000000;
-        _state.epochs[epoch()].auction.maxDollarAmount = 0;
+        if (_state.epochs[epoch()].auction.couponAuction == address(0)) {
+            _state.epochs[epoch()].auction.couponAuction = auction;
+            _state.epochs[epoch()].auction._totalBids = 0;
+            _state.epochs[epoch()].auction.minExpiry = 1000000000000000000000000;
+            _state.epochs[epoch()].auction.maxExpiry = 0;
+            _state.epochs[epoch()].auction.minYield = 1000000000000000000000000;
+            _state.epochs[epoch()].auction.maxYield = 0;
+            _state.epochs[epoch()].auction.minDollarAmount = 1000000000000000000000000;
+            _state.epochs[epoch()].auction.maxDollarAmount = 0;
+        }
     }
 
     function cancelCouponAuctionAtEpoch(uint256 epoch) internal {
