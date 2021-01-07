@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Comptroller.sol";
+import "./Market.sol";
 import "../Constants.sol";
 import "../external/Decimal.sol";
 
@@ -34,23 +35,23 @@ contract Auction is Comptroller {
     uint256 private minExpiryFilled = 10000000000000000000;
     uint256 private maxExpiryFilled = 0;
     uint256 private sumExpiryFilled = 0;
-    uint256 private minYieldFilled = 10000000000000000000;
-    uint256 private maxYieldFilled = 0;
-    uint256 private sumYieldFilled = 0;
+    Decimal.D256 private minYieldFilled = Decimal.D256(10000000000000000000);
+    Decimal.D256 private maxYieldFilled = Decimal.zero();
+    Decimal.D256 private sumYieldFilled = Decimal.zero();
 
-    function sortBidsByDistance(Epoch.CouponBidderState[] memory bids) internal returns(Epoch.CouponBidderState[] memory) {
-       quickSort(bids, uint256(0), uint256(bids.length - 1));
+    function sortBidsByDistance(Epoch.CouponBidderState[] storage bids) internal returns(Epoch.CouponBidderState[] storage) {
+       quickSort(bids, int(0), int(bids.length - 1));
        return bids;
     }
     
-    function quickSort(Epoch.CouponBidderState[] memory arr, uint256 left, uint256 right) internal {
-        uint256 i = left;
-        uint256 j = right;
+    function quickSort(Epoch.CouponBidderState[] memory arr, int left, int right) internal {
+        int i = left;
+        int j = right;
         if(i==j) return;
-        uint256 pivot = arr[uint256(left + (right - left) / 2)].distance;
+        Decimal.D256 memory pivot = arr[uint256(left + (right - left) / 2)].distance;
         while (i <= j) {
-            while (arr[uint256(i)].distance < pivot) i++;
-            while (pivot < arr[uint256(j)].distance) j--;
+            while (arr[uint256(i)].distance.lessThan(pivot)) i++;
+            while (pivot.lessThan(arr[uint256(j)].distance)) j--;
             if (i <= j) {
                 (arr[uint256(i)], arr[uint256(j)]) = (arr[uint256(j)], arr[uint256(i)]);
                 i++;
@@ -63,68 +64,77 @@ contract Auction is Comptroller {
             quickSort(arr, i, right);
     }
 
-    function sqrt(uint256 x) internal pure returns (uint256 y) {
-        uint256 z = x.add(1).div(2);
+    function sqrt(Decimal.D256 memory x) internal pure returns (Decimal.D256 memory y) {
+        Decimal.D256 memory z = x.add(1).div(2);
         y = x;
-        while (z < y) {
+        while (z.lessThan(y)) {
             y = z;
             z = x.div(z.add(z)).div(2);
         }
+        return y;
     }
 
     function settleCouponAuction() internal returns (bool success) {
         if (!isCouponAuctionFinished() && !isCouponAuctionCanceled()) {
             uint256 yieldRelNorm = getCouponAuctionMaxYield() - getCouponAuctionMinYield();
             uint256 expiryRelNorm = getCouponAuctionMaxExpiry() - getCouponAuctionMinExpiry();    
-            uint256 dollarRelNorm = getCouponAuctionMaxDollarAmount() - getCouponAuctionMinDollarAmount();  
+            uint256 dollarRelNorm = getCouponAuctionMaxDollarAmount() - getCouponAuctionMinDollarAmount();
             
             // loop over bids and compute distance
             for (uint256 i = 0; i < getCouponAuctionBids(); i++) {
+                Epoch.CouponBidderState storage bidder = getCouponBidderState(getCouponBidderStateIndex(i));
                 Decimal.D256 memory yieldRel = Decimal.ratio(
                     Decimal.ratio(
-                        getCouponBidderState(getCouponBidderStateIndex(i)).couponAmount,
-                        getCouponBidderState(getCouponBidderStateIndex(i)).dollarAmount
+                        bidder.couponAmount,
+                        bidder.dollarAmount
                     ).asUint256(),
                     yieldRelNorm
                 );
                 
                 Decimal.D256 memory expiryRel = Decimal.ratio(
-                    getCouponBidderState(getCouponBidderStateIndex(i)).couponExpiryEpoch,
+                    bidder.couponExpiryEpoch,
                     expiryRelNorm
                 );
                 
                 Decimal.D256 memory dollarRelMax = Decimal.ratio(
-                    getCouponBidderState(getCouponBidderStateIndex(i)).dollarAmount,
+                    bidder.dollarAmount,
                     dollarRelNorm
                 );
-                uint256 dollarRel = 1 - dollarRelMax.asUint256();
+                Decimal.D256 memory dollarRel = (Decimal.one().add(Decimal.one())).sub(dollarRelMax);
 
                 Decimal.D256 memory yieldRelSquared = yieldRel.pow(2);
                 Decimal.D256 memory expiryRelSquared = expiryRel.pow(2);
-                Decimal.D256 memory dollarRelSquared = Decimal.D256(dollarRel).pow(2);
+                Decimal.D256 memory dollarRelSquared = dollarRel.pow(2);
 
-                uint256 sumSquared = yieldRelSquared.add(expiryRelSquared).add(dollarRelSquared).asUint256();
-                uint256 distance = sqrt(sumSquared);
-                getCouponBidderState(getCouponBidderStateIndex(i)).distance = distance;
-                bids.push(getCouponBidderState(getCouponBidderStateIndex(i)));
+                Decimal.D256 memory sumOfSquared = yieldRelSquared.add(expiryRelSquared).add(dollarRelSquared);
+                Decimal.D256 memory distance;
+                if (sumOfSquared.greaterThan(Decimal.zero())) {
+                    distance = sqrt(sumOfSquared);
+                } else {
+                    distance = Decimal.zero();
+                }
+
+                setCouponBidderStateDistance(getCouponBidderStateIndex(i), distance);
+                bidder = getCouponBidderState(getCouponBidderStateIndex(i));
+                bids.push(bidder);
             }
 
-            // sort bids
-            sortBidsByDistance(bids);
-
             
+            // sort bids
+            bids = sortBidsByDistance(bids);
 
             // assign coupons until totalDebt filled, reject the rest
             for (uint256 i = 0; i < bids.length; i++) {
                 if (totalDebt() >= bids[i].dollarAmount) {
                     if (!getCouponBidderStateRejected(bids[i].bidder) && !getCouponBidderStateRejected(bids[i].bidder)) {
-                        uint256 yield = bids[i].couponAmount.div(
+                        Decimal.D256 memory yield = Decimal.ratio(
+                            bids[i].couponAmount,
                             bids[i].dollarAmount
                         );
                         
-                        if (yield < minYieldFilled) {
+                        if (yield.lessThan(minYieldFilled)) {
                             minYieldFilled = yield;
-                        } else if (yield > maxYieldFilled) {
+                        } else if (yield.greaterThan(maxYieldFilled)) {
                             maxYieldFilled = yield;
                         }
 
@@ -149,18 +159,30 @@ contract Auction is Comptroller {
             }
 
             // set auction internals
-            uint256 avgYieldFilled = sumYieldFilled.div(totalFilled);
-            uint256 avgExpiryFilled = sumExpiryFilled.div(totalFilled);
-            uint256 bidToCover = bids.length.div(totalFilled);
+            if (totalFilled > 0) {
+                Decimal.D256 memory avgYieldFilled = Decimal.ratio(
+                    sumYieldFilled.asUint256(),
+                    totalFilled
+                );
+                Decimal.D256 memory avgExpiryFilled = Decimal.ratio(
+                    sumExpiryFilled,
+                    totalFilled
+                );
+                Decimal.D256 memory bidToCover = Decimal.ratio(
+                    bids.length,
+                    totalFilled
+                );
 
-            setMinExpiryFilled(minExpiryFilled);
-            setMaxExpiryFilled(maxExpiryFilled);
-            setAvgExpiryFilled(avgExpiryFilled);
-            setMinYieldFilled(minYieldFilled);
-            setMaxYieldFilled(maxYieldFilled);
-            setAvgYieldFilled(avgYieldFilled);
-            setBidToCover(bidToCover);
-            setTotalFilled(totalFilled);
+                setMinExpiryFilled(minExpiryFilled);
+                setMaxExpiryFilled(maxExpiryFilled);
+                setAvgExpiryFilled(avgExpiryFilled.asUint256());
+                setMinYieldFilled(minYieldFilled.asUint256());
+                setMaxYieldFilled(maxYieldFilled.asUint256());
+                setAvgYieldFilled(avgYieldFilled.asUint256());
+                setBidToCover(bidToCover.asUint256());
+                setTotalFilled(totalFilled);
+            }
+            
 
             return true;
         } else {

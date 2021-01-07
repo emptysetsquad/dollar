@@ -56,9 +56,9 @@ contract Epoch {
         bool selected;
         bool rejected;
         address bidder;
-        uint256 distance;
         uint256 dollarAmount;
         uint256 couponAmount;
+        Decimal.D256 distance;
         uint256 couponExpiryEpoch;
     }
 

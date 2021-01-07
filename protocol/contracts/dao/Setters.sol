@@ -175,6 +175,12 @@ contract Setters is State, Getters {
         bidderState.dollarAmount = dollarAmount;
         bidderState.couponAmount = maxCouponAmount;
         bidderState.bidder = bidder;
+
+        _state.epochs[epoch()].auction.couponBidderState[bidder] = bidderState;
+    }
+
+    function setCouponBidderStateDistance(address bidder, Decimal.D256 memory distance) internal {
+        _state.epochs[epoch()].auction.couponBidderState[bidder].distance = distance;
     }
 
     function setCouponBidderStateSelected(address bidder) internal {

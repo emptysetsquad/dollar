@@ -21,12 +21,26 @@ import "../dao/Auction.sol";
 import "../dao/Market.sol";
 import "./MockState.sol";
 import "./MockMarket.sol";
+import "./MockComptroller.sol";
 
-contract MockAuction is Auction, MockState, Market {
-    constructor () public { }
+
+contract MockAuction is MockState, MockComptroller, Auction, Market {
+    constructor(address pool) MockComptroller(pool) public { }
+    
+    function stepE() external {
+        Market.step();
+    }
 
     function settleCouponAuctionE() external returns (bool) {
         return settleCouponAuction();
+    }
+
+    function cancelCouponAuctionAtEpochE(uint256 epoch) external {
+        super.cancelCouponAuctionAtEpoch(epoch);
+    }
+
+    function finishCouponAuctionAtEpochE(uint256 epoch) external {
+         super.finishCouponAuctionAtEpoch(epoch);
     }
 
     function initCouponAuctionE(address auction) external {
