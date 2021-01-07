@@ -100,8 +100,16 @@ contract Storage {
         mapping(uint256 => Epoch.State) epochs;
         mapping(address => Candidate.State) candidates;
     }
+
+    struct State16 {
+        mapping(address => mapping(uint256 => uint256)) couponUnderlyingByAccount;
+        uint256 couponUnderlying;
+    }
 }
 
 contract State {
     Storage.State _state;
+
+    // EIP-16
+    Storage.State16 _state16;
 }

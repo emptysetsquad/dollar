@@ -405,9 +405,9 @@ describe('Govern', function () {
 
     describe('ended with not enough approve votes', function () {
       beforeEach(async function () {
-        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress});
-        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress3});
-        await this.govern.vote(this.implB.address, REJECT, {from: userAddress2});
+        await this.govern.vote(this.implB.address, REJECT, {from: userAddress});
+        await this.govern.vote(this.implB.address, REJECT, {from: userAddress3});
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress2});
 
         const epoch = await this.govern.epoch();
         await this.govern.setEpochTime(epoch + EMERGENCY_COMMIT_PERIOD);

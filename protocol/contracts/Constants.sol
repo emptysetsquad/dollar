@@ -55,11 +55,11 @@ library Constants {
     uint256 private constant GOVERNANCE_EXPIRATION = 2; // 2 + 1 epochs
     uint256 private constant GOVERNANCE_QUORUM = 20e16; // 20%
     uint256 private constant GOVERNANCE_PROPOSAL_THRESHOLD = 5e15; // 0.5%
-    uint256 private constant GOVERNANCE_SUPER_MAJORITY = 66e16; // 66%
+    uint256 private constant GOVERNANCE_SUPER_MAJORITY = 40e16; // 40%
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
 
     /* DAO */
-    uint256 private constant ADVANCE_INCENTIVE = 1e20; // 100 ESD
+    uint256 private constant ADVANCE_INCENTIVE = 1e21; // 1000 ESD
     uint256 private constant DAO_EXIT_LOCKUP_EPOCHS = 15; // 15 epochs fluid
 
     /* Pool */

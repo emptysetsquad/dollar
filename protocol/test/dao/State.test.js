@@ -332,6 +332,25 @@ describe('State', function () {
     });
   });
 
+  describe('incrementBalanceOfCouponUnderlying', function () {
+    const epoch = 1;
+
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.incrementBalanceOfCouponUnderlyingE(userAddress, epoch, 100);
+        await this.setters.incrementBalanceOfCouponUnderlyingE(userAddress, epoch, 100);
+      });
+
+      it('increments balance of coupons for user during epoch', async function () {
+        expect(await this.setters.balanceOfCouponUnderlying(userAddress, epoch)).to.be.bignumber.equal(new BN(200));
+      });
+
+      it('increments total outstanding coupons', async function () {
+        expect(await this.setters.totalCouponUnderlying()).to.be.bignumber.equal(new BN(200));
+      });
+    });
+  });
+
   describe('decrementBalanceOfCoupons', function () {
     const epoch = 1;
 
@@ -362,7 +381,39 @@ describe('State', function () {
 
       it('reverts', async function () {
         await expectRevert(
-          this.setters.decrementBalanceOfCouponsE(200, epoch, "decrementBalanceOfCouponsE"),
+          this.setters.decrementBalanceOfCouponsE(userAddress, 200, epoch, "decrementBalanceOfCouponsE"),
+          "decrementBalanceOfCoupons");
+      });
+    });
+  });
+
+  describe('decrementBalanceOfCouponUnderlying', function () {
+    const epoch = 1;
+
+    describe('when called', function () {
+      beforeEach('call', async function () {
+        await this.setters.incrementBalanceOfCouponUnderlyingE(userAddress, epoch, 500);
+        await this.setters.decrementBalanceOfCouponUnderlyingE(userAddress, epoch, 100, "decrementBalanceOfCouponsE - 1");
+        await this.setters.decrementBalanceOfCouponUnderlyingE(userAddress, epoch, 100, "decrementBalanceOfCouponsE - 2");
+      });
+
+      it('decrements balance of coupons for user during epoch', async function () {
+        expect(await this.setters.balanceOfCouponUnderlying(userAddress, epoch)).to.be.bignumber.equal(new BN(300));
+      });
+
+      it('decrements total outstanding coupons', async function () {
+        expect(await this.setters.totalCouponUnderlying()).to.be.bignumber.equal(new BN(300));
+      });
+    });
+
+    describe('when called erroneously', function () {
+      beforeEach('call', async function () {
+        await this.setters.incrementBalanceOfCouponUnderlyingE(userAddress, epoch, 100);
+      });
+
+      it('reverts', async function () {
+        await expectRevert(
+          this.setters.decrementBalanceOfCouponUnderlyingE(userAddress, 200, epoch, "decrementBalanceOfCouponsE"),
           "decrementBalanceOfCouponsE");
       });
     });
