@@ -153,11 +153,11 @@ contract Setters is State, Getters {
         if (_state.epochs[epoch()].auction.couponAuction == address(0)) {
             _state.epochs[epoch()].auction.couponAuction = auction;
             _state.epochs[epoch()].auction._totalBids = 0;
-            _state.epochs[epoch()].auction.minExpiry = 1000000000000000000000000;
+            _state.epochs[epoch()].auction.minExpiry = 2**256 - 1;
             _state.epochs[epoch()].auction.maxExpiry = 0;
-            _state.epochs[epoch()].auction.minYield = 1000000000000000000000000;
+            _state.epochs[epoch()].auction.minYield = 2**256 - 1;
             _state.epochs[epoch()].auction.maxYield = 0;
-            _state.epochs[epoch()].auction.minDollarAmount = 1000000000000000000000000;
+            _state.epochs[epoch()].auction.minDollarAmount = 2**256 - 1;
             _state.epochs[epoch()].auction.maxDollarAmount = 0;
         }
     }

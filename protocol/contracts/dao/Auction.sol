@@ -32,10 +32,10 @@ contract Auction is Comptroller {
     Epoch.CouponBidderState[] private bids;
 
     uint256 private totalFilled = 0;
-    uint256 private minExpiryFilled = 10000000000000000000;
+    uint256 private minExpiryFilled = 2**256 - 1;
     uint256 private maxExpiryFilled = 0;
     uint256 private sumExpiryFilled = 0;
-    Decimal.D256 private minYieldFilled = Decimal.D256(10000000000000000000);
+    Decimal.D256 private minYieldFilled = Decimal.D256(2**256 - 1);
     Decimal.D256 private maxYieldFilled = Decimal.zero();
     Decimal.D256 private sumYieldFilled = Decimal.zero();
 
