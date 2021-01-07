@@ -72,40 +72,38 @@ contract Auction is Comptroller {
         }
     }
 
-    function settleCouponAuction() public onlyDao returns (bool success) {
+    function settleCouponAuction() internal returns (bool success) {
         if (!isCouponAuctionFinished() && !isCouponAuctionCanceled()) {
-            
-            uint256 minExpiry = getCouponAuctionMinExpiry();
-            uint256 maxExpiry = getCouponAuctionMaxExpiry();
-            uint256 minYield = getCouponAuctionMinYield();
-            uint256 maxYield = getCouponAuctionMaxYield(); 
-            uint256 minDollarAmount = getCouponAuctionMinDollarAmount();
-            uint256 maxDollarAmount = getCouponAuctionMinDollarAmount();            
+            uint256 yieldRelNorm = getCouponAuctionMaxYield() - getCouponAuctionMinYield();
+            uint256 expiryRelNorm = getCouponAuctionMaxExpiry() - getCouponAuctionMinExpiry();    
+            uint256 dollarRelNorm = getCouponAuctionMaxDollarAmount() - getCouponAuctionMinDollarAmount();  
             
             // loop over bids and compute distance
             for (uint256 i = 0; i < getCouponAuctionBids(); i++) {
-                uint256 couponExpiryEpoch = getCouponBidderState(getCouponBidderStateIndex(i)).couponExpiryEpoch;
-                uint256 couponAmount = getCouponBidderState(getCouponBidderStateIndex(i)).couponAmount;
-                uint256 dollarAmount = getCouponBidderState(getCouponBidderStateIndex(i)).dollarAmount;
-
-                uint256 yieldRel = couponAmount.div(
-                    dollarAmount
-                ).div(
-                    maxYield.sub(minYield)
+                Decimal.D256 memory yieldRel = Decimal.ratio(
+                    Decimal.ratio(
+                        getCouponBidderState(getCouponBidderStateIndex(i)).couponAmount,
+                        getCouponBidderState(getCouponBidderStateIndex(i)).dollarAmount
+                    ).asUint256(),
+                    yieldRelNorm
                 );
-                uint256 ExpiryRel = couponExpiryEpoch.div(
-                    maxExpiry.sub(minExpiry)
+                
+                Decimal.D256 memory expiryRel = Decimal.ratio(
+                    getCouponBidderState(getCouponBidderStateIndex(i)).couponExpiryEpoch,
+                    expiryRelNorm
                 );
-                uint256 dollarRelMax = dollarAmount.div(
-                    maxDollarAmount.sub(minDollarAmount)
+                
+                Decimal.D256 memory dollarRelMax = Decimal.ratio(
+                    getCouponBidderState(getCouponBidderStateIndex(i)).dollarAmount,
+                    dollarRelNorm
                 );
-                uint256 dollarRel = Decimal.one().sub(dollarRelMax).asUint256();
+                uint256 dollarRel = 1 - dollarRelMax.asUint256();
 
-                uint256 yieldRelSquared = Decimal.zero().add(yieldRel).pow(2).asUint256();
-                uint256 ExpiryRelSquared = Decimal.zero().add(ExpiryRel).pow(2).asUint256();
-                uint256 dollarRelSquared = Decimal.zero().add(dollarRel).pow(2).asUint256();
+                Decimal.D256 memory yieldRelSquared = yieldRel.pow(2);
+                Decimal.D256 memory expiryRelSquared = expiryRel.pow(2);
+                Decimal.D256 memory dollarRelSquared = Decimal.D256(dollarRel).pow(2);
 
-                uint256 sumSquared = yieldRelSquared.add(ExpiryRelSquared).add(dollarRelSquared);
+                uint256 sumSquared = yieldRelSquared.add(expiryRelSquared).add(dollarRelSquared).asUint256();
                 uint256 distance = sqrt(sumSquared);
                 getCouponBidderState(getCouponBidderStateIndex(i)).distance = distance;
                 bids.push(getCouponBidderState(getCouponBidderStateIndex(i)));
@@ -168,15 +166,5 @@ contract Auction is Comptroller {
         } else {
             return false;
         }        
-    }
-
-    modifier onlyDao() {
-        Require.that(
-            msg.sender == Constants.getDaoAddress(),
-            FILE,
-            "Not dao"
-        );
-
-        _;
     }
 }

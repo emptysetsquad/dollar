@@ -23,7 +23,7 @@ import "./Auction.sol";
 import "../external/Decimal.sol";
 import "../Constants.sol";
 
-contract Regulator is Comptroller {
+contract Regulator is Comptroller, Auction {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
@@ -51,8 +51,7 @@ contract Regulator is Comptroller {
 
             //check for outstanding auction, if exists settle it and start a new one
             if (auction.couponAuction != address(0)){
-                Auction currentCouponAuction = Auction(auction.couponAuction);
-                bool isAuctionSettled = currentCouponAuction.settleCouponAuction();
+                bool isAuctionSettled = settleCouponAuction();
                 finishCouponAuctionAtEpoch(epoch());
             }
             Auction newCouponAuction = new Auction();

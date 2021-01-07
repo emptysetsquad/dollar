@@ -18,12 +18,46 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "../dao/Auction.sol";
+import "../dao/Market.sol";
 import "./MockState.sol";
+import "./MockMarket.sol";
 
-contract MockAuction is Auction {
+contract MockAuction is Auction, MockState, Market {
     constructor () public { }
 
     function settleCouponAuctionE() external returns (bool) {
-        return super.settleCouponAuction();
+        return settleCouponAuction();
+    }
+
+    function initCouponAuctionE(address auction) external {
+        super.initCouponAuction(auction);
+    }
+
+    function getCouponAuctionBidsE() external returns (uint256) {
+        return super.getCouponAuctionBids();
+    }
+
+    function getCouponAuctionMinExpiryE() external returns (uint256) {
+        return super.getCouponAuctionMinExpiry();
+    }
+
+    function getCouponAuctionMaxExpiryE() external returns (uint256) {
+        return super.getCouponAuctionMaxExpiry();
+    }
+
+    function getCouponAuctionMinYieldE() external returns (uint256) {
+        return super.getCouponAuctionMinYield();
+    }
+
+    function getCouponAuctionMaxYieldE() external returns (uint256) {
+        return super.getCouponAuctionMaxYield();
+    }
+
+    function getCouponAuctionMinDollarAmountE() external returns (uint256) {
+        return super.getCouponAuctionMinDollarAmount();
+    }
+
+    function getCouponAuctionMaxDollarAmountE() external returns (uint256) {
+        return super.getCouponAuctionMaxDollarAmount();
     }
 }
