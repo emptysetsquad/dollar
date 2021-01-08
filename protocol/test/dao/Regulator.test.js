@@ -75,6 +75,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
 
+          it('has not created any auctions in the past 2 epochs', async function () {
+             expect(await this.regulator.getCouponAuctionAddressAtEpochE.call(1)).to.be.bignumber.equal(new BN(0));
+          });
+
           it('emits SupplyIncrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
 
@@ -119,6 +123,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('has not created any auctions in the past 2 epochs', async function () {
+
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -173,6 +181,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(100000));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
+          });
+
+          it('has not created any auctions in the past 2 epochs', async function () {
+
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -230,6 +242,10 @@ describe('Regulator', function () {
           expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(2000));
         });
 
+        it('has not created any auctions in the past 2 epochs', async function () {
+
+        });
+
         it('emits SupplyIncrease event', async function () {
           const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
 
@@ -284,6 +300,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
           });
 
+          it('has not created any auctions in the past 2 epochs', async function () {
+
+          });
+
           it('emits SupplyIncrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
 
@@ -321,6 +341,10 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('has created 1 auction in the past 3 epochs', async function () {
+
           });
 
           it('updates totals', async function () {
@@ -377,6 +401,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
 
+          it('has created 1 auction in the past 2 epochs', async function () {
+
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -423,6 +451,10 @@ describe('Regulator', function () {
               expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
             });
+          });
+
+          it('has created 1 auction in the past 2 epochs', async function () {
+
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -473,6 +505,10 @@ describe('Regulator', function () {
             });
           });
 
+          it('has created 1 auction in the past 2 epochs', async function () {
+
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -521,6 +557,10 @@ describe('Regulator', function () {
             });
           });
 
+          it('has created 1 auction in the past 2 epochs', async function () {
+
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -567,6 +607,10 @@ describe('Regulator', function () {
               expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
             });
+          });
+
+          it('has created 1 auction in the past 2 epochs', async function () {
+
           });
 
           it('emits SupplyDecrease event', async function () {

@@ -27,6 +27,8 @@ contract Regulator is Comptroller, Auction {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
+    AuctionFactory private auctionFactory;
+
     event SupplyIncrease(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 lessDebt, uint256 newBonded);
     event SupplyDecrease(uint256 indexed epoch, uint256 price, uint256 newDebt);
     event SupplyNeutral(uint256 indexed epoch);
@@ -53,7 +55,7 @@ contract Regulator is Comptroller, Auction {
                 bool isAuctionSettled = settleCouponAuction();
                 finishCouponAuctionAtEpoch(epoch() - 1);
             }
-            Auction newCouponAuction = new Auction();
+            Auction newCouponAuction = auctionFactory.createAuction();
             initCouponAuction(address(newCouponAuction));
             
             shrinkSupply(price);

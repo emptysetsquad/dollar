@@ -19,9 +19,14 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Comptroller.sol";
-import "./Market.sol";
 import "../Constants.sol";
 import "../external/Decimal.sol";
+
+contract AuctionFactory {
+    function createAuction() external returns (Auction) {
+        return new Auction();
+    }
+}
 
 contract Auction is Comptroller {
     using SafeMath for uint256;
