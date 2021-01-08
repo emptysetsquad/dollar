@@ -18,11 +18,12 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "../dao/Regulator.sol";
+import "../dao/Market.sol";
 import "../oracle/IOracle.sol";
 import "./MockComptroller.sol";
 import "./MockState.sol";
 
-contract MockRegulator is MockComptroller, Regulator {
+contract MockRegulator is MockComptroller, Regulator, Market {
     constructor (address oracle, address pool) MockComptroller(pool) public {
         _state.provider.oracle = IOracle(oracle);
     }
@@ -34,6 +35,10 @@ contract MockRegulator is MockComptroller, Regulator {
     function bootstrappingAt(uint256 epoch) public view returns (bool) {
         return epoch <= 5;
     }
+
+    /*function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) {
+        super.placeCouponAuctionBid(couponEpochExpiry, dollarAmount, maxCouponAmount);
+    }*/
 
     function settleCouponAuctionE() external {
         super.settleCouponAuction();

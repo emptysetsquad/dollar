@@ -238,7 +238,6 @@ contract Regulator is Comptroller {
 
             // set auction internals
             if (totalFilled > 0) {
-                //.mul(100) to avoid sub 0 results
                 Decimal.D256 memory avgYieldFilled = Decimal.ratio(
                     sumYieldFilled,
                     totalFilled
@@ -247,6 +246,8 @@ contract Regulator is Comptroller {
                     sumExpiryFilled,
                     totalFilled
                 );
+
+                //mul(100) to avoid sub 0 results
                 Decimal.D256 memory bidToCover = Decimal.ratio(
                     bids.length,
                     totalFilled
