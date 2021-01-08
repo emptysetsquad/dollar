@@ -54,14 +54,11 @@ describe('Auction', function () {
 
         expect(await this.auction.getMinExpiryFilled(1)).to.be.bignumber.equal(new BN(6));
         expect(await this.auction.getMaxExpiryFilled(1)).to.be.bignumber.equal(new BN(1001));
-        //TODO getAvgYieldFilled
-        expect(await this.auction.getAvgExpiryFilled(1)).to.be.bignumber.equal(new BN(0));
-        expect(await this.auction.getMinYieldFilled(1)).to.be.bignumber.equal(new BN(10));
+        expect(await this.auction.getAvgExpiryFilled(1)).to.be.bignumber.equal(new BN(342));
+        expect(await this.auction.getMinYieldFilled(1)).to.be.bignumber.equal(new BN(25));
         expect(await this.auction.getMaxYieldFilled(1)).to.be.bignumber.equal(new BN(55));
-        //TODO getAvgYieldFilled
-        expect(await this.auction.getAvgYieldFilled(1)).to.be.bignumber.equal(new BN(0));
-        //TODO getBidToCover
-        expect(await this.auction.getBidToCover(1)).to.be.bignumber.equal(new BN(1));
+        expect(await this.auction.getAvgYieldFilled(1)).to.be.bignumber.equal(new BN(43));
+        expect(await this.auction.getBidToCover(1)).to.be.bignumber.equal(new BN(133));
         expect(await this.auction.getTotalFilled(1)).to.be.bignumber.equal(new BN(3));
       });
     });

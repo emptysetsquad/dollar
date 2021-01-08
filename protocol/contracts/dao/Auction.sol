@@ -32,12 +32,13 @@ contract Auction is Comptroller {
     Epoch.CouponBidderState[] private bids;
 
     uint256 private totalFilled = 0;
-    uint256 private minExpiryFilled = 2**256 - 1;
     uint256 private maxExpiryFilled = 0;
     uint256 private sumExpiryFilled = 0;
-    Decimal.D256 private minYieldFilled = Decimal.D256(2**256 - 1);
+    uint256 private sumYieldFilled = 0;
+    uint256 private minExpiryFilled = 2**256 - 1;
     Decimal.D256 private maxYieldFilled = Decimal.zero();
-    Decimal.D256 private sumYieldFilled = Decimal.zero();
+    Decimal.D256 private minYieldFilled = Decimal.D256(2**256 - 1);
+    
 
     function sortBidsByDistance(Epoch.CouponBidderState[] storage bids) internal returns(Epoch.CouponBidderState[] storage) {
        quickSort(bids, int(0), int(bids.length - 1));
@@ -144,8 +145,8 @@ contract Auction is Comptroller {
                             maxExpiryFilled = bids[i].couponExpiryEpoch;
                         }
                         
-                        sumYieldFilled.add(yield);
-                        sumExpiryFilled.add(bids[i].couponExpiryEpoch);
+                        sumYieldFilled += yield.asUint256();
+                        sumExpiryFilled += bids[i].couponExpiryEpoch;
                         
                         uint256 epoch = epoch().add(bids[i].couponExpiryEpoch);
                         burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
@@ -161,8 +162,9 @@ contract Auction is Comptroller {
 
             // set auction internals
             if (totalFilled > 0) {
+                //.mul(100) to avoid sub 0 results
                 Decimal.D256 memory avgYieldFilled = Decimal.ratio(
-                    sumYieldFilled.asUint256(),
+                    sumYieldFilled,
                     totalFilled
                 );
                 Decimal.D256 memory avgExpiryFilled = Decimal.ratio(
@@ -172,7 +174,7 @@ contract Auction is Comptroller {
                 Decimal.D256 memory bidToCover = Decimal.ratio(
                     bids.length,
                     totalFilled
-                );
+                ).mul(100);
 
                 setMinExpiryFilled(minExpiryFilled);
                 setMaxExpiryFilled(maxExpiryFilled);
@@ -183,7 +185,6 @@ contract Auction is Comptroller {
                 setBidToCover(bidToCover.asUint256());
                 setTotalFilled(totalFilled);
             }
-            
 
             return true;
         } else {
