@@ -149,9 +149,8 @@ contract Setters is State, Getters {
         _state.epochs[epoch].coupons.outstanding = 0;
     }
 
-    function initCouponAuction(address auction) internal  {
-        if (_state.epochs[epoch()].auction.couponAuction == address(0)) {
-            _state.epochs[epoch()].auction.couponAuction = auction;
+    function initCouponAuction() internal  {
+        if (_state.epochs[epoch()].auction.isInit == false) {
             _state.epochs[epoch()].auction._totalBids = 0;
             _state.epochs[epoch()].auction.minExpiry = 2**256 - 1;
             _state.epochs[epoch()].auction.maxExpiry = 0;
@@ -159,6 +158,7 @@ contract Setters is State, Getters {
             _state.epochs[epoch()].auction.maxYield = 0;
             _state.epochs[epoch()].auction.minDollarAmount = 2**256 - 1;
             _state.epochs[epoch()].auction.maxDollarAmount = 0;
+            _state.epochs[epoch()].auction.isInit = true;
         }
     }
 
@@ -177,8 +177,6 @@ contract Setters is State, Getters {
         bidderState.dollarAmount = dollarAmount;
         bidderState.couponAmount = maxCouponAmount;
         bidderState.bidder = bidder;
-
-        _state.epochs[epoch()].auction.couponBidderState[bidder] = bidderState;
     }
 
     function setCouponBidderStateDistance(address bidder, Decimal.D256 memory distance) internal {

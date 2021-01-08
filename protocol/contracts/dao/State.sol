@@ -63,6 +63,7 @@ contract Epoch {
     }
 
     struct AuctionState {
+        bool isInit;
         bool canceled;
         bool finished;
         uint256 minExpiry;
@@ -72,7 +73,6 @@ contract Epoch {
         uint256 _totalBids;
         uint256 totalFilled;
         uint256 bidToCover;
-        address couponAuction;
         uint256 minYieldFilled;
         uint256 maxYieldFilled;
         uint256 avgYieldFilled;

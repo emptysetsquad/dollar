@@ -43,8 +43,8 @@ contract MockAuction is MockState, MockComptroller, Auction, Market {
          super.finishCouponAuctionAtEpoch(epoch);
     }
 
-    function initCouponAuctionE(address auction) external {
-        super.initCouponAuction(auction);
+    function initCouponAuctionE() external {
+        super.initCouponAuction();
     }
 
     function getCouponAuctionBidsE() external returns (uint256) {

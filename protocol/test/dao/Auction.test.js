@@ -30,7 +30,7 @@ describe('Auction', function () {
     describe('auction is not finished and not canceled', function () {
       beforeEach(async function () {
         await this.auction.incrementTotalDebtE(4000);
-        await this.auction.initCouponAuctionE(this.auction.address);
+        await this.auction.initCouponAuctionE();
       });
 
 

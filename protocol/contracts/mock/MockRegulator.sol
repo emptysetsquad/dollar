@@ -34,4 +34,48 @@ contract MockRegulator is MockComptroller, Regulator {
     function bootstrappingAt(uint256 epoch) public view returns (bool) {
         return epoch <= 5;
     }
+
+    function settleCouponAuctionE() external {
+        super.settleCouponAuction();
+    }
+
+    function cancelCouponAuctionAtEpochE(uint256 epoch) external {
+        super.cancelCouponAuctionAtEpoch(epoch);
+    }
+
+    function finishCouponAuctionAtEpochE(uint256 epoch) external {
+         super.finishCouponAuctionAtEpoch(epoch);
+    }
+
+    function initCouponAuctionE() external {
+        super.initCouponAuction();
+    }
+
+    function getCouponAuctionBidsE() external returns (uint256) {
+        return super.getCouponAuctionBids();
+    }
+
+    function getCouponAuctionMinExpiryE() external returns (uint256) {
+        return super.getCouponAuctionMinExpiry();
+    }
+
+    function getCouponAuctionMaxExpiryE() external returns (uint256) {
+        return super.getCouponAuctionMaxExpiry();
+    }
+
+    function getCouponAuctionMinYieldE() external returns (uint256) {
+        return super.getCouponAuctionMinYield();
+    }
+
+    function getCouponAuctionMaxYieldE() external returns (uint256) {
+        return super.getCouponAuctionMaxYield();
+    }
+
+    function getCouponAuctionMinDollarAmountE() external returns (uint256) {
+        return super.getCouponAuctionMinDollarAmount();
+    }
+
+    function getCouponAuctionMaxDollarAmountE() external returns (uint256) {
+        return super.getCouponAuctionMaxDollarAmount();
+    }
 }

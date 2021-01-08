@@ -75,8 +75,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
 
-          it('has not created any auctions in the past 2 epochs', async function () {
-             expect(await this.regulator.getCouponAuctionAddressAtEpochE.call(1)).to.be.bignumber.equal(new BN(0));
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -125,8 +127,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
 
-          it('has not created any auctions in the past 2 epochs', async function () {
-
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -183,8 +187,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
           });
 
-          it('has not created any auctions in the past 2 epochs', async function () {
-
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -242,9 +248,11 @@ describe('Regulator', function () {
           expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(2000));
         });
 
-        it('has not created any auctions in the past 2 epochs', async function () {
-
-        });
+        it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+          });
 
         it('emits SupplyIncrease event', async function () {
           const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
@@ -300,8 +308,10 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
           });
 
-          it('has not created any auctions in the past 2 epochs', async function () {
-
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -343,8 +353,11 @@ describe('Regulator', function () {
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
           });
 
-          it('has created 1 auction in the past 3 epochs', async function () {
-
+          it('has created 1 auction in the past 8 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(8)).equal(true);
           });
 
           it('updates totals', async function () {
@@ -401,8 +414,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
 
-          it('has created 1 auction in the past 2 epochs', async function () {
-
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -453,8 +469,11 @@ describe('Regulator', function () {
             });
           });
 
-          it('has created 1 auction in the past 2 epochs', async function () {
-
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -505,8 +524,11 @@ describe('Regulator', function () {
             });
           });
 
-          it('has created 1 auction in the past 2 epochs', async function () {
-
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -557,8 +579,11 @@ describe('Regulator', function () {
             });
           });
 
-          it('has created 1 auction in the past 2 epochs', async function () {
-
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -609,8 +634,11 @@ describe('Regulator', function () {
             });
           });
 
-          it('has created 1 auction in the past 2 epochs', async function () {
-
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
           });
 
           it('emits SupplyDecrease event', async function () {

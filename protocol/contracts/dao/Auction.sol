@@ -22,12 +22,6 @@ import "./Comptroller.sol";
 import "../Constants.sol";
 import "../external/Decimal.sol";
 
-contract AuctionFactory {
-    function createAuction() external returns (Auction) {
-        return new Auction();
-    }
-}
-
 contract Auction is Comptroller {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
