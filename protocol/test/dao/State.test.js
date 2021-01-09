@@ -4,7 +4,6 @@ const { BN, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const MockState = contract.fromArtifact('MockState');
-const MockAuction = contract.fromArtifact('MockAuction');
 
 const BOOTSTRAPPING_END_TIMESTAMP = 1600905600;
 const EPOCH_START = 1602288000;
@@ -15,7 +14,6 @@ describe('State', function () {
 
   beforeEach(async function () {
     this.setters = await MockState.new({from: ownerAddress});
-    this.auction = await MockAuction.new({from: ownerAddress});
   });
 
   /**

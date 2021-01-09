@@ -36,10 +36,6 @@ contract MockRegulator is MockComptroller, Regulator, Market {
         return epoch <= 5;
     }
 
-    /*function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) {
-        super.placeCouponAuctionBid(couponEpochExpiry, dollarAmount, maxCouponAmount);
-    }*/
-
     function settleCouponAuctionE() external {
         super.settleCouponAuction();
     }

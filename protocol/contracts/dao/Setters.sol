@@ -202,7 +202,9 @@ contract Setters is State, Getters {
     function setCouponAuctionRelYield(uint256 yield) internal {
         if (yield > _state.epochs[epoch()].auction.maxYield) {
             _state.epochs[epoch()].auction.maxYield = yield;
-        } else if (yield < _state.epochs[epoch()].auction.minYield) {
+        }
+
+        if (_state.epochs[epoch()].auction.minYield > yield) {
             _state.epochs[epoch()].auction.minYield = yield;
         }
     }
@@ -210,7 +212,9 @@ contract Setters is State, Getters {
     function setCouponAuctionRelExpiry(uint256 couponEpochExpiry) internal {
         if (couponEpochExpiry > _state.epochs[epoch()].auction.maxExpiry) {
             _state.epochs[epoch()].auction.maxExpiry = couponEpochExpiry;
-        } else if (couponEpochExpiry < _state.epochs[epoch()].auction.minExpiry) {
+        } 
+
+        if (couponEpochExpiry < _state.epochs[epoch()].auction.minExpiry) {
             _state.epochs[epoch()].auction.minExpiry = couponEpochExpiry;
         }
     }
@@ -218,7 +222,9 @@ contract Setters is State, Getters {
     function setCouponAuctionRelDollarAmount(uint256 couponDollarAmount) internal {
         if (couponDollarAmount > _state.epochs[epoch()].auction.maxDollarAmount) {
             _state.epochs[epoch()].auction.maxDollarAmount = couponDollarAmount;
-        } else if (couponDollarAmount < _state.epochs[epoch()].auction.minDollarAmount) {
+        }
+
+        if (couponDollarAmount < _state.epochs[epoch()].auction.minDollarAmount) {
             _state.epochs[epoch()].auction.minDollarAmount = couponDollarAmount;
         }
     }
