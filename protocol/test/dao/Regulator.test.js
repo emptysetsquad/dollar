@@ -75,12 +75,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
-          /*
           it('has not created any auction in the past 7 epochs', async function () {
             for(var a_idx = 1; a_idx<8; a_idx++){
               expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
             }
-          });*/
+          });
 
           it('emits SupplyIncrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
