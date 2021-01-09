@@ -29,6 +29,7 @@ describe('Regulator', function () {
   beforeEach(async function () {
     this.oracle = await MockSettableOracle.new({from: ownerAddress, gas: 8000000});
     this.regulator = await MockRegulator.new(this.oracle.address, poolAddress, {from: ownerAddress, gas: 8000000});
+    
     this.dollar = await Dollar.at(await this.regulator.dollar());
   });
 
@@ -74,12 +75,12 @@ describe('Regulator', function () {
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
-
+          /*
           it('has not created any auction in the past 7 epochs', async function () {
             for(var a_idx = 1; a_idx<8; a_idx++){
               expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
             }
-          });
+          });*/
 
           it('emits SupplyIncrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
@@ -641,11 +642,11 @@ describe('Regulator', function () {
                 
 
                 expect(await this.regulator.getCouponAuctionBidsE.call()).to.be.bignumber.equal(new BN(4));
-                expect(await this.regulator.getCouponAuctionMinExpiryE.call()).to.be.bignumber.equal(new BN(0));
+                expect(await this.regulator.getCouponAuctionMinExpiryE.call()).to.be.bignumber.equal(new BN(12));
                 expect(await this.regulator.getCouponAuctionMaxExpiryE.call()).to.be.bignumber.equal(new BN(100997));
-                expect(await this.regulator.getCouponAuctionMinYieldE.call()).to.be.bignumber.equal(new BN(0));
+                expect(await this.regulator.getCouponAuctionMinYieldE.call()).to.be.bignumber.equal(new BN(25));
                 expect(await this.regulator.getCouponAuctionMaxYieldE.call()).to.be.bignumber.equal(new BN(55));
-                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call()).to.be.bignumber.equal(new BN(0));
+                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call()).to.be.bignumber.equal(new BN(900));
                 expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call()).to.be.bignumber.equal(new BN(2000));
 
                 expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(12));
@@ -717,11 +718,11 @@ describe('Regulator', function () {
                 await this.regulator.initCouponAuctionE.call();
 
                 expect(await this.regulator.getCouponAuctionBidsE.call()).to.be.bignumber.equal(new BN(4));
-                expect(await this.regulator.getCouponAuctionMinExpiryE.call()).to.be.bignumber.equal(new BN(0));
+                expect(await this.regulator.getCouponAuctionMinExpiryE.call()).to.be.bignumber.equal(new BN(12));
                 expect(await this.regulator.getCouponAuctionMaxExpiryE.call()).to.be.bignumber.equal(new BN(100997));
-                expect(await this.regulator.getCouponAuctionMinYieldE.call()).to.be.bignumber.equal(new BN(0));
+                expect(await this.regulator.getCouponAuctionMinYieldE.call()).to.be.bignumber.equal(new BN(25));
                 expect(await this.regulator.getCouponAuctionMaxYieldE.call()).to.be.bignumber.equal(new BN(55));
-                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call()).to.be.bignumber.equal(new BN(0));
+                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call()).to.be.bignumber.equal(new BN(900));
                 expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call()).to.be.bignumber.equal(new BN(2000));
 
                 expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(12));

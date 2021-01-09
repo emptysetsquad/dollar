@@ -23,7 +23,9 @@ import "../oracle/IOracle.sol";
 import "./MockComptroller.sol";
 import "./MockState.sol";
 
-contract MockRegulator is MockComptroller, Regulator, Market {
+contract MockRegulator is MockComptroller, Regulator {
+    bytes32 private constant FILE = "MockRegulator";
+
     constructor (address oracle, address pool) MockComptroller(pool) public {
         _state.provider.oracle = IOracle(oracle);
     }
@@ -78,5 +80,42 @@ contract MockRegulator is MockComptroller, Regulator, Market {
 
     function getCouponAuctionMaxDollarAmountE() external returns (uint256) {
         return super.getCouponAuctionMaxDollarAmount();
+    }
+
+    /* for testing only */
+
+    function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) external returns (bool) {
+        Require.that(
+            couponEpochExpiry > 0,
+            FILE,
+            "Must have non-zero expiry"
+        );
+        
+        Require.that(
+            dollarAmount > 0,
+            FILE,
+            "Must bid non-zero amount"
+        );
+        
+        Require.that(
+            maxCouponAmount > 0,
+            FILE,
+            "Must bid on non-zero amount"
+        );
+        
+        Require.that(
+            totalDebt() >= dollarAmount,
+            FILE,
+            "Not enough debt"
+        );
+
+        uint256 epoch = epoch().add(couponEpochExpiry);
+        setCouponAuctionRelYield(maxCouponAmount.div(dollarAmount));
+        setCouponAuctionRelDollarAmount(dollarAmount);
+        setCouponAuctionRelExpiry(epoch);
+        setCouponBidderState(msg.sender, epoch, dollarAmount, maxCouponAmount);
+        setCouponBidderStateIndex(getCouponAuctionBids(), msg.sender);
+        incrementCouponAuctionBids();
+        return true;
     }
 }
