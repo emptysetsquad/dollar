@@ -104,10 +104,20 @@ contract Setters is State, Getters {
         _state.balance.coupons = _state.balance.coupons.add(amount);
     }
 
+    function incrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount) internal {
+        _state16.couponUnderlyingByAccount[account][epoch] = _state16.couponUnderlyingByAccount[account][epoch].add(amount);
+        _state16.couponUnderlying = _state16.couponUnderlying.add(amount);
+    }
+
     function decrementBalanceOfCoupons(address account, uint256 epoch, uint256 amount, string memory reason) internal {
         _state.accounts[account].coupons[epoch] = _state.accounts[account].coupons[epoch].sub(amount, reason);
         _state.epochs[epoch].coupons.outstanding = _state.epochs[epoch].coupons.outstanding.sub(amount, reason);
         _state.balance.coupons = _state.balance.coupons.sub(amount, reason);
+    }
+
+    function decrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount, string memory reason) internal {
+        _state16.couponUnderlyingByAccount[account][epoch] = _state16.couponUnderlyingByAccount[account][epoch].sub(amount, reason);
+        _state16.couponUnderlying = _state16.couponUnderlying.sub(amount, reason);
     }
 
     function unfreeze(address account) internal {

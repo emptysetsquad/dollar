@@ -87,6 +87,10 @@ contract Getters is State {
         return _state.balance.redeemable;
     }
 
+    function totalCouponUnderlying() public view returns (uint256) {
+        return _state16.couponUnderlying;
+    }
+
     function totalCoupons() public view returns (uint256) {
         return _state.balance.coupons;
     }
@@ -116,6 +120,10 @@ contract Getters is State {
             return 0;
         }
         return _state.accounts[account].coupons[epoch];
+    }
+
+    function balanceOfCouponUnderlying(address account, uint256 epoch) public view returns (uint256) {
+        return _state16.couponUnderlyingByAccount[account][epoch];
     }
 
     function statusOf(address account) public view returns (Account.Status) {

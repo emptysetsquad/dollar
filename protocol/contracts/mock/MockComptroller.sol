@@ -35,8 +35,8 @@ contract MockComptroller is Comptroller, MockState {
         super.burnFromAccount(account, amount);
     }
 
-    function redeemToAccountE(address account, uint256 amount) external {
-        super.redeemToAccount(account, amount);
+    function redeemToAccountE(address account, uint256 amount, uint256 couponAmount) external {
+        super.redeemToAccount(account, amount, couponAmount);
     }
 
     function burnRedeemableE(uint256 amount) external {
