@@ -38,8 +38,8 @@ contract MockRegulator is MockComptroller, Regulator {
         return epoch <= 5;
     }
 
-    function settleCouponAuctionE() external {
-        super.settleCouponAuction();
+    function settleCouponAuctionE(uint256 epoch) external {
+        super.settleCouponAuction(epoch);
     }
 
     function cancelCouponAuctionAtEpochE(uint256 epoch) external {
@@ -54,32 +54,32 @@ contract MockRegulator is MockComptroller, Regulator {
         super.initCouponAuction();
     }
 
-    function getCouponAuctionBidsE() external returns (uint256) {
-        return super.getCouponAuctionBids();
+    function getCouponAuctionBidsE(uint256 epoch) external returns (uint256) {
+        return super.getCouponAuctionBids(epoch);
     }
 
-    function getCouponAuctionMinExpiryE() external returns (uint256) {
-        return super.getCouponAuctionMinExpiry();
+    function getCouponAuctionMinExpiryE(uint256 epoch) external returns (uint256) {
+        return super.getCouponAuctionMinExpiry(epoch);
     }
 
-    function getCouponAuctionMaxExpiryE() external returns (uint256) {
-        return super.getCouponAuctionMaxExpiry();
+    function getCouponAuctionMaxExpiryE(uint256 epoch) external returns (uint256) {
+        return super.getCouponAuctionMaxExpiry(epoch);
     }
 
-    function getCouponAuctionMinYieldE() external returns (uint256) {
-        return super.getCouponAuctionMinYield();
+    function getCouponAuctionMinYieldE(uint256 epoch) external returns (uint256) {
+        return super.getCouponAuctionMinYield(epoch);
     }
 
-    function getCouponAuctionMaxYieldE() external returns (uint256) {
-        return super.getCouponAuctionMaxYield();
+    function getCouponAuctionMaxYieldE(uint256 epoch) external returns (uint256) {
+        return super.getCouponAuctionMaxYield(epoch);
     }
 
-    function getCouponAuctionMinDollarAmountE() external returns (uint256) {
-        return super.getCouponAuctionMinDollarAmount();
+    function getCouponAuctionMinDollarAmountE(uint256 epoch) external returns (uint256) {
+        return super.getCouponAuctionMinDollarAmount(epoch);
     }
 
-    function getCouponAuctionMaxDollarAmountE() external returns (uint256) {
-        return super.getCouponAuctionMaxDollarAmount();
+    function getCouponAuctionMaxDollarAmountE(uint256 epoch) external returns (uint256) {
+        return super.getCouponAuctionMaxDollarAmount(epoch);
     }
 
     /* for testing only */
@@ -131,7 +131,6 @@ contract MockRegulator is MockComptroller, Regulator {
         setCouponBidderState(uint256(epoch()), msg.sender, couponEpochExpiry, dollarAmount, maxCouponAmount);
         setCouponBidderStateIndex(uint256(epoch()), getCouponAuctionBids(uint256(epoch())), msg.sender);
         incrementCouponAuctionBids();
-        emit CouponBidPlaced(msg.sender, epochExpiry, dollarAmount, maxCouponAmount);
         return true;
     }
 }
