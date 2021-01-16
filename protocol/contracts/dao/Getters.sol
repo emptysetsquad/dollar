@@ -295,6 +295,10 @@ contract Getters is State {
         return _state.epoch.latestDeadAuction;
     }
 
+    function getLatestCouponAuctionRedeemedSelectedBidderIndex(uint256 epoch) public view returns (uint256) {
+        return _state.epochs[epoch].auction.latestRedeemedSelectedBidderIndex;
+    }
+
     /**
      * Governance
      */

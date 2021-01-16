@@ -89,6 +89,7 @@ contract Epoch {
         uint256 minDollarAmount;
         uint256 maxDollarAmount;
         mapping(uint256 => address) couponBidder;
+        uint256 latestRedeemedSelectedBidderIndex;
         mapping(uint256 => address) seletedCouponBidder;
         mapping(address => CouponBidderState) couponBidderState;
     }
