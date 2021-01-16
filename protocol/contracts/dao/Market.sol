@@ -144,14 +144,29 @@ contract Market is Comptroller, Curve {
             "Not enough debt"
         );
 
-        uint256 epoch = epoch().add(couponEpochExpiry);
+        Require.that(
+            acceptableBidCheck(msg.sender, dollarAmount),
+            FILE,
+            "Must have enough in account"
+        );
+
+        uint256 yield = maxCouponAmount.div(dollarAmount);
+        uint256 maxYield = Constants.getCouponMaxYieldToBurn();
+
+        Require.that(
+            maxYield >= yield,
+            FILE,
+            "Must be under maxYield"
+        );
+
+        uint256 epochExpiry = epoch().add(couponEpochExpiry);
         setCouponAuctionRelYield(maxCouponAmount.div(dollarAmount));
         setCouponAuctionRelDollarAmount(dollarAmount);
-        setCouponAuctionRelExpiry(epoch);
-        setCouponBidderState(msg.sender, epoch, dollarAmount, maxCouponAmount);
-        setCouponBidderStateIndex(getCouponAuctionBids(), msg.sender);
+        setCouponAuctionRelExpiry(epochExpiry);
+        setCouponBidderState(uint256(epoch()), msg.sender, couponEpochExpiry, dollarAmount, maxCouponAmount);
+        setCouponBidderStateIndex(uint256(epoch()), getCouponAuctionBids(uint256(epoch())), msg.sender);
         incrementCouponAuctionBids();
-        emit CouponBidPlaced(msg.sender, epoch, dollarAmount, maxCouponAmount);
+        emit CouponBidPlaced(msg.sender, epochExpiry, dollarAmount, maxCouponAmount);
         return true;
     }
 }
