@@ -1,6 +1,6 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
 
-const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const MockRegulator = contract.fromArtifact('MockRegulator');
@@ -623,11 +623,11 @@ describe('Regulator', function () {
                 await this.regulator.mintToE(userAddress, 1000000);
                 await this.regulator.mintToE(userAddress2, 1000000);
                 await this.regulator.mintToE(userAddress3, 1000000);
-                await this.regulator.mintToE(userAddress4, 1000000);
+                //await this.regulator.mintToE(userAddress4, 1000000);
                 await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress});
                 await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress2});
                 await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress3});
-                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress4});
+                //await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress4});
               });
 
               it('is able to settle auction and generated internals', async function () {
@@ -636,40 +636,40 @@ describe('Regulator', function () {
                 this.result1 = await this.regulator.placeCouponAuctionBid(5, 2000, 50000, {from: userAddress2});
                 //thise bidders will be rejected
                 this.result2 = await this.regulator.placeCouponAuctionBid(1000, 900, 50000, {from: userAddress3});
-                this.result3 = await this.regulator.placeCouponAuctionBid(100990, 900, 50000, {from: userAddress4});
-                this.auction_settlement = await this.regulator.settleCouponAuctionE();
+                await expectRevert(this.regulator.placeCouponAuctionBid(100990, 900, 50000, {from: userAddress4}), "MockRegulator: Must have enough in account");
+                this.auction_settlement = await this.regulator.settleCouponAuctionE(7);
                 
 
-                expect(await this.regulator.getCouponAuctionBidsE.call()).to.be.bignumber.equal(new BN(4));
-                expect(await this.regulator.getCouponAuctionMinExpiryE.call()).to.be.bignumber.equal(new BN(12));
-                expect(await this.regulator.getCouponAuctionMaxExpiryE.call()).to.be.bignumber.equal(new BN(100997));
-                expect(await this.regulator.getCouponAuctionMinYieldE.call()).to.be.bignumber.equal(new BN(25));
-                expect(await this.regulator.getCouponAuctionMaxYieldE.call()).to.be.bignumber.equal(new BN(55));
-                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call()).to.be.bignumber.equal(new BN(900));
-                expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call()).to.be.bignumber.equal(new BN(2000));
+                expect(await this.regulator.getCouponAuctionBidsE.call(7)).to.be.bignumber.equal(new BN(3));
+                expect(await this.regulator.getCouponAuctionMinExpiryE.call(7)).to.be.bignumber.equal(new BN(12));
+                expect(await this.regulator.getCouponAuctionMaxExpiryE.call(7)).to.be.bignumber.equal(new BN(1007));
+                expect(await this.regulator.getCouponAuctionMinYieldE.call(7)).to.be.bignumber.equal(new BN(25));
+                expect(await this.regulator.getCouponAuctionMaxYieldE.call(7)).to.be.bignumber.equal(new BN(55));
+                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call(7)).to.be.bignumber.equal(new BN(900));
+                expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call(7)).to.be.bignumber.equal(new BN(2000));
 
-                expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(12));
-                expect(await this.regulator.getMaxExpiryFilled(7)).to.be.bignumber.equal(new BN(100997));
-                expect(await this.regulator.getAvgExpiryFilled(7)).to.be.bignumber.equal(new BN(25510));
+                expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(5));
+                expect(await this.regulator.getMaxExpiryFilled(7)).to.be.bignumber.equal(new BN(1000));
+                expect(await this.regulator.getAvgExpiryFilled(7)).to.be.bignumber.equal(new BN(341));
                 expect(await this.regulator.getMinYieldFilled(7)).to.be.bignumber.equal(new BN(25));
                 expect(await this.regulator.getMaxYieldFilled(7)).to.be.bignumber.equal(new BN(55));
-                expect(await this.regulator.getAvgYieldFilled(7)).to.be.bignumber.equal(new BN(46));
+                expect(await this.regulator.getAvgYieldFilled(7)).to.be.bignumber.equal(new BN(43));
                 expect(await this.regulator.getBidToCover(7)).to.be.bignumber.equal(new BN(100));
-                expect(await this.regulator.getTotalFilled(7)).to.be.bignumber.equal(new BN(4));
+                expect(await this.regulator.getTotalFilled(7)).to.be.bignumber.equal(new BN(3));
               });
             });
 
             describe('auction is finished', function () {
               beforeEach(async function () {
                 //finish the auction
-                await this.regulator.finishCouponAuctionAtEpochE(1);
+                await this.regulator.finishCouponAuctionAtEpochE(7);
               });
 
               it('is able to not settle auction', async function () {
                 // add some bidders
                 this.result = await this.regulator.placeCouponAuctionBid(20, 1000, 50000, {from: userAddress});
                 this.result1 = await this.regulator.placeCouponAuctionBid(5, 2000, 50000, {from: userAddress2});
-                this.auction_settlement = await this.regulator.settleCouponAuctionE.call();
+                this.auction_settlement = await this.regulator.settleCouponAuctionE.call(7);
                 expect(this.auction_settlement).to.be.equal(false);
               });
 
@@ -685,7 +685,7 @@ describe('Regulator', function () {
                 // add some bidders
                 this.result = await this.regulator.placeCouponAuctionBid(20, 1000, 50000, {from: userAddress});
                 this.result1 = await this.regulator.placeCouponAuctionBid(5, 2000, 50000, {from: userAddress2});
-                this.auction_settlement = await this.regulator.settleCouponAuctionE.call();
+                this.auction_settlement = await this.regulator.settleCouponAuctionE.call(7);
                 expect(this.auction_settlement).to.be.equal(false);
               });
 
@@ -712,21 +712,21 @@ describe('Regulator', function () {
                 //thise bidders will be rejected
                 this.result2 = await this.regulator.placeCouponAuctionBid(1000, 900, 50000, {from: userAddress3});
                 this.result3 = await this.regulator.placeCouponAuctionBid(100990, 900, 50000, {from: userAddress4});
-                this.auction_settlement = await this.regulator.settleCouponAuctionE();
+                this.auction_settlement = await this.regulator.settleCouponAuctionE(7);
                 
                 await this.regulator.initCouponAuctionE.call();
 
-                expect(await this.regulator.getCouponAuctionBidsE.call()).to.be.bignumber.equal(new BN(4));
-                expect(await this.regulator.getCouponAuctionMinExpiryE.call()).to.be.bignumber.equal(new BN(12));
-                expect(await this.regulator.getCouponAuctionMaxExpiryE.call()).to.be.bignumber.equal(new BN(100997));
-                expect(await this.regulator.getCouponAuctionMinYieldE.call()).to.be.bignumber.equal(new BN(25));
-                expect(await this.regulator.getCouponAuctionMaxYieldE.call()).to.be.bignumber.equal(new BN(55));
-                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call()).to.be.bignumber.equal(new BN(900));
-                expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call()).to.be.bignumber.equal(new BN(2000));
+                expect(await this.regulator.getCouponAuctionBidsE.call(7)).to.be.bignumber.equal(new BN(4));
+                expect(await this.regulator.getCouponAuctionMinExpiryE.call(7)).to.be.bignumber.equal(new BN(12));
+                expect(await this.regulator.getCouponAuctionMaxExpiryE.call(7)).to.be.bignumber.equal(new BN(100997));
+                expect(await this.regulator.getCouponAuctionMinYieldE.call(7)).to.be.bignumber.equal(new BN(25));
+                expect(await this.regulator.getCouponAuctionMaxYieldE.call(7)).to.be.bignumber.equal(new BN(55));
+                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call(7)).to.be.bignumber.equal(new BN(900));
+                expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call(7)).to.be.bignumber.equal(new BN(2000));
 
-                expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(12));
-                expect(await this.regulator.getMaxExpiryFilled(7)).to.be.bignumber.equal(new BN(100997));
-                expect(await this.regulator.getAvgExpiryFilled(7)).to.be.bignumber.equal(new BN(25510));
+                expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(5));
+                expect(await this.regulator.getMaxExpiryFilled(7)).to.be.bignumber.equal(new BN(100990));
+                expect(await this.regulator.getAvgExpiryFilled(7)).to.be.bignumber.equal(new BN(25503));
                 expect(await this.regulator.getMinYieldFilled(7)).to.be.bignumber.equal(new BN(25));
                 expect(await this.regulator.getMaxYieldFilled(7)).to.be.bignumber.equal(new BN(55));
                 expect(await this.regulator.getAvgYieldFilled(7)).to.be.bignumber.equal(new BN(46));
