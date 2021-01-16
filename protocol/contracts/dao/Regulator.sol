@@ -29,6 +29,11 @@ contract Regulator is Comptroller {
     bytes32 private constant FILE = "Regulator";
     Epoch.CouponBidderState[] private bids;
     uint256 private totalFilled = 0;
+    uint256 private totalBurned = 0;
+    uint256 private yieldRelNorm = 1;
+    uint256 private expiryRelNorm = 1;
+    uint256 private dollarRelNorm = 1;
+    uint256 private totalAuctioned = 0;
     uint256 private maxExpiryFilled = 0;
     uint256 private sumExpiryFilled = 0;
     uint256 private sumYieldFilled = 0;
@@ -59,7 +64,7 @@ contract Regulator is Comptroller {
         if (price.lessThan(Decimal.one())) {
             //check for outstanding auction, if exists settle it and start a new one
             if (auction.isInit == true){
-                bool isAuctionSettled = settleCouponAuction();
+                bool isAuctionSettled = settleCouponAuction(epoch() - 1);
                 finishCouponAuctionAtEpoch(epoch() - 1);
             }
             initCouponAuction();
