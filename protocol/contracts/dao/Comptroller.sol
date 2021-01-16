@@ -38,7 +38,8 @@ contract Comptroller is Setters {
     function burnFromAccount(address account, uint256 amount) internal {
         dollar().transferFrom(account, address(this), amount);
         dollar().burn(amount);
-        decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
+        // debt doest matter
+        // decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
 
         balanceCheck();
     }

@@ -69,7 +69,6 @@ contract Regulator is Comptroller {
             }
             initCouponAuction();
             
-            shrinkSupply(price);
             return;
         }
 
@@ -88,7 +87,7 @@ contract Regulator is Comptroller {
     function growSupply(Decimal.D256 memory price) private {
         uint256 lessDebt = resetDebt(Decimal.zero());
 
-        Decimal.D256 memory delta = limit(price.sub(Decimal.one()), price);
+        Decimal.D256 memory delta = Decimal.ratio(Decimal.one(), getAvgAvgYieldAcrossCouponAuctions());
         uint256 newSupply = delta.mul(totalNet()).asUint256();
         (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
         emit SupplyIncrease(epoch(), price.value, newRedeemable, lessDebt, newBonded);
@@ -205,47 +204,43 @@ contract Regulator is Comptroller {
             // sort bids
             bids = sortBidsByDistance(bids);
 
-            // assign coupons until totalDebt filled, reject the rest
+            // assign coupons in order of bid preference
             for (uint256 i = 0; i < bids.length; i++) {
-                if (totalDebt() >= bids[i].dollarAmount) {
-                    if (!getCouponBidderStateRejected(settlementEpoch, bids[i].bidder) && !getCouponBidderStateRejected(settlementEpoch, bids[i].bidder)) {
-                        Decimal.D256 memory yield = Decimal.ratio(
-                            bids[i].couponAmount,
-                            bids[i].dollarAmount
-                        );
+                if (!getCouponBidderStateRejected(settlementEpoch, bids[i].bidder) && !getCouponBidderStateRejected(settlementEpoch, bids[i].bidder)) {
+                    Decimal.D256 memory yield = Decimal.ratio(
+                        bids[i].couponAmount,
+                        bids[i].dollarAmount
+                    );
 
-                        //must check again if account is able to be assigned
-                        if (acceptableBidCheck(bids[i].bidder, bids[i].dollarAmount)){
-                            if (yield.lessThan(minYieldFilled)) {
-                                minYieldFilled = yield;
-                            } else if (yield.greaterThan(maxYieldFilled)) {
-                                maxYieldFilled = yield;
-                            }
-
-                            if (bids[i].couponExpiryEpoch < minExpiryFilled) {
-                                minExpiryFilled = bids[i].couponExpiryEpoch;
-                            } else if (bids[i].couponExpiryEpoch > maxExpiryFilled) {
-                                maxExpiryFilled = bids[i].couponExpiryEpoch;
-                            }
-                            
-                            sumYieldFilled += yield.asUint256();
-                            sumExpiryFilled += bids[i].couponExpiryEpoch;
-                            totalAuctioned += bids[i].couponAmount;
-                            totalBurned += bids[i].dollarAmount;
-                            
-                            uint256 epochExpiry = epoch().add(bids[i].couponExpiryEpoch);
-                            burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
-                            incrementBalanceOfCoupons(bids[i].bidder, epochExpiry, bids[i].couponAmount);
-                            setCouponBidderStateSelected(settlementEpoch, bids[i].bidder, i);
-                            totalFilled++;
-                        } else {
-                            setCouponBidderStateRejected(settlementEpoch, bids[i].bidder);
+                    //must check again if account is able to be assigned
+                    if (acceptableBidCheck(bids[i].bidder, bids[i].dollarAmount)){
+                        if (yield.lessThan(minYieldFilled)) {
+                            minYieldFilled = yield;
+                        } else if (yield.greaterThan(maxYieldFilled)) {
+                            maxYieldFilled = yield;
                         }
+
+                        if (bids[i].couponExpiryEpoch < minExpiryFilled) {
+                            minExpiryFilled = bids[i].couponExpiryEpoch;
+                        } else if (bids[i].couponExpiryEpoch > maxExpiryFilled) {
+                            maxExpiryFilled = bids[i].couponExpiryEpoch;
+                        }
+                        
+                        sumYieldFilled += yield.asUint256();
+                        sumExpiryFilled += bids[i].couponExpiryEpoch;
+                        totalAuctioned += bids[i].couponAmount;
+                        totalBurned += bids[i].dollarAmount;
+                        
+                        uint256 epochExpiry = epoch().add(bids[i].couponExpiryEpoch);
+                        burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
+                        incrementBalanceOfCoupons(bids[i].bidder, epochExpiry, bids[i].couponAmount);
+                        setCouponBidderStateSelected(settlementEpoch, bids[i].bidder, i);
+                        totalFilled++;
+                    } else {
+                        setCouponBidderStateRejected(settlementEpoch, bids[i].bidder);
                     }
-                } else {
-                    /* setCouponBidderStateRejected(settlementEpoch, bids[i].bidder); or just break and close the auction */
-                    break;
-                } 
+                }
+                
             }
 
             // set auction internals
@@ -307,7 +302,7 @@ contract Regulator is Comptroller {
         while (totalRedeemable() > 0) {
             bool willRedeemableOverflow = false;
             // loop over past epochs from the latest `dead` epoch to the current
-            for (uint256 d_idx = getLatestDeadAuctionEpoch(); d_idx < uint256(epoch()); d_idx++) {
+            for (uint256 d_idx = getEarliestDeadAuctionEpoch(); d_idx < uint256(epoch()); d_idx++) {
                 uint256 temp_coupon_auction_epoch = d_idx;
                 Epoch.AuctionState storage auction = getCouponAuctionAtEpoch(temp_coupon_auction_epoch);
 
@@ -384,7 +379,7 @@ contract Regulator is Comptroller {
                         // if all have been tried to be redeemd or expired, mark auction as `dead`
                     
                         if (totalCurrentlyTriedRedeemed == getTotalFilled(temp_coupon_auction_epoch)) {
-                            setLatestDeadAuctionEpoch(temp_coupon_auction_epoch);
+                            setEarliestDeadAuctionEpoch(temp_coupon_auction_epoch);
                             setCouponAuctionStateDead(temp_coupon_auction_epoch);
                         }
                     }
@@ -392,7 +387,7 @@ contract Regulator is Comptroller {
             }
 
             if (willRedeemableOverflow) {
-                // stop trying to redeem accross auctions
+                // stop trying to redeem across auctions
                 break;
             }
         }

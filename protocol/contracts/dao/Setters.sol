@@ -278,8 +278,8 @@ contract Setters is State, Getters {
         _state.epochs[epoch].auction.totalBurned = totalBurned;
     }
 
-    function setLatestDeadAuctionEpoch(uint256 epoch) internal {
-        _state.epoch.latestDeadAuction = epoch;
+    function setEarliestDeadAuctionEpoch(uint256 epoch) internal {
+        _state.epoch.earliestDeadAuction = epoch;
     }
 
     function setLatestCouponAuctionRedeemedSelectedBidderIndex(uint256 epoch, uint256 index) internal {
