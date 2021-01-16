@@ -195,88 +195,104 @@ contract Getters is State {
         return _state.epochs[epoch].auction;
     }
     
-    function getCouponAuctionBids() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction._totalBids;
+    function getCouponAuctionBids(uint256 epoch) internal view returns (uint256) {
+        return _state.epochs[epoch].auction._totalBids;
     }
 
-    function getCouponBidderState(address bidder) internal view returns (Epoch.CouponBidderState storage) {
-        return _state.epochs[epoch()].auction.couponBidderState[bidder];
+    function getCouponBidderState(uint256 epoch, address bidder) internal view returns (Epoch.CouponBidderState storage) {
+        return _state.epochs[epoch].auction.couponBidderState[bidder];
     }
 
-    function getCouponBidderStateSelected(address bidder) internal view returns (bool) {
-        return _state.epochs[epoch()].auction.couponBidderState[bidder].selected;
+    function getCouponBidderStateSelected(uint256 epoch, address bidder) internal view returns (bool) {
+        return _state.epochs[epoch].auction.couponBidderState[bidder].selected;
     }
 
-    function getCouponBidderStateRejected(address bidder) internal view returns (bool) {
-        return _state.epochs[epoch()].auction.couponBidderState[bidder].rejected;
+    function getCouponBidderStateAssginedAtIndex(uint256 epoch, uint256 index) internal view returns (address) {
+        return _state.epochs[epoch].auction.seletedCouponBidder[index];
     }
 
-    function getCouponBidderStateIndex(uint256 index) internal view returns (address) {
-        return _state.epochs[epoch()].auction.couponBidder[index];
+    function getCouponBidderStateRejected(uint256 epoch, address bidder) internal view returns (bool) {
+        return _state.epochs[epoch].auction.couponBidderState[bidder].rejected;
     }
 
-    function isCouponAuctionFinished() internal view returns (bool){
-        return _state.epochs[epoch()].auction.finished;
+    function getCouponBidderStateIndex(uint256 epoch, uint256 index) internal view returns (address) {
+        return _state.epochs[epoch].auction.couponBidder[index];
     }
 
-    function isCouponAuctionCanceled() internal view returns (bool){
-        return _state.epochs[epoch()].auction.canceled;
+    function isCouponAuctionFinished(uint256 epoch) internal view returns (bool){
+        return _state.epochs[epoch].auction.finished;
     }
 
-    function getCouponAuctionMinExpiry() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.minExpiry;
+    function isCouponAuctionCanceled(uint256 epoch) internal view returns (bool){
+        return _state.epochs[epoch].auction.canceled;
     }
 
-    function getCouponAuctionMaxExpiry() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.maxExpiry;
+    function getCouponAuctionMinExpiry(uint256 epoch) internal view returns (uint256) {
+        return _state.epochs[epoch].auction.minExpiry;
     }
 
-    function getCouponAuctionMinYield() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.minYield;
+    function getCouponAuctionMaxExpiry(uint256 epoch) internal view returns (uint256) {
+        return _state.epochs[epoch].auction.maxExpiry;
     }
 
-    function getCouponAuctionMaxYield() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.maxYield;
+    function getCouponAuctionMinYield(uint256 epoch) internal view returns (uint256) {
+        return _state.epochs[epoch].auction.minYield;
     }
 
-    function getCouponAuctionMinDollarAmount() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.minDollarAmount;
+    function getCouponAuctionMaxYield(uint256 epoch) internal view returns (uint256) {
+        return _state.epochs[epoch].auction.maxYield;
     }
 
-    function getCouponAuctionMaxDollarAmount() internal view returns (uint256) {
-        return _state.epochs[epoch()].auction.maxDollarAmount;
+    function getCouponAuctionMinDollarAmount(uint256 epoch) internal view returns (uint256) {
+        return _state.epochs[epoch].auction.minDollarAmount;
+    }
+
+    function getCouponAuctionMaxDollarAmount(uint256 epoch) internal view returns (uint256) {
+        return _state.epochs[epoch].auction.maxDollarAmount;
     }
 
     function getMinExpiryFilled(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.minExpiryFilled;
     }
     
-    function getMaxExpiryFilled(uint256 epoch) public view returns (uint256)  {
+    function getMaxExpiryFilled(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.maxExpiryFilled;
     }
     
-    function getAvgExpiryFilled(uint256 epoch) public view returns (uint256)  {
+    function getAvgExpiryFilled(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.avgExpiryFilled;
     }
     
-    function getMinYieldFilled(uint256 epoch) public view returns (uint256)  {
+    function getMinYieldFilled(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.minYieldFilled;
     }
     
-    function getMaxYieldFilled(uint256 epoch) public view returns (uint256)  {
+    function getMaxYieldFilled(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.maxYieldFilled;
     }
     
-    function getAvgYieldFilled(uint256 epoch) public view returns (uint256)  {
+    function getAvgYieldFilled(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.avgYieldFilled;
     }
     
-    function getBidToCover(uint256 epoch) public view returns (uint256)  {
+    function getBidToCover(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.bidToCover;
     }
     
-    function getTotalFilled(uint256 epoch) public view returns (uint256)  {
+    function getTotalFilled(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].auction.totalFilled;
+    }
+
+    function getTotalAuctioned(uint256 epoch) public view returns (uint256) {
+        return _state.epochs[epoch].auction.totalAuctioned;
+    }
+
+    function getTotalBurned(uint256 epoch) public view returns (uint256) {
+        return _state.epochs[epoch].auction.totalBurned;
+    }
+
+    function getLatestDeadAuctionEpoch() public view returns (uint256) {
+        return _state.epoch.latestDeadAuction;
     }
 
     /**
