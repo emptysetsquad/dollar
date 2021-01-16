@@ -381,11 +381,8 @@ contract Regulator is Comptroller {
                             }
                         } 
 
-                        /*
-                            - if all have been tried to be redeemd or expired, market auction as `dead`
-                        
-                        */
-
+                        // if all have been tried to be redeemd or expired, mark auction as `dead`
+                    
                         if (totalCurrentlyTriedRedeemed == getTotalFilled(temp_coupon_auction_epoch)) {
                             setLatestDeadAuctionEpoch(temp_coupon_auction_epoch);
                             setCouponAuctionStateDead(temp_coupon_auction_epoch);
@@ -395,7 +392,7 @@ contract Regulator is Comptroller {
             }
 
             if (willRedeemableOverflow) {
-                // stop trying to redeem across auctions
+                // stop trying to redeem accross auctions
                 break;
             }
         }
