@@ -34,11 +34,13 @@ contract Regulator is Comptroller {
         Decimal.D256 memory price = oracleCapture();
 
         if (price.greaterThan(Decimal.one())) {
+            if (eraStatus() == Era.Status.CONTRACTION) updateEra(Era.Status.EXPANSION);
             growSupply(price);
             return;
         }
 
         if (price.lessThan(Decimal.one())) {
+            if (eraStatus() == Era.Status.EXPANSION) updateEra(Era.Status.CONTRACTION);
             shrinkSupply(price);
             return;
         }

@@ -22,9 +22,19 @@ import "./MockState.sol";
 import "./MockComptroller.sol";
 
 contract MockMarket is MockState, MockComptroller, Market {
+    uint256 private _couponProratedStart;
+
     constructor(address pool) MockComptroller(pool) public { }
 
     function stepE() external {
         Market.step();
+    }
+
+    function set(uint256 newCouponProratedStart) external {
+        _couponProratedStart = newCouponProratedStart;
+    }
+
+    function couponProratedStart() internal view returns (uint256) {
+        return _couponProratedStart;
     }
 }

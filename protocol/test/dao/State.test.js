@@ -211,6 +211,43 @@ describe('State', function () {
     });
   });
 
+  describe('updateEra', function () {
+    beforeEach('call', async function () {
+      await this.setters.incrementEpochE();
+    });
+
+    describe('before called', function () {
+      it('is 0', async function () {
+        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(0));
+        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(0));
+      });
+    });
+
+    describe('when called change', function () {
+      beforeEach('call', async function () {
+        await this.setters.updateEraE(1);
+      });
+
+      it('is update', async function () {
+        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(1));
+        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(1));
+      });
+    });
+
+    describe('when called twi', function () {
+      beforeEach('call', async function () {
+        await this.setters.updateEraE(1);
+        await this.setters.incrementEpochE();
+        await this.setters.updateEraE(0);
+      });
+
+      it('is update', async function () {
+        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(0));
+        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(2));
+      });
+    });
+  });
+
   /**
    * Account
    */

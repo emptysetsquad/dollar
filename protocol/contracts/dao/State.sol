@@ -75,6 +75,18 @@ contract Candidate {
     }
 }
 
+contract Era {
+    enum Status {
+        EXPANSION,
+        CONTRACTION
+    }
+
+    struct State {
+        Status status;
+        uint256 start;
+    }
+}
+
 contract Storage {
     struct Provider {
         IDollar dollar;
@@ -105,6 +117,10 @@ contract Storage {
         mapping(address => mapping(uint256 => uint256)) couponUnderlyingByAccount;
         uint256 couponUnderlying;
     }
+
+    struct State18 {
+        Era.State era;
+    }
 }
 
 contract State {
@@ -112,4 +128,7 @@ contract State {
 
     // EIP-16
     Storage.State16 _state16;
+
+    // EIP-18
+    Storage.State18 _state18;
 }

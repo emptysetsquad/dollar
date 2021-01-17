@@ -42,6 +42,10 @@ describe('Regulator', function () {
     });
 
     describe('up regulation', function () {
+      beforeEach(async function () {
+        await this.regulator.updateEraE(1);
+      });
+
       describe('above limit', function () {
         beforeEach(async function () {
           await this.regulator.incrementEpochE(); // 1
@@ -73,6 +77,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -119,6 +128,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -175,6 +189,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
           });
 
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
+
           it('emits SupplyIncrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
 
@@ -186,63 +205,67 @@ describe('Regulator', function () {
           });
         });
       });
-    });
 
-    describe('(1 + 2) - refresh redeemable then mint to bonded', function () {
-      beforeEach(async function () {
-        await this.regulator.incrementEpochE(); // 1
-
-        await this.regulator.incrementTotalBondedE(1000000);
-        await this.regulator.mintToE(this.regulator.address, 1000000);
-
-        await this.regulator.increaseDebtE(new BN(2000));
-        await this.regulator.incrementBalanceOfCouponsE(userAddress, 1, new BN(2000));
-
-        await this.regulator.incrementEpochE(); // 2
-
-      });
-
-      describe('on step', function () {
+      describe('(1 + 2) - refresh redeemable then mint to bonded', function () {
         beforeEach(async function () {
-          await this.oracle.set(101, 100, true);
-          this.bondedReward = 5750;
-          this.newRedeemable = 2000;
-          this.poolReward = 2000;
-          this.treasuryReward = 250;
+          await this.regulator.incrementEpochE(); // 1
 
-          this.result = await this.regulator.stepE();
-          this.txHash = this.result.tx;
+          await this.regulator.incrementTotalBondedE(1000000);
+          await this.regulator.mintToE(this.regulator.address, 1000000);
+
+          await this.regulator.increaseDebtE(new BN(2000));
+          await this.regulator.incrementBalanceOfCouponsE(userAddress, 1, new BN(2000));
+
+          await this.regulator.incrementEpochE(); // 2
+
         });
 
-        it('mints new Dollar tokens', async function () {
-          expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1010000));
-          expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000 + this.newRedeemable + this.bondedReward));
-          expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(this.poolReward));
-          expect(await this.dollar.balanceOf(TREASURY_ADDRESS)).to.be.bignumber.equal(new BN(this.treasuryReward));
-        });
+        describe('on step', function () {
+          beforeEach(async function () {
+            await this.oracle.set(101, 100, true);
+            this.bondedReward = 5750;
+            this.newRedeemable = 2000;
+            this.poolReward = 2000;
+            this.treasuryReward = 250;
 
-        it('updates totals', async function () {
-          expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalBonded()).to.be.bignumber.equal(new BN(1000000 + this.bondedReward));
-          expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
-          expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(2000));
-          expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(2000));
-        });
+            this.result = await this.regulator.stepE();
+            this.txHash = this.result.tx;
+          });
 
-        it('emits SupplyIncrease event', async function () {
-          const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
+          it('mints new Dollar tokens', async function () {
+            expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1010000));
+            expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000 + this.newRedeemable + this.bondedReward));
+            expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(this.poolReward));
+            expect(await this.dollar.balanceOf(TREASURY_ADDRESS)).to.be.bignumber.equal(new BN(this.treasuryReward));
+          });
 
-          expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
-          expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
-          expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(2000));
-          expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000));
-          expect(event.args.newBonded).to.be.bignumber.equal(new BN(8000));
+          it('updates totals', async function () {
+            expect(await this.regulator.totalStaged()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.totalBonded()).to.be.bignumber.equal(new BN(1000000 + this.bondedReward));
+            expect(await this.regulator.totalDebt()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(2000));
+            expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(2000));
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
+
+          it('emits SupplyIncrease event', async function () {
+            const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
+
+            expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
+            expect(event.args.price).to.be.bignumber.equal(new BN(101).mul(new BN(10).pow(new BN(16))));
+            expect(event.args.newRedeemable).to.be.bignumber.equal(new BN(2000));
+            expect(event.args.lessDebt).to.be.bignumber.equal(new BN(2000));
+            expect(event.args.newBonded).to.be.bignumber.equal(new BN(8000));
+          });
         });
       });
-    });
 
-    describe('(3) - above limit but below coupon limit', function () {
+      describe('(3) - above limit but below coupon limit', function () {
         beforeEach(async function () {
           await this.regulator.incrementEpochE(); // 1
 
@@ -284,6 +307,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
           });
 
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
+
           it('emits SupplyIncrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
 
@@ -294,9 +322,13 @@ describe('Regulator', function () {
             expect(event.args.newBonded).to.be.bignumber.equal(new BN(this.expectedRewardLP + this.expectedRewardDAO + this.expectedRewardTreasury));
           });
         });
+      });
     });
-
     describe('down regulation', function () {
+      beforeEach(async function () {
+        await this.regulator.updateEraE(0);
+      });
+
       describe('under limit', function () {
         beforeEach(async function () {
           await this.regulator.incrementEpochE(); // 1
@@ -330,6 +362,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(1));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(8));
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -375,6 +412,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(1));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -425,6 +467,11 @@ describe('Regulator', function () {
             });
           });
 
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(1));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -471,6 +518,11 @@ describe('Regulator', function () {
               expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
             });
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(1));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -521,6 +573,11 @@ describe('Regulator', function () {
             });
           });
 
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(1));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -569,6 +626,11 @@ describe('Regulator', function () {
             });
           });
 
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(1));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -588,7 +650,6 @@ describe('Regulator', function () {
         await this.regulator.mintToE(this.regulator.address, 1000000);
 
         await this.regulator.incrementEpochE(); // 2
-
       });
 
       describe('on step', function () {
@@ -617,6 +678,32 @@ describe('Regulator', function () {
           const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyNeutral', {});
 
           expect(event.args.epoch).to.be.bignumber.equal(new BN(7));
+        });
+
+        describe('from contraction', function () {
+          beforeEach(async function () {
+            await this.regulator.updateEraE(1);
+            await this.regulator.incrementEpochE(); // 3
+            await this.regulator.stepE();
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(1));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
+        });
+
+        describe('from expansion', function () {
+          beforeEach(async function () {
+            await this.regulator.updateEraE(0);
+            await this.regulator.incrementEpochE(); // 3
+            await this.regulator.stepE();
+          });
+
+          it('updates era', async function () {
+            expect(await this.regulator.eraStatus()).to.be.bignumber.equal(new BN(0));
+            expect(await this.regulator.eraStart()).to.be.bignumber.equal(new BN(7));
+          });
         });
       });
     });

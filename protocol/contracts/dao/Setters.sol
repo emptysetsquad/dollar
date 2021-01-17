@@ -70,6 +70,11 @@ contract Setters is State, Getters {
         _state.balance.redeemable = _state.balance.redeemable.sub(amount, reason);
     }
 
+    function updateEra(Era.Status status) internal {
+        _state18.era.status = status;
+        _state18.era.start = epoch();
+    }
+
     /**
      * Account
      */

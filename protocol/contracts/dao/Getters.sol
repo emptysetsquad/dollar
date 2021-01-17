@@ -99,6 +99,14 @@ contract Getters is State {
         return dollar().totalSupply().sub(totalDebt());
     }
 
+    function eraStatus() public view returns (Era.Status) {
+        return _state18.era.status;
+    }
+
+    function eraStart() public view returns (uint256) {
+        return _state18.era.start;
+    }
+
     /**
      * Account
      */

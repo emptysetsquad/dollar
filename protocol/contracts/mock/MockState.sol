@@ -54,6 +54,10 @@ contract MockState is Setters {
         super.decrementTotalRedeemable(amount, reason);
     }
 
+    function updateEraE(Era.Status status) external {
+        super.updateEra(status);
+    }
+
     /**
      * Account
      */
