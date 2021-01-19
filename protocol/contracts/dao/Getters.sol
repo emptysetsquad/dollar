@@ -307,7 +307,7 @@ contract Getters is State {
             uint256 temp_coupon_auction_epoch = d_idx;
             Epoch.AuctionState storage auction = getCouponAuctionAtEpoch(temp_coupon_auction_epoch);
             // skip auctions that have been canceled, dead or not finished auction present?
-            if (!auction.canceled && !auction.dead && auction.isInit && !auction.finished) {
+            if (!auction.canceled && !auction.dead && auction.isInit && auction.finished) {
                 sumYield += getAvgYieldFilled(temp_coupon_auction_epoch);
                 totalAvailableAuctions++;
             }
