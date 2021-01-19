@@ -102,12 +102,6 @@ contract MockRegulator is MockComptroller, Regulator {
             FILE,
             "Must bid on non-zero amount"
         );
-        
-        Require.that(
-            totalDebt() >= dollarAmount,
-            FILE,
-            "Not enough debt"
-        );
 
         Require.that(
             acceptableBidCheck(msg.sender, dollarAmount),

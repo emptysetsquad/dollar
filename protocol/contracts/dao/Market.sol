@@ -137,12 +137,6 @@ contract Market is Comptroller, Curve {
             FILE,
             "Must bid on non-zero amount"
         );
-        
-        Require.that(
-            totalDebt() >= dollarAmount,
-            FILE,
-            "Not enough debt"
-        );
 
         Require.that(
             acceptableBidCheck(msg.sender, dollarAmount),

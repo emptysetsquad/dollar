@@ -166,13 +166,7 @@ describe('Market', function () {
         await expectRevert(this.market.placeCouponAuctionBid(1, 1, 0, {from: userAddress}), "Market: Must bid on non-zero amount");
       });
     });
-
-    describe('no debt', function () {
-      it('reverts', async function () {
-        await expectRevert(this.market.placeCouponAuctionBid(1, 100000, 100000000), "Market: Not enough debt");
-      });
-    });
-
+    
     describe('on single call', function () {
       beforeEach(async function () {
         await this.market.incrementTotalDebtE(100000);
