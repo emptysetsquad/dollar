@@ -87,7 +87,7 @@ contract Regulator is Comptroller {
     function growSupply(Decimal.D256 memory price) private {
         uint256 lessDebt = resetDebt(Decimal.zero());
 
-        Decimal.D256 memory delta = Decimal.ratio(Decimal.one(), getAvgAvgYieldAcrossCouponAuctions());
+        Decimal.D256 memory delta = Decimal.ratio(1, getAvgAvgYieldAcrossCouponAuctions());
         uint256 newSupply = delta.mul(dollar().totalSupply()).asUint256();
         (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
         emit SupplyIncrease(epoch(), price.value, newRedeemable, lessDebt, newBonded);
