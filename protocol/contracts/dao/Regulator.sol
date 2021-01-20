@@ -68,7 +68,7 @@ contract Regulator is Comptroller {
                 finishCouponAuctionAtEpoch(epoch() - 1);
             }
             initCouponAuction();
-            
+            shrinkSupply(price);
             return;
         }
 
@@ -232,7 +232,7 @@ contract Regulator is Comptroller {
                         totalBurned += bids[i].dollarAmount;
                         
                         uint256 epochExpiry = epoch().add(bids[i].couponExpiryEpoch);
-                        burnFromAccount(bids[i].bidder, bids[i].dollarAmount);
+                        burnFromAccountSansDebt(bids[i].bidder, bids[i].dollarAmount);
                         incrementBalanceOfCoupons(bids[i].bidder, epochExpiry, bids[i].couponAmount);
                         setCouponBidderStateSelected(settlementEpoch, bids[i].bidder, i);
                         totalFilled++;
