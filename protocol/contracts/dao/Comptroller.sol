@@ -35,6 +35,12 @@ contract Comptroller is Setters {
         balanceCheck();
     }
 
+    function burnFromAccountSansDebt(address account, uint256 amount) internal {
+        dollar().transferFrom(account, address(this), amount);
+        dollar().burn(amount);
+        balanceCheck();
+    }
+
     function burnFromAccount(address account, uint256 amount) internal {
         dollar().transferFrom(account, address(this), amount);
         dollar().burn(amount);
@@ -123,6 +129,10 @@ contract Comptroller is Setters {
         }
 
         return 0;
+    }
+
+    function acceptableBidCheck(address account, uint256 dollarAmount) internal returns (bool) {
+        return (dollar().balanceOf(account) >= balanceOfBonded(account).add(dollarAmount));
     }
 
     function balanceCheck() private {

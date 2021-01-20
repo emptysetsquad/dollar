@@ -44,6 +44,7 @@ contract Epoch {
         uint256 start;
         uint256 period;
         uint256 current;
+        uint256 earliestDeadAuction;
     }
 
     struct Coupons {
@@ -52,10 +53,52 @@ contract Epoch {
         uint256[] expiring;
     }
 
+    struct CouponBidderState {
+        bool dead;
+        bool selected;
+        bool rejected;
+        bool redeemed;
+        address bidder;
+        uint256 dollarAmount;
+        uint256 couponAmount;
+        Decimal.D256 distance;
+        uint256 couponExpiryEpoch;
+        uint256 couponRedemptionIndex;
+    }
+
+    struct AuctionState {
+        bool dead;
+        bool isInit;
+        bool canceled;
+        bool finished;
+        uint256 minExpiry;
+        uint256 maxExpiry;
+        uint256 minYield;
+        uint256 maxYield;
+        uint256 _totalBids;
+        uint256 bidToCover;
+        uint256 totalFilled;
+        uint256 totalBurned;
+        uint256 totalAuctioned;
+        uint256 minYieldFilled;
+        uint256 maxYieldFilled;
+        uint256 avgYieldFilled;
+        uint256 minExpiryFilled;
+        uint256 maxExpiryFilled;
+        uint256 avgExpiryFilled;
+        uint256 minDollarAmount;
+        uint256 maxDollarAmount;
+        mapping(uint256 => address) couponBidder;
+        uint256 latestRedeemedSelectedBidderIndex;
+        mapping(uint256 => address) seletedCouponBidder;
+        mapping(address => CouponBidderState) couponBidderState;
+    }
+
     struct State {
         uint256 bonded;
         Coupons coupons;
-    }
+        AuctionState auction;
+    }    
 }
 
 contract Candidate {

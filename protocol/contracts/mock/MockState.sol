@@ -127,6 +127,11 @@ contract MockState is Setters {
        super.eliminateOutstandingCoupons(epoch);
     }
 
+    function isCouponAuctionInitAtEpochE(uint256 epoch) external returns (bool) {
+        return super.getCouponAuctionAtEpoch(epoch).isInit;
+    }
+
+
     /**
      * Governance
      */

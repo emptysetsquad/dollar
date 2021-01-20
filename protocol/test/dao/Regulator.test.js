@@ -1,6 +1,6 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
 
-const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const MockRegulator = contract.fromArtifact('MockRegulator');
@@ -24,11 +24,12 @@ function treasuryIncentive(newAmount) {
 }
 
 describe('Regulator', function () {
-  const [ ownerAddress, userAddress, poolAddress ] = accounts;
+  const [ ownerAddress, userAddress, poolAddress, userAddress2, userAddress3,  userAddress4 ] = accounts;
 
   beforeEach(async function () {
     this.oracle = await MockSettableOracle.new({from: ownerAddress, gas: 8000000});
     this.regulator = await MockRegulator.new(this.oracle.address, poolAddress, {from: ownerAddress, gas: 8000000});
+    
     this.dollar = await Dollar.at(await this.regulator.dollar());
   });
 
@@ -73,6 +74,11 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -119,6 +125,12 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -173,6 +185,12 @@ describe('Regulator', function () {
             expect(await this.regulator.totalSupply()).to.be.bignumber.equal(new BN(0));
             expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(100000));
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
+          });
+
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
           });
 
           it('emits SupplyIncrease event', async function () {
@@ -230,6 +248,12 @@ describe('Regulator', function () {
           expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(2000));
         });
 
+        it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+          });
+
         it('emits SupplyIncrease event', async function () {
           const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
 
@@ -284,6 +308,12 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(this.expectedRewardCoupons));
           });
 
+          it('has not created any auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+          });
+
           it('emits SupplyIncrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyIncrease', {});
 
@@ -321,6 +351,13 @@ describe('Regulator', function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(poolAddress)).to.be.bignumber.equal(new BN(0));
+          });
+
+          it('has created 1 auction in the past 8 epochs', async function () {
+            for(var a_idx = 1; a_idx<8; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(8)).equal(true);
           });
 
           it('updates totals', async function () {
@@ -377,6 +414,13 @@ describe('Regulator', function () {
             expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
           });
 
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -423,6 +467,13 @@ describe('Regulator', function () {
               expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
             });
+          });
+
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
           });
 
           it('emits SupplyDecrease event', async function () {
@@ -473,6 +524,13 @@ describe('Regulator', function () {
             });
           });
 
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -521,6 +579,13 @@ describe('Regulator', function () {
             });
           });
 
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
+          });
+
           it('emits SupplyDecrease event', async function () {
             const event = await expectEvent.inTransaction(this.txHash, MockRegulator, 'SupplyDecrease', {});
 
@@ -552,6 +617,125 @@ describe('Regulator', function () {
             this.txHash = this.result.tx;
           });
 
+          describe('when settling auction', function () {
+            describe('auction is not finished and not canceled', function () {
+              beforeEach(async function () {
+                await this.regulator.mintToE(userAddress, 1000000);
+                await this.regulator.mintToE(userAddress2, 1000000);
+                await this.regulator.mintToE(userAddress3, 1000000);
+                //await this.regulator.mintToE(userAddress4, 1000000);
+                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress});
+                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress2});
+                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress3});
+                //await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress4});
+              });
+
+              it('is able to settle auction and generated internals', async function () {
+                // add some bidders
+                this.result = await this.regulator.placeCouponAuctionBid(20, 1000, 50000, {from: userAddress});
+                this.result1 = await this.regulator.placeCouponAuctionBid(5, 2000, 50000, {from: userAddress2});
+                //thise bidders will be rejected
+                this.result2 = await this.regulator.placeCouponAuctionBid(1000, 900, 50000, {from: userAddress3});
+                await expectRevert(this.regulator.placeCouponAuctionBid(100990, 900, 50000, {from: userAddress4}), "MockRegulator: Must have enough in account");
+                this.auction_settlement = await this.regulator.settleCouponAuctionE(7);
+                
+
+                expect(await this.regulator.getCouponAuctionBidsE.call(7)).to.be.bignumber.equal(new BN(3));
+                expect(await this.regulator.getCouponAuctionMinExpiryE.call(7)).to.be.bignumber.equal(new BN(12));
+                expect(await this.regulator.getCouponAuctionMaxExpiryE.call(7)).to.be.bignumber.equal(new BN(1007));
+                expect(await this.regulator.getCouponAuctionMinYieldE.call(7)).to.be.bignumber.equal(new BN(25));
+                expect(await this.regulator.getCouponAuctionMaxYieldE.call(7)).to.be.bignumber.equal(new BN(55));
+                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call(7)).to.be.bignumber.equal(new BN(900));
+                expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call(7)).to.be.bignumber.equal(new BN(2000));
+
+                expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(5));
+                expect(await this.regulator.getMaxExpiryFilled(7)).to.be.bignumber.equal(new BN(1000));
+                expect(await this.regulator.getAvgExpiryFilled(7)).to.be.bignumber.equal(new BN(341));
+                expect(await this.regulator.getMinYieldFilled(7)).to.be.bignumber.equal(new BN(25));
+                expect(await this.regulator.getMaxYieldFilled(7)).to.be.bignumber.equal(new BN(55));
+                expect(await this.regulator.getAvgYieldFilled(7)).to.be.bignumber.equal(new BN(43));
+                expect(await this.regulator.getBidToCover(7)).to.be.bignumber.equal(new BN(100));
+                expect(await this.regulator.getTotalFilled(7)).to.be.bignumber.equal(new BN(3));
+              });
+            });
+
+            describe('auction is finished', function () {
+              beforeEach(async function () {
+                //finish the auction
+                await this.regulator.finishCouponAuctionAtEpochE(7);
+              });
+
+              it('is able to not settle auction', async function () {
+                // add some bidders
+                this.result = await this.regulator.placeCouponAuctionBid(20, 1000, 50000, {from: userAddress});
+                this.result1 = await this.regulator.placeCouponAuctionBid(5, 2000, 50000, {from: userAddress2});
+                this.auction_settlement = await this.regulator.settleCouponAuctionE.call(7);
+                expect(this.auction_settlement).to.be.equal(false);
+              });
+
+
+            });
+            describe('auction is canceled', function () {
+              beforeEach(async function () {
+                //finish the auction
+                await this.regulator.cancelCouponAuctionAtEpochE(7);
+              });
+
+              it('is able to not settle auction', async function () {
+                // add some bidders
+                this.result = await this.regulator.placeCouponAuctionBid(20, 1000, 50000, {from: userAddress});
+                this.result1 = await this.regulator.placeCouponAuctionBid(5, 2000, 50000, {from: userAddress2});
+                this.auction_settlement = await this.regulator.settleCouponAuctionE.call(7);
+                expect(this.auction_settlement).to.be.equal(false);
+              });
+
+            });
+          });
+
+          describe('when calling init again during auction', function () {
+            describe('auction is not finished and not canceled', function () {
+              beforeEach(async function () {
+                await this.regulator.mintToE(userAddress, 1000000);
+                await this.regulator.mintToE(userAddress2, 1000000);
+                await this.regulator.mintToE(userAddress3, 1000000);
+                await this.regulator.mintToE(userAddress4, 1000000);
+                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress});
+                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress2});
+                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress3});
+                await this.dollar.approve(this.regulator.address, 1000000, {from: userAddress4});
+              });
+
+              it('is able to settle auction and generated internals without resetting them', async function () {
+                // add some bidders
+                this.result = await this.regulator.placeCouponAuctionBid(20, 1000, 50000, {from: userAddress});
+                this.result1 = await this.regulator.placeCouponAuctionBid(5, 2000, 50000, {from: userAddress2});
+                //thise bidders will be rejected
+                this.result2 = await this.regulator.placeCouponAuctionBid(1000, 900, 50000, {from: userAddress3});
+                this.result3 = await this.regulator.placeCouponAuctionBid(100990, 900, 50000, {from: userAddress4});
+                this.auction_settlement = await this.regulator.settleCouponAuctionE(7);
+                
+                await this.regulator.initCouponAuctionE.call();
+
+                expect(await this.regulator.getCouponAuctionBidsE.call(7)).to.be.bignumber.equal(new BN(4));
+                expect(await this.regulator.getCouponAuctionMinExpiryE.call(7)).to.be.bignumber.equal(new BN(12));
+                expect(await this.regulator.getCouponAuctionMaxExpiryE.call(7)).to.be.bignumber.equal(new BN(100997));
+                expect(await this.regulator.getCouponAuctionMinYieldE.call(7)).to.be.bignumber.equal(new BN(25));
+                expect(await this.regulator.getCouponAuctionMaxYieldE.call(7)).to.be.bignumber.equal(new BN(55));
+                expect(await this.regulator.getCouponAuctionMinDollarAmountE.call(7)).to.be.bignumber.equal(new BN(900));
+                expect(await this.regulator.getCouponAuctionMaxDollarAmountE.call(7)).to.be.bignumber.equal(new BN(2000));
+
+                expect(await this.regulator.getMinExpiryFilled(7)).to.be.bignumber.equal(new BN(5));
+                expect(await this.regulator.getMaxExpiryFilled(7)).to.be.bignumber.equal(new BN(100990));
+                expect(await this.regulator.getAvgExpiryFilled(7)).to.be.bignumber.equal(new BN(25503));
+                expect(await this.regulator.getMinYieldFilled(7)).to.be.bignumber.equal(new BN(25));
+                expect(await this.regulator.getMaxYieldFilled(7)).to.be.bignumber.equal(new BN(55));
+                expect(await this.regulator.getAvgYieldFilled(7)).to.be.bignumber.equal(new BN(46));
+                expect(await this.regulator.getBidToCover(7)).to.be.bignumber.equal(new BN(100));
+                expect(await this.regulator.getTotalFilled(7)).to.be.bignumber.equal(new BN(4));
+              });
+            });
+          });
+
           it('doesnt mint new Dollar tokens', async function () {
             expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1000000));
             expect(await this.dollar.balanceOf(this.regulator.address)).to.be.bignumber.equal(new BN(1000000));
@@ -567,6 +751,13 @@ describe('Regulator', function () {
               expect(await this.regulator.totalCoupons()).to.be.bignumber.equal(new BN(0));
               expect(await this.regulator.totalRedeemable()).to.be.bignumber.equal(new BN(0));
             });
+          });
+
+          it('has created 1 auction in the past 7 epochs', async function () {
+            for(var a_idx = 1; a_idx<7; a_idx++){
+              expect(await this.regulator.isCouponAuctionInitAtEpochE.call(a_idx)).equal(false);
+            }
+            expect(await this.regulator.isCouponAuctionInitAtEpochE.call(7)).equal(true);
           });
 
           it('emits SupplyDecrease event', async function () {

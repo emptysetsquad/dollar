@@ -68,6 +68,8 @@ library Constants {
     /* Market */
     uint256 private constant COUPON_EXPIRATION = 90;
     uint256 private constant DEBT_RATIO_CAP = 20e16; // 20%
+    uint256 private constant MAX_COUPON_YIELD_MULT = 2000; //2000 coupouns per 1 dollar burn
+
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 3e16; // 3%
@@ -163,6 +165,10 @@ library Constants {
 
     function getCouponExpiration() internal pure returns (uint256) {
         return COUPON_EXPIRATION;
+    }
+
+    function getCouponMaxYieldToBurn() internal pure returns (uint256) {
+        return MAX_COUPON_YIELD_MULT;
     }
 
     function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {

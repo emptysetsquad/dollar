@@ -32,7 +32,8 @@ contract Market is Comptroller, Curve {
     event CouponRedemption(address indexed account, uint256 indexed epoch, uint256 amount, uint256 couponAmount);
     event CouponTransfer(address indexed from, address indexed to, uint256 indexed epoch, uint256 value);
     event CouponApproval(address indexed owner, address indexed spender, uint256 value);
-
+    event CouponBidPlaced(address indexed account, uint256 indexed epoch, uint256 dollarAmount, uint256 maxCouponAmount);
+    
     function step() internal {
         // Expire prior coupons
         for (uint256 i = 0; i < expiringCoupons(epoch()); i++) {
@@ -152,5 +153,50 @@ contract Market is Comptroller, Curve {
         }
 
         emit CouponTransfer(sender, recipient, epoch, amount);
+    }
+
+    function placeCouponAuctionBid(uint256 couponEpochExpiry, uint256 dollarAmount, uint256 maxCouponAmount) external returns (bool) {
+        Require.that(
+            couponEpochExpiry > 0,
+            FILE,
+            "Must have non-zero expiry"
+        );
+        
+        Require.that(
+            dollarAmount > 0,
+            FILE,
+            "Must bid non-zero amount"
+        );
+        
+        Require.that(
+            maxCouponAmount > 0,
+            FILE,
+            "Must bid on non-zero amount"
+        );
+
+        Require.that(
+            acceptableBidCheck(msg.sender, dollarAmount),
+            FILE,
+            "Must have enough in account"
+        );
+
+        uint256 yield = maxCouponAmount.div(dollarAmount);
+        uint256 maxYield = Constants.getCouponMaxYieldToBurn();
+
+        Require.that(
+            maxYield >= yield,
+            FILE,
+            "Must be under maxYield"
+        );
+
+        uint256 epochExpiry = epoch().add(couponEpochExpiry);
+        setCouponAuctionRelYield(maxCouponAmount.div(dollarAmount));
+        setCouponAuctionRelDollarAmount(dollarAmount);
+        setCouponAuctionRelExpiry(epochExpiry);
+        setCouponBidderState(uint256(epoch()), msg.sender, couponEpochExpiry, dollarAmount, maxCouponAmount);
+        setCouponBidderStateIndex(uint256(epoch()), getCouponAuctionBids(uint256(epoch())), msg.sender);
+        incrementCouponAuctionBids();
+        emit CouponBidPlaced(msg.sender, epochExpiry, dollarAmount, maxCouponAmount);
+        return true;
     }
 }
