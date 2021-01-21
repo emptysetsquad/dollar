@@ -55,6 +55,10 @@ contract MockComptroller is Comptroller, MockState {
         super.resetDebt(Decimal.ratio(percent, 100));
     }
 
+    function stabilityRewardE(uint256 amount) external {
+        super.stabilityReward(amount);
+    }
+
     /* For testing only */
     function mintToE(address account, uint256 amount) external {
         dollar().mint(account, amount);

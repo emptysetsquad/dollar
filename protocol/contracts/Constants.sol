@@ -75,6 +75,8 @@ library Constants {
     uint256 private constant COUPON_SUPPLY_CHANGE_LIMIT = 6e16; // 6%
     uint256 private constant ORACLE_POOL_RATIO = 20; // 20%
     uint256 private constant TREASURY_RATIO = 250; // 2.5%
+    uint256 private constant STABILITY_REWARD_MIN = 0.3e14; // 0.3 bps
+    uint256 private constant STABILITY_REWARD_RATE = 5e14; // 5 bps
 
     /* Deployed */
     address private constant DAO_ADDRESS = address(0x443D2f2755DB5942601fa062Cc248aAA153313D3);
@@ -188,6 +190,14 @@ library Constants {
 
     function getTreasuryRatio() internal pure returns (uint256) {
         return TREASURY_RATIO;
+    }
+
+    function getStabilityRewardMin() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: STABILITY_REWARD_MIN});
+    }
+
+    function getStabilityRewardRate() internal pure returns (Decimal.D256 memory) {
+        return Decimal.D256({value: STABILITY_REWARD_RATE});
     }
 
     function getChainId() internal pure returns (uint256) {
