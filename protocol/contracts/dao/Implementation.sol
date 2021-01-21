@@ -34,10 +34,7 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         // Reward committer
         incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
-        incentivize(0x6a7217C003aAb08543657B404aC9988a844cBa4B, 5000e18);
 
-        // Reset debt to zero for new coupon mechanic
-        _state.balance.debt = 0;
     }
 
     function advance() external {

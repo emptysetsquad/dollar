@@ -118,12 +118,32 @@ contract Market is Comptroller, Curve {
 
         uint256 couponAmount = balanceOfCoupons(msg.sender, couponEpoch)
             .mul(amount).div(balanceOfCouponUnderlying(msg.sender, couponEpoch), "Market: No underlying");
+        uint256 redeemableAmount = computeRedeemable(couponEpoch, couponAmount);
 
         decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, amount, "Market: Insufficient coupon underlying balance");
         if (couponAmount != 0) decrementBalanceOfCoupons(msg.sender, couponEpoch, couponAmount, "Market: Insufficient coupon balance");
-        redeemToAccount(msg.sender, amount, couponAmount);
+        redeemToAccount(msg.sender, amount, redeemableAmount);
 
         emit CouponRedemption(msg.sender, couponEpoch, amount, couponAmount);
+    }
+
+    function computeRedeemable(uint256 couponEpoch, uint256 couponAmount) private view returns (uint256) {
+        if (couponEpoch < couponProratedStart()) {
+            return couponAmount;
+        }
+
+        uint256 lastContractionEpoch = computeLastContractionEpoch();
+        uint256 lockedTime = lastContractionEpoch > couponEpoch ? lastContractionEpoch.sub(couponEpoch) : 0;
+        lockedTime = lockedTime > Constants.getCouponExpiration() ? Constants.getCouponExpiration() : lockedTime;
+        return couponAmount.mul(lockedTime).div(Constants.getCouponExpiration());
+    }
+
+    function computeLastContractionEpoch() private view returns (uint256) {
+        if (eraStatus() == Era.Status.EXPANSION) {
+            uint256 eraStart = eraStart();
+            return eraStart == 0 ? 0 : eraStart.sub(1);
+        }
+        return epoch().sub(1);
     }
 
     function approveCoupons(address spender, uint256 amount) external {
@@ -152,5 +172,10 @@ contract Market is Comptroller, Curve {
         }
 
         emit CouponTransfer(sender, recipient, epoch, amount);
+    }
+
+    // overridable for testing
+    function couponProratedStart() internal view returns (uint256) {
+        return Constants.getCouponProratedStart();
     }
 }
