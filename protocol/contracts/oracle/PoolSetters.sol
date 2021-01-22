@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./PoolState.sol";
 import "./PoolGetters.sol";
+import "../streaming/StreamingSetters.sol";
 
-contract PoolSetters is PoolState, PoolGetters {
+contract PoolSetters is PoolState, PoolGetters, StreamingSetters {
     using SafeMath for uint256;
 
     /**
@@ -74,9 +75,5 @@ contract PoolSetters is PoolState, PoolGetters {
     function decrementBalanceOfPhantom(address account, uint256 amount, string memory reason) internal {
         _state.accounts[account].phantom = _state.accounts[account].phantom.sub(amount, reason);
         _state.balance.phantom = _state.balance.phantom.sub(amount, reason);
-    }
-
-    function unfreeze(address account) internal {
-        _state.accounts[account].fluidUntil = epoch().add(Constants.getPoolExitLockupEpochs());
     }
 }

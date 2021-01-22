@@ -27,9 +27,9 @@ async function priceForToBN(oracle) {
   return (await oracle.latestPrice()).value;
 }
 
-async function simulateTrade(amm, esd, usdc) {
+async function simulateTrade(amm, dollar, usdc) {
   return await amm.simulateTrade(
-    new BN(esd).mul(new BN(10).pow(new BN(18))),
+    new BN(dollar).mul(new BN(10).pow(new BN(18))),
     new BN(usdc).mul(new BN(10).pow(new BN(6))));
 }
 

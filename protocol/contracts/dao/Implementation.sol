@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -31,10 +31,8 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
-        // Reward committer
-        incentivize(msg.sender, Constants.getAdvanceIncentive());
-        // Dev rewards
-
+        // initial liquidity for uniswap pool:
+        mintToAccount(0x77FBF866BdFE6a73E1F2D8DF9F09D480a027331A, 10000e18);
     }
 
     function advance() external {
@@ -45,6 +43,22 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         Market.step();
 
         emit Advance(epoch(), block.number, block.timestamp);
+    }
+
+    // Override for the distribution of penalty
+    function boostStream() public returns (uint256) {
+        uint256 penalty = Bonding.boostStream();
+
+        // distribute penalty if more than one dollar
+        distribute(penalty);
+
+        return penalty;
+    }
+
+    // Distribution of penalty from Pool contract
+    function distributePenalty(uint256 penalty) external onlyPool {
+        // distribute penalty if more than one dollar
+        distribute(penalty);
     }
 
     function incentivize(address account, uint256 amount) private {

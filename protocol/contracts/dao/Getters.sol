@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./State.sol";
 import "../Constants.sol";
+import "../streaming/StreamingGetters.sol";
 
-contract Getters is State {
+contract Getters is State, StreamingGetters {
     using SafeMath for uint256;
     using Decimal for Decimal.D256;
 
@@ -32,11 +33,11 @@ contract Getters is State {
      */
 
     function name() public view returns (string memory) {
-        return "Empty Set Dollar Stake";
+        return "Universal Dollar Stake";
     }
 
     function symbol() public view returns (string memory) {
-        return "ESDS";
+        return "U8DS";
     }
 
     function decimals() public view returns (uint8) {
@@ -87,24 +88,12 @@ contract Getters is State {
         return _state.balance.redeemable;
     }
 
-    function totalCouponUnderlying() public view returns (uint256) {
-        return _state16.couponUnderlying;
-    }
-
     function totalCoupons() public view returns (uint256) {
         return _state.balance.coupons;
     }
 
     function totalNet() public view returns (uint256) {
         return dollar().totalSupply().sub(totalDebt());
-    }
-
-    function eraStatus() public view returns (Era.Status) {
-        return _state18.era.status;
-    }
-
-    function eraStart() public view returns (uint256) {
-        return _state18.era.start;
     }
 
     /**
@@ -130,28 +119,57 @@ contract Getters is State {
         return _state.accounts[account].coupons[epoch];
     }
 
-    function balanceOfCouponUnderlying(address account, uint256 epoch) public view returns (uint256) {
-        return _state16.couponUnderlyingByAccount[account][epoch];
-    }
-
     function statusOf(address account) public view returns (Account.Status) {
-        if (_state.accounts[account].lockedUntil > epoch()) {
-            return Account.Status.Locked;
-        }
-
-        return epoch() >= _state.accounts[account].fluidUntil ? Account.Status.Frozen : Account.Status.Fluid;
-    }
-
-    function fluidUntil(address account) public view returns (uint256) {
-        return _state.accounts[account].fluidUntil;
-    }
-
-    function lockedUntil(address account) public view returns (uint256) {
-        return _state.accounts[account].lockedUntil;
+        return _state.accounts[account].lockedUntil > epoch() ? Account.Status.Locked : Account.Status.Unlocked;
     }
 
     function allowanceCoupons(address owner, address spender) public view returns (uint256) {
         return _state.accounts[owner].couponAllowances[spender];
+    }
+
+    /**
+     * Streaming
+     */
+
+    // internal getter
+    function stream(address account) internal view returns (Stream storage) {
+        return _state.accounts[account].stream;
+    }
+
+    function streamedFrom(address account) public view returns (uint256) {
+        return streamedFrom(stream(account));
+    }
+
+    function streamedUntil(address account) public view returns (uint256) {
+        return streamedUntil(stream(account));
+    }
+
+    function streamDuration(address account) public view returns (uint256) {
+        return streamDuration(stream(account));
+    }
+
+    function streamTimeleft(address account) public view returns (uint256) {
+        return streamTimeleft(stream(account));
+    }
+
+    function streamReserved(address account) public view returns (uint256) {
+        return streamReserved(stream(account));
+    }
+
+    function streamReleased(address account) public view returns (uint256) {
+        return streamReleased(stream(account));
+    }
+
+    function streamBoosted(address account) public view returns (uint256) {
+        return streamBoosted(stream(account));
+    }
+
+    function releasableAmount(address account) public view returns (uint256) {
+        return releasableAmount(stream(account));
+    }
+
+    function unreleasedAmount(address account) public view returns (uint256) {
+        return unreleasedAmount(stream(account));
     }
 
     /**
@@ -163,12 +181,8 @@ contract Getters is State {
     }
 
     function epochTime() public view returns (uint256) {
-        Constants.EpochStrategy memory current = Constants.getCurrentEpochStrategy();
-        Constants.EpochStrategy memory previous = Constants.getPreviousEpochStrategy();
-
-        return blockTimestamp() < current.start ?
-            epochTimeWithStrategy(previous) :
-            epochTimeWithStrategy(current);
+        Constants.EpochStrategy memory current = Constants.getEpochStrategy();
+        return epochTimeWithStrategy(current);
     }
 
     function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {

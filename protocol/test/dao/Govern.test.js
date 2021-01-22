@@ -16,7 +16,7 @@ const UNDECIDED = new BN(0);
 const APPROVE = new BN(1);
 const REJECT = new BN(2);
 
-const INITIAL_STAKE_MULTIPLE = new BN(10).pow(new BN(6)); // 100 ESD -> 100M ESDS
+const INITIAL_STAKE_MULTIPLE = new BN(10).pow(new BN(6)); // 100 U8D -> 100M U8DS
 
 describe('Govern', function () {
   const [ ownerAddress, userAddress, userAddress2, userAddress3 ] = accounts;
@@ -405,9 +405,9 @@ describe('Govern', function () {
 
     describe('ended with not enough approve votes', function () {
       beforeEach(async function () {
-        await this.govern.vote(this.implB.address, REJECT, {from: userAddress});
-        await this.govern.vote(this.implB.address, REJECT, {from: userAddress3});
-        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress2});
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress});
+        await this.govern.vote(this.implB.address, APPROVE, {from: userAddress3});
+        await this.govern.vote(this.implB.address, REJECT, {from: userAddress2});
 
         const epoch = await this.govern.epoch();
         await this.govern.setEpochTime(epoch + EMERGENCY_COMMIT_PERIOD);

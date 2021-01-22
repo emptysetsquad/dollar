@@ -165,7 +165,7 @@ describe('Comptroller', function () {
 
     describe('on single call', function () {
       beforeEach(async function () {
-        await this.comptroller.redeemToAccountE(userAddress, new BN(0), new BN(100));
+        await this.comptroller.redeemToAccountE(userAddress, new BN(100));
       });
 
       it('doesnt mint new Dollar tokens', async function () {
@@ -181,8 +181,8 @@ describe('Comptroller', function () {
 
     describe('multiple calls', function () {
       beforeEach(async function () {
-        await this.comptroller.redeemToAccountE(userAddress, new BN(0), new BN(100));
-        await this.comptroller.redeemToAccountE(userAddress, new BN(0), new BN(200));
+        await this.comptroller.redeemToAccountE(userAddress, new BN(100));
+        await this.comptroller.redeemToAccountE(userAddress, new BN(200));
       });
 
       it('doesnt mint new Dollar tokens', async function () {
@@ -206,39 +206,7 @@ describe('Comptroller', function () {
       });
 
       it('reverts', async function () {
-        await expectRevert(this.comptroller.redeemToAccountE(userAddress, new BN(0), new BN(400)), "not enough redeemable");
-      });
-    });
-
-    describe('with base amount', function () {
-      beforeEach(async function () {
-        await this.comptroller.redeemToAccountE(userAddress, new BN(1000), new BN(100));
-      });
-
-      it('doesnt mint new Dollar tokens', async function () {
-        expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1300));
-        expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(200));
-        expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1100));
-      });
-
-      it('updates total redeemable', async function () {
-        expect(await this.comptroller.totalRedeemable()).to.be.bignumber.equal(new BN(200));
-      });
-    });
-
-    describe('only base amount', function () {
-      beforeEach(async function () {
-        await this.comptroller.redeemToAccountE(userAddress, new BN(1000), new BN(0));
-      });
-
-      it('doesnt mint new Dollar tokens', async function () {
-        expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1300));
-        expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(300));
-        expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(1000));
-      });
-
-      it('updates total redeemable', async function () {
-        expect(await this.comptroller.totalRedeemable()).to.be.bignumber.equal(new BN(300));
+        await expectRevert(this.comptroller.redeemToAccountE(userAddress, new BN(400)), "not enough redeemable");
       });
     });
   });

@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -54,10 +54,6 @@ contract MockState is Setters {
         super.decrementTotalRedeemable(amount, reason);
     }
 
-    function updateEraE(Era.Status status) external {
-        super.updateEra(status);
-    }
-
     /**
      * Account
      */
@@ -82,21 +78,13 @@ contract MockState is Setters {
         super.incrementBalanceOfCoupons(account, epoch, amount);
     }
 
-    function incrementBalanceOfCouponUnderlyingE(address account, uint256 epoch, uint256 amount) external {
-        super.incrementBalanceOfCouponUnderlying(account, epoch, amount);
-    }
-
     function decrementBalanceOfCouponsE(address account, uint256 epoch, uint256 amount, string calldata reason) external {
         super.decrementBalanceOfCoupons(account, epoch, amount, reason);
     }
 
-    function decrementBalanceOfCouponUnderlyingE(address account, uint256 epoch, uint256 amount, string calldata reason) external {
-        super.decrementBalanceOfCouponUnderlying(account, epoch, amount, reason);
-    }
-
-    function unfreezeE(address account) external {
-        super.unfreeze(account);
-    }
+    // function unfreezeE(address account) external {
+    //     super.unfreeze(account);
+    // }
 
     function updateAllowanceCouponsE(address owner, address spender, uint256 amount) external {
         super.updateAllowanceCoupons(owner, spender, amount);

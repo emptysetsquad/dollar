@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./State.sol";
 import "./Getters.sol";
+import "../streaming/StreamingSetters.sol";
 
-contract Setters is State, Getters {
+contract Setters is State, Getters, StreamingSetters {
     using SafeMath for uint256;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
@@ -70,11 +71,6 @@ contract Setters is State, Getters {
         _state.balance.redeemable = _state.balance.redeemable.sub(amount, reason);
     }
 
-    function updateEra(Era.Status status) internal {
-        _state18.era.status = status;
-        _state18.era.start = epoch();
-    }
-
     /**
      * Account
      */
@@ -109,24 +105,10 @@ contract Setters is State, Getters {
         _state.balance.coupons = _state.balance.coupons.add(amount);
     }
 
-    function incrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount) internal {
-        _state16.couponUnderlyingByAccount[account][epoch] = _state16.couponUnderlyingByAccount[account][epoch].add(amount);
-        _state16.couponUnderlying = _state16.couponUnderlying.add(amount);
-    }
-
     function decrementBalanceOfCoupons(address account, uint256 epoch, uint256 amount, string memory reason) internal {
         _state.accounts[account].coupons[epoch] = _state.accounts[account].coupons[epoch].sub(amount, reason);
         _state.epochs[epoch].coupons.outstanding = _state.epochs[epoch].coupons.outstanding.sub(amount, reason);
         _state.balance.coupons = _state.balance.coupons.sub(amount, reason);
-    }
-
-    function decrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount, string memory reason) internal {
-        _state16.couponUnderlyingByAccount[account][epoch] = _state16.couponUnderlyingByAccount[account][epoch].sub(amount, reason);
-        _state16.couponUnderlying = _state16.couponUnderlying.sub(amount, reason);
-    }
-
-    function unfreeze(address account) internal {
-        _state.accounts[account].fluidUntil = epoch().add(Constants.getDAOExitLockupEpochs());
     }
 
     function updateAllowanceCoupons(address owner, address spender, uint256 amount) internal {

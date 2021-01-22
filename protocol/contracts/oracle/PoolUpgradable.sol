@@ -19,12 +19,12 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/upgrades/contracts/utils/Address.sol";
-import "./State.sol";
+import "./PoolState.sol";
 
 /**
  * Based off of, and designed to interface with, openzeppelin/upgrades package
  */
-contract Upgradeable is State {
+contract PoolUpgradable is PoolState {
     /**
      * @dev Storage slot with the address of the current implementation.
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
@@ -38,7 +38,9 @@ contract Upgradeable is State {
      */
     event Upgraded(address indexed implementation);
 
-    function initialize() public;
+    function initialize() public {
+        require(!_state.isInitialized, "already initialized");
+    }
 
     /**
      * @dev Upgrades the proxy to a new implementation.
@@ -46,9 +48,6 @@ contract Upgradeable is State {
      */
     function upgradeTo(address newImplementation) internal {
         setImplementation(newImplementation);
-
-        (bool success, bytes memory reason) = newImplementation.delegatecall(abi.encodeWithSignature("initialize()"));
-        require(success, string(reason));
 
         emit Upgraded(newImplementation);
     }

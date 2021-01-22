@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,24 +21,26 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../token/IDollar.sol";
 import "./IDAO.sol";
 import "./IUSDC.sol";
+import "../streaming/Stream.sol";
 
 contract PoolAccount {
-    enum Status {
-        Frozen,
-        Fluid,
-        Locked
-    }
-
     struct State {
         uint256 staged;
         uint256 claimable;
         uint256 bonded;
         uint256 phantom;
-        uint256 fluidUntil;
+        Stream.Stream lpStream;
+        Stream.Stream rewardStream;
     }
 }
 
 contract PoolStorage {
+    struct Provider {
+        IDAO dao;
+        IDollar dollar;
+        IERC20 univ2;
+    }
+    
     struct Balance {
         uint256 staged;
         uint256 claimable;
@@ -48,7 +50,10 @@ contract PoolStorage {
 
     struct State {
         Balance balance;
+        Provider provider;
+
         bool paused;
+        bool isInitialized;
 
         mapping(address => PoolAccount.State) accounts;
     }

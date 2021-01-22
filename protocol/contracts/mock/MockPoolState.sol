@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ contract MockPoolState is PoolSetters {
         super.decrementBalanceOfPhantom(account, amount, reason);
     }
 
-    function unfreezeE(address account) external {
-        super.unfreeze(account);
-    }
+    // function unfreezeE(address account) external {
+    //     super.unfreeze(account);
+    // }
 }

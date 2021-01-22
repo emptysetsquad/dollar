@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -38,6 +38,36 @@ contract Liquidity is PoolGetters {
         IERC20(dollar).transfer(pair, dollarAmount);
         IERC20(usdc).transferFrom(msg.sender, pair, usdcAmount);
         return (usdcAmount, IUniswapV2Pair(pair).mint(address(this)));
+    }
+
+    function convertLpToDollar(uint256 liquidity) internal returns (uint256) {
+        (uint256 dollarAmount, uint256 usdcAmount) = removeLiquidity(liquidity);
+        return dollarAmount.add(swap(usdcAmount, usdc(), address(dollar())));
+    }
+
+    function removeLiquidity(uint256 liquidity) internal returns (uint256 dollarAmount, uint256 usdcAmount) {
+        address pair = address(univ2());
+
+        univ2().transfer(pair, liquidity); // send liquidity to pair
+        (uint256 amount0, uint256 amount1) = IUniswapV2Pair(pair).burn(address(this));
+
+        (address dollar, address usdc) = (address(dollar()), usdc());
+        (address token0,) = UniswapV2Library.sortTokens(dollar, usdc);
+        (dollarAmount, usdcAmount) = dollar == token0 ? (amount0, amount1) : (amount1, amount0);
+    }
+
+    function swap(uint256 amountIn, address tokenIn, address tokenOut) internal returns (uint256 amountOut) {
+        (uint256 reserveIn, uint256 reserveOut) = getReserves(tokenIn, tokenOut);
+        amountOut = UniswapV2Library.getAmountOut(amountIn, reserveIn, reserveOut);
+
+        (address token0,) = UniswapV2Library.sortTokens(tokenIn, tokenOut);
+        (uint amount0Out, uint amount1Out) = tokenIn == token0 ? (uint(0), amountOut) : (amountOut, uint(0));
+
+        address pair = UniswapV2Library.pairFor(UNISWAP_FACTORY, tokenIn, tokenOut);
+        IERC20(tokenIn).transfer(pair, amountIn);
+        IUniswapV2Pair(pair).swap(
+            amount0Out, amount1Out, address(this), new bytes(0)
+        );
     }
 
     // overridable for testing

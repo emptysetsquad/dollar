@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,9 +20,11 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./PoolState.sol";
 import "../Constants.sol";
+import "../streaming/StreamingGetters.sol";
 
-contract PoolGetters is PoolState {
+contract PoolGetters is PoolState, StreamingGetters {
     using SafeMath for uint256;
+    using Decimal for Decimal.D256;
 
     /**
      * Global
@@ -33,15 +35,15 @@ contract PoolGetters is PoolState {
     }
 
     function dao() public view returns (IDAO) {
-        return IDAO(Constants.getDaoAddress());
+        return _state.provider.dao;
     }
 
     function dollar() public view returns (IDollar) {
-        return IDollar(Constants.getDollarAddress());
+        return _state.provider.dollar;
     }
 
     function univ2() public view returns (IERC20) {
-        return IERC20(Constants.getPairAddress());
+        return _state.provider.univ2;
     }
 
     function totalBonded() public view returns (uint256) {
@@ -106,10 +108,94 @@ contract PoolGetters is PoolState {
         return 0;
     }
 
-    function statusOf(address account) public view returns (PoolAccount.Status) {
-        return epoch() >= _state.accounts[account].fluidUntil ?
-            PoolAccount.Status.Frozen :
-            PoolAccount.Status.Fluid;
+    /**
+     * Streaming LP
+     */
+
+    // internal getter
+    function streamLp(address account) internal view returns (Stream storage) {
+        return _state.accounts[account].lpStream;
+    }
+
+    function streamedLpFrom(address account) public view returns (uint256) {
+        return streamedFrom(streamLp(account));
+    }
+
+    function streamedLpUntil(address account) public view returns (uint256) {
+        return streamedUntil(streamLp(account));
+    }
+
+    function streamLpDuration(address account) public view returns (uint256) {
+        return streamDuration(streamLp(account));
+    }
+
+    function streamLpTimeleft(address account) public view returns (uint256) {
+        return streamTimeleft(streamLp(account));
+    }
+
+    function streamLpReserved(address account) public view returns (uint256) {
+        return streamReserved(streamLp(account));
+    }
+
+    function streamLpReleased(address account) public view returns (uint256) {
+        return streamReleased(streamLp(account));
+    }
+
+    function streamLpBoosted(address account) public view returns (uint256) {
+        return streamBoosted(streamLp(account));
+    }
+
+    function releasableLpAmount(address account) public view returns (uint256) {
+        return releasableAmount(streamLp(account));
+    }
+
+    function unreleasedLpAmount(address account) public view returns (uint256) {
+        return unreleasedAmount(streamLp(account));
+    }
+
+    /**
+     * Streaming Reward
+     */
+
+    // internal getter
+    function streamReward(address account) internal view returns (Stream storage) {
+        return _state.accounts[account].rewardStream;
+    }
+
+    function streamedRewardFrom(address account) public view returns (uint256) {
+        return streamedFrom(streamReward(account));
+    }
+
+    function streamedRewardUntil(address account) public view returns (uint256) {
+        return streamedUntil(streamReward(account));
+    }
+
+    function streamRewardDuration(address account) public view returns (uint256) {
+        return streamDuration(streamReward(account));
+    }
+
+    function streamRewardTimeleft(address account) public view returns (uint256) {
+        return streamTimeleft(streamReward(account));
+    }
+
+    function streamRewardReserved(address account) public view returns (uint256) {
+        return streamReserved(streamReward(account));
+    }
+
+    function streamRewardReleased(address account) public view returns (uint256) {
+        return streamReleased(streamReward(account));
+    }
+
+    function streamRewardBoosted(address account) public view returns (uint256) {
+        return streamBoosted(streamReward(account));
+    }
+
+    function releasableRewardAmount(address account) public view returns (uint256) {
+        return releasableAmount(streamReward(account));
+    }
+
+    function unreleasedRewardAmount(address account) public view returns (uint256) {
+        return unreleasedAmount(streamReward(account));
     }
 
     /**
@@ -118,5 +204,9 @@ contract PoolGetters is PoolState {
 
     function epoch() internal view returns (uint256) {
         return dao().epoch();
+    }
+
+    function blockTimestamp() internal view returns (uint256) {
+        return block.timestamp;
     }
 }

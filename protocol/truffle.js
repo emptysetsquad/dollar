@@ -18,9 +18,16 @@
  *
  */
 const PrivateKeyProvider = require('truffle-privatekey-provider');
-const privateKey = process.env.ESD_PRIVATE_KEY;
-const infuraId = process.env.ESD_INFURA_ID;
-const etherscanKey = process.env.ESD_ETHERSCAN_KEY;
+const dotenv = require('dotenv');
+const path = require('path');
+
+dotenv.config({
+  path: path.resolve(__dirname, '.env'),
+});
+
+const privateKey = process.env.PRIVATE_KEY;
+const infuraId = process.env.INFURA_ID;
+const etherscanKey = process.env.ETHERSCAN_KEY;
 
 module.exports = {
   /**
@@ -42,7 +49,7 @@ module.exports = {
     //
     development: {
       host: "127.0.0.1",     // Localhost (default: none)
-      port: 7545,            // Standard Ethereum port (default: none)
+      port: 8545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
       gas: 8000000,
     },
@@ -52,8 +59,9 @@ module.exports = {
       provider: () => new PrivateKeyProvider(privateKey, 'https://mainnet.infura.io/v3/' + infuraId),
       network_id: 1,          // Mainnet's id
       gas: 5500000,           // Gas sent with each transaction (default: ~6700000)
-      gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
-      timeoutBlocks: 1440,  // # of blocks before a deployment times out  (minimum/default: 50)
+      gasPrice: 100e9,        // 100 gwei (in wei) (default: 100 gwei)
+      timeoutBlocks: 1440,    // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true        // Skip dry run before migrations? (default: false for public nets )
     },
 
     // Useful for deploying to a public network.
@@ -61,7 +69,8 @@ module.exports = {
     ropsten: {
       provider: () => new PrivateKeyProvider(privateKey, 'https://ropsten.infura.io/v3/' + infuraId),
       network_id: 3,       // Ropsten's id
-      gas: 5500000,        // Ropsten has a lower block limit than mainnet
+      gas: 7500000,        // Ropsten has a lower block limit than mainnet
+      gasPrice: 1e9,       // 1 gwei (in wei)
       confirmations: 2,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
@@ -70,8 +79,19 @@ module.exports = {
     rinkeby: {
       provider: () => new PrivateKeyProvider(privateKey, 'https://rinkeby.infura.io/v3/' + infuraId),
       network_id: 4,       // rinkeby's id
-      gas: 5500000,        // rinkeby has a lower block limit than mainnet
+      gas: 7500000,        // rinkeby has a lower block limit than mainnet
+      gasPrice: 1e9,       // 1 gwei (in wei)
       confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
+
+    kovan: {
+      provider: () => new PrivateKeyProvider(privateKey, 'https://kovan.infura.io/v3/' + infuraId),
+      network_id: 42,      // kovan's id
+      gas: 5500000,        // kovan's gas limit
+      gasPrice: 1e9,       // 1 gwei (in wei)
+      confirmations: 0,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
@@ -86,7 +106,7 @@ module.exports = {
 
   // Set default mocha options here, use special reporters etc.
   mocha: {
-    // timeout: 100000
+    timeout: 100000
   },
 
   // Configure your compilers

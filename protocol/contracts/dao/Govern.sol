@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ contract Govern is Setters, Permission, Upgradeable {
     event Vote(address indexed account, address indexed candidate, Candidate.Vote vote, uint256 bonded);
     event Commit(address indexed account, address indexed candidate);
 
-    function vote(address candidate, Candidate.Vote vote) external onlyFrozenOrLocked(msg.sender) {
+    function vote(address candidate, Candidate.Vote vote) external {
         Require.that(
             balanceOf(msg.sender) > 0,
             FILE,

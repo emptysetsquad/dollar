@@ -8,7 +8,7 @@ const MockToken = contract.fromArtifact('MockToken');
 const MockUniswapV2PairLiquidity = contract.fromArtifact('MockUniswapV2PairLiquidity');
 const MockSettableDAO = contract.fromArtifact('MockSettableDAO');
 
-const INITIAL_STAKE_MULTIPLE = new BN(10).pow(new BN(6)); // 100 ESD -> 100M ESDS
+const INITIAL_STAKE_MULTIPLE = new BN(10).pow(new BN(6)); // 100 U8D -> 100M U8DS
 
 const FROZEN = new BN(0);
 const FLUID = new BN(1);
@@ -23,7 +23,7 @@ describe('Pool', function () {
   beforeEach(async function () {
     this.dao = await MockSettableDAO.new({from: ownerAddress, gas: 8000000});
     await this.dao.set(1);
-    this.dollar = await MockToken.new("Empty Set Dollar", "ESD", 18, {from: ownerAddress, gas: 8000000});
+    this.dollar = await MockToken.new("Universal Dollar", "U8D", 18, {from: ownerAddress, gas: 8000000});
     this.usdc = await MockToken.new("USD//C", "USDC", 18, {from: ownerAddress, gas: 8000000});
     this.univ2 = await MockUniswapV2PairLiquidity.new({from: ownerAddress, gas: 8000000});
     this.pool = await MockPool.new(this.usdc.address, {from: ownerAddress, gas: 8000000});
@@ -894,7 +894,7 @@ describe('Pool', function () {
           await incrementEpoch(this.dao);
           await this.dollar.mint(this.pool.address, 1000);
 
-          // 1000 ESD + 3000 USDC
+          // 1000 U8D + 3000 USDC
           await this.univ2.set(1000, 3000, 10);
 
           this.result = await this.pool.provide(1000, {from: userAddress});

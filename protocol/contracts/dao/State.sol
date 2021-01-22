@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import "../token/IDollar.sol";
 import "../oracle/IOracle.sol";
 import "../external/Decimal.sol";
+import "../streaming/Stream.sol";
 
 contract Account {
     enum Status {
-        Frozen,
-        Fluid,
+        Unlocked,
         Locked
     }
 
@@ -34,8 +34,8 @@ contract Account {
         uint256 balance;
         mapping(uint256 => uint256) coupons;
         mapping(address => uint256) couponAllowances;
-        uint256 fluidUntil;
         uint256 lockedUntil;
+        Stream.Stream stream;
     }
 }
 
@@ -75,18 +75,6 @@ contract Candidate {
     }
 }
 
-contract Era {
-    enum Status {
-        EXPANSION,
-        CONTRACTION
-    }
-
-    struct State {
-        Status status;
-        uint256 start;
-    }
-}
-
 contract Storage {
     struct Provider {
         IDollar dollar;
@@ -112,23 +100,8 @@ contract Storage {
         mapping(uint256 => Epoch.State) epochs;
         mapping(address => Candidate.State) candidates;
     }
-
-    struct State16 {
-        mapping(address => mapping(uint256 => uint256)) couponUnderlyingByAccount;
-        uint256 couponUnderlying;
-    }
-
-    struct State18 {
-        Era.State era;
-    }
 }
 
 contract State {
     Storage.State _state;
-
-    // EIP-16
-    Storage.State16 _state16;
-
-    // EIP-18
-    Storage.State18 _state18;
 }

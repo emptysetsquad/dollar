@@ -17,14 +17,12 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "../dao/Market.sol";
-import "./MockState.sol";
-import "./MockComptroller.sol";
-
-contract MockMarket is MockState, MockComptroller, Market {
-    constructor(address pool) MockComptroller(pool) public { }
-
-    function stepE() external {
-        Market.step();
+contract Stream {
+    struct Stream {
+        uint256 reserved;
+        uint256 released;
+        uint64 timestampFrom;
+        uint64 timestampTo;
+        uint64 boostCounter;
     }
 }

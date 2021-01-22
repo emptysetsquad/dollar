@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,22 +23,41 @@ import "../external/Require.sol";
 import "../Constants.sol";
 import "./PoolSetters.sol";
 import "./Liquidity.sol";
+import "./PoolUpgradable.sol";
 
-contract Pool is PoolSetters, Liquidity {
+contract Pool is PoolSetters, Liquidity, PoolUpgradable {
     using SafeMath for uint256;
 
-    constructor() public { }
+    function initialize(address dao, address dollar, address univ2) public {
+        require(!_state.isInitialized, "Pool: already initialized");
+        _state.isInitialized = true;
+
+        _state.provider.dao = IDAO(dao);
+        _state.provider.dollar = IDollar(dollar);
+        _state.provider.univ2 = IERC20(univ2);
+    }
 
     bytes32 private constant FILE = "Pool";
 
     event Deposit(address indexed account, uint256 value);
-    event Withdraw(address indexed account, uint256 value);
-    event Claim(address indexed account, uint256 value);
-    event Bond(address indexed account, uint256 start, uint256 value);
-    event Unbond(address indexed account, uint256 start, uint256 value, uint256 newClaimable);
+    event ReleaseLp(address indexed account, uint256 value);
+    event ReleaseReward(address indexed account, uint256 value);
+    event Bond(address indexed account, uint256 value);
+    event Unbond(address indexed account, uint256 value, uint256 newClaimable);
     event Provide(address indexed account, uint256 value, uint256 lessUsdc, uint256 newUniv2);
 
-    function deposit(uint256 value) external onlyFrozen(msg.sender) notPaused {
+    // Streaming LP
+    event StreamStartLp(address indexed account, uint256 value, uint256 streamedUntil);
+    event StreamCancelLp(address indexed account, uint256 valueToStaged);
+    event StreamBoostLp(address indexed account, uint256 penalty);
+    event UnstreamToStagedLp(address indexed account, uint256 value);
+
+    // Streaming Reward
+    event StreamStartReward(address indexed account, uint256 value, uint256 streamedUntil);
+    event StreamCancelReward(address indexed account, uint256 valueToStaged);
+    event StreamBoostReward(address indexed account, uint256 penalty);
+
+    function deposit(uint256 value) public notPaused {
         univ2().transferFrom(msg.sender, address(this), value);
         incrementBalanceOfStaged(msg.sender, value);
 
@@ -47,26 +66,198 @@ contract Pool is PoolSetters, Liquidity {
         emit Deposit(msg.sender, value);
     }
 
-    function withdraw(uint256 value) external onlyFrozen(msg.sender) {
-        univ2().transfer(msg.sender, value);
+    // ** NEW LOGIC **
+
+    function depositAndBond(uint256 value) external {
+        deposit(value);
+        bond(value);
+    }
+
+    function release() external {
+        releaseLp();
+        releaseReward();
+    }
+
+    /**
+     * Streaming LP
+     */
+
+    function startLpStream(uint256 value) external {
+        require(value > 0, "Pool: must stream non-zero amount");
+
+        cancelLpStream();
         decrementBalanceOfStaged(msg.sender, value, "Pool: insufficient staged balance");
+        setStream(streamLp(msg.sender), value, Constants.getPoolLpExitStreamPeriod());
 
         balanceCheck();
 
-        emit Withdraw(msg.sender, value);
+        emit StreamStartLp(msg.sender, value, streamedLpUntil(msg.sender));
     }
 
-    function claim(uint256 value) external onlyFrozen(msg.sender) {
-        dollar().transfer(msg.sender, value);
+    function cancelLpStream() public {
+        // already canceled or not exist
+        if (streamLpReserved(msg.sender) == 0) {
+            return;
+        }
+
+        releaseLp();
+        uint256 amountToStaged = unreleasedLpAmount(msg.sender);
+        incrementBalanceOfStaged(msg.sender, amountToStaged);
+        resetStream(streamLp(msg.sender));
+
+        balanceCheck();
+
+        emit StreamCancelLp(msg.sender, amountToStaged);
+    }
+
+    function boostLpStream() external returns (uint256) {
+        require(streamLpBoosted(msg.sender) < Constants.getPoolExitMaxBoost(), "Pool: max boost reached");
+
+        releaseLp();
+
+        uint256 unreleasedLp = unreleasedLpAmount(msg.sender);
+        uint256 penaltyLp = Decimal.from(unreleasedLp)
+                                    .mul(Constants.getPoolExitBoostPenalty())
+                                    .asUint256();
+        uint256 timeleft = Decimal.from(streamedLpUntil(msg.sender).sub(blockTimestamp()))
+                                    .div(Constants.getPoolExitBoostCoefficient())
+                                    .asUint256();
+
+        setStream(
+            streamLp(msg.sender),
+            unreleasedLp.sub(penaltyLp),
+            timeleft
+        );
+        incrementBoostCounter(streamLp(msg.sender));
+
+        uint256 penalty = convertLpToDollar(penaltyLp); // remove liquidity and swap to dollar
+        dollar().burn(penalty);
+
+        // distribute penalty if more than one dollar
+        dao().distributePenalty(penalty);
+
+        balanceCheck();
+
+        emit StreamBoostLp(msg.sender, penaltyLp);
+
+        return penaltyLp;
+    }
+
+    function releaseLp() public {
+        uint256 unreleasedLp = releasableLpAmount(msg.sender);
+
+        if (unreleasedLp == 0) {
+            return;
+        }
+
+        incrementReleased(streamLp(msg.sender), unreleasedLp);
+        univ2().transfer(msg.sender, unreleasedLp);
+
+        balanceCheck();
+
+        emit ReleaseLp(msg.sender, unreleasedLp);
+    }
+
+    /**
+     * Streaming Reward
+     */
+
+    function startRewardStream(uint256 value) external {
+        require(value > 0, "Pool: must stream non-zero amount");
+
+        cancelRewardStream();
         decrementBalanceOfClaimable(msg.sender, value, "Pool: insufficient claimable balance");
+        setStream(streamReward(msg.sender), value, Constants.getPoolRewardExitStreamPeriod());
 
         balanceCheck();
 
-        emit Claim(msg.sender, value);
+        emit StreamStartReward(msg.sender, value, streamedRewardUntil(msg.sender));
     }
 
-    function bond(uint256 value) external notPaused {
-        unfreeze(msg.sender);
+    function cancelRewardStream() public {
+        // already canceled or not exist
+        if (streamRewardReserved(msg.sender) == 0) {
+            return;
+        }
+
+        releaseReward();
+        uint256 amountToStaged = unreleasedRewardAmount(msg.sender);
+        incrementBalanceOfClaimable(msg.sender, amountToStaged);
+        resetStream(streamReward(msg.sender));
+
+        balanceCheck();
+
+        emit StreamCancelReward(msg.sender, amountToStaged);
+    }
+
+    function boostRewardStream() external returns (uint256) {
+        require(streamRewardBoosted(msg.sender) < Constants.getPoolExitMaxBoost(), "Pool: max boost reached");
+
+        releaseReward();
+
+        uint256 unreleased = unreleasedRewardAmount(msg.sender);
+        uint256 penalty = Decimal.from(unreleased)
+                                    .mul(Constants.getPoolExitBoostPenalty())
+                                    .asUint256();
+        uint256 timeleft = Decimal.from(streamedRewardUntil(msg.sender).sub(blockTimestamp()))
+                                    .div(Constants.getPoolExitBoostCoefficient())
+                                    .asUint256();
+
+        setStream(
+            streamReward(msg.sender),
+            unreleased.sub(penalty),
+            timeleft
+        );
+        incrementBoostCounter(streamReward(msg.sender));
+
+        dollar().burn(penalty);
+
+        // distribute penalty if more than one dollar
+        dao().distributePenalty(penalty);
+
+        balanceCheck();
+
+        emit StreamBoostReward(msg.sender, penalty);
+
+        return penalty;
+    }
+
+    function releaseReward() public {
+        uint256 unreleasedReward = releasableRewardAmount(msg.sender);
+
+        if (unreleasedReward == 0) {
+            return;
+        }
+
+        incrementReleased(streamReward(msg.sender), unreleasedReward);
+        dollar().transfer(msg.sender, unreleasedReward);
+
+        balanceCheck();
+
+        emit ReleaseReward(msg.sender, unreleasedReward);
+    }
+
+    // ** END NEW LOGIC **
+
+    function bond(uint256 value) public notPaused {
+        // partially unstream LP and bond
+        uint256 staged = balanceOfStaged(msg.sender);
+        if (value > staged) {
+            releaseLp();
+
+            uint256 amountToUnstream = value.sub(staged);
+            uint256 newLpReserved = unreleasedLpAmount(msg.sender).sub(amountToUnstream, "Pool: insufficient balance");
+            if (newLpReserved >= 0) {
+                setStream(
+                    streamLp(msg.sender),
+                    newLpReserved,
+                    streamLpTimeleft(msg.sender)
+                );
+                incrementBalanceOfStaged(msg.sender, amountToUnstream);
+
+                emit UnstreamToStagedLp(msg.sender, amountToUnstream);
+            }
+        }
 
         uint256 totalRewardedWithPhantom = totalRewarded().add(totalPhantom());
         uint256 newPhantom = totalBonded() == 0 ?
@@ -79,12 +270,10 @@ contract Pool is PoolSetters, Liquidity {
 
         balanceCheck();
 
-        emit Bond(msg.sender, epoch().add(1), value);
+        emit Bond(msg.sender, value);
     }
 
     function unbond(uint256 value) external {
-        unfreeze(msg.sender);
-
         uint256 balanceOfBonded = balanceOfBonded(msg.sender);
         Require.that(
             balanceOfBonded > 0,
@@ -102,10 +291,10 @@ contract Pool is PoolSetters, Liquidity {
 
         balanceCheck();
 
-        emit Unbond(msg.sender, epoch().add(1), value, newClaimable);
+        emit Unbond(msg.sender, value, newClaimable);
     }
 
-    function provide(uint256 value) external onlyFrozen(msg.sender) notPaused {
+    function provide(uint256 value) external notPaused {
         Require.that(
             totalBonded() > 0,
             FILE,
@@ -146,22 +335,16 @@ contract Pool is PoolSetters, Liquidity {
         pause();
     }
 
+    function upgrade(address newPoolImplementation) external onlyDao {
+        upgradeTo(newPoolImplementation);
+    }
+
     function balanceCheck() private {
         Require.that(
             univ2().balanceOf(address(this)) >= totalStaged().add(totalBonded()),
             FILE,
             "Inconsistent UNI-V2 balances"
         );
-    }
-
-    modifier onlyFrozen(address account) {
-        Require.that(
-            statusOf(account) == PoolAccount.Status.Frozen,
-            FILE,
-            "Not frozen"
-        );
-
-        _;
     }
 
     modifier onlyDao() {

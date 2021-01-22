@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
+    Copyright 2021 Universal Dollar Devs, based on the works of the Empty Set Squad
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -30,17 +30,17 @@ contract Regulator is Comptroller {
     event SupplyDecrease(uint256 indexed epoch, uint256 price, uint256 newDebt);
     event SupplyNeutral(uint256 indexed epoch);
 
+    event PenaltyDistribute(uint256 indexed epoch, uint256 price, uint256 newRedeemable, uint256 lessDebt, uint256 newBonded);
+
     function step() internal {
         Decimal.D256 memory price = oracleCapture();
 
         if (price.greaterThan(Decimal.one())) {
-            if (eraStatus() == Era.Status.CONTRACTION) updateEra(Era.Status.EXPANSION);
             growSupply(price);
             return;
         }
 
         if (price.lessThan(Decimal.one())) {
-            if (eraStatus() == Era.Status.EXPANSION) updateEra(Era.Status.CONTRACTION);
             shrinkSupply(price);
             return;
         }
@@ -48,8 +48,17 @@ contract Regulator is Comptroller {
         emit SupplyNeutral(epoch());
     }
 
+    function distribute(uint256 amount) internal {
+        Decimal.D256 memory price = oracleCapture();
+        if (price.greaterThan(Decimal.one())) {
+            uint256 lessDebt = resetDebt(Decimal.zero());
+            (uint256 newRedeemable, uint256 newBonded) = increaseSupply(amount);
+            emit PenaltyDistribute(epoch(), price.value, newRedeemable, lessDebt, newBonded);
+        }
+    }
+
     function shrinkSupply(Decimal.D256 memory price) private {
-        Decimal.D256 memory delta = limit(Decimal.one().sub(price), price);
+        Decimal.D256 memory delta = limit(Decimal.one().sub(price).div(Constants.getNegativeSupplyChangeDivisor()), price);
         uint256 newDebt = delta.mul(totalNet()).asUint256();
         uint256 cappedNewDebt = increaseDebt(newDebt);
 
@@ -60,14 +69,13 @@ contract Regulator is Comptroller {
     function growSupply(Decimal.D256 memory price) private {
         uint256 lessDebt = resetDebt(Decimal.zero());
 
-        Decimal.D256 memory delta = limit(price.sub(Decimal.one()), price);
+        Decimal.D256 memory delta = limit(price.sub(Decimal.one()).div(Constants.getSupplyChangeDivisor()), price);
         uint256 newSupply = delta.mul(totalNet()).asUint256();
         (uint256 newRedeemable, uint256 newBonded) = increaseSupply(newSupply);
         emit SupplyIncrease(epoch(), price.value, newRedeemable, lessDebt, newBonded);
     }
 
     function limit(Decimal.D256 memory delta, Decimal.D256 memory price) private view returns (Decimal.D256 memory) {
-
         Decimal.D256 memory supplyChangeLimit = Constants.getSupplyChangeLimit();
         
         uint256 totalRedeemable = totalRedeemable();
@@ -77,7 +85,6 @@ contract Regulator is Comptroller {
         }
 
         return delta.greaterThan(supplyChangeLimit) ? supplyChangeLimit : delta;
-
     }
 
     function oracleCapture() private returns (Decimal.D256 memory) {
