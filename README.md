@@ -19,12 +19,14 @@
 
 ## audit
 
-is available [here](audit/REP-Dollar-06-11-20.pdf).
+audit of ESD is available [here](audit/REP-Dollar-06-11-20.pdf).
+<br>our audit will be available till the end of January 2021
 
 ## u8d links
 
 - [Website](https://u8d.finance)
 - [Github](https://github.com/8quad)
+- [Medium](https://8quad.medium.com/)
 - [Twitter](https://twitter.com/u_8_d)
 - [Telegram](https://t.me/UniversalDollar)
 - [Discord](https://discord.gg/3uTPBqkyvc)
@@ -49,4 +51,4 @@ limitations under the License.
 ```
 
 <br>
-made with 💔️ by the {ess}.
+made with passion by the 8quad.
