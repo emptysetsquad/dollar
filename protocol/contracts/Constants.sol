@@ -54,7 +54,7 @@ library Constants {
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 12; // 12 epochs
 
     /* DAO */
-    uint256 private constant ADVANCE_INCENTIVE = 50e18; // 50 U8D
+    uint256 private constant ADVANCE_INCENTIVE = 25e18; // 25 U8D
     uint256 private constant DAO_EXIT_STREAM_PERIOD = 72 hours; // 3 days of DAO streaming
 
     uint256 private constant DAO_EXIT_MAX_BOOST = uint256(-1);  // infinity - without max boost

@@ -31,12 +31,17 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
-        // initial liquidity for uniswap pool:
-        mintToAccount(0x77FBF866BdFE6a73E1F2D8DF9F09D480a027331A, 10000e18);
     }
 
     function advance() external {
-        incentivize(msg.sender, Constants.getAdvanceIncentive());
+        if (bootstrappingAt(epoch())) {
+            uint256 bootstrappingIncentive = Constants.getAdvanceIncentive().mul(2); // with x2 bonus (50 U8D)
+            uint256 senderIncentive = bootstrappingIncentive.div(10);
+            incentivize(msg.sender, senderIncentive); // 5 U8D to sender
+            increaseSupply(bootstrappingIncentive.sub(senderIncentive)); // 45 U8D to DAO and LP Pool
+        } else {
+            incentivize(msg.sender, Constants.getAdvanceIncentive());
+        }
 
         Bonding.step();
         Regulator.step();
