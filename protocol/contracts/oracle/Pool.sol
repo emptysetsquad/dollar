@@ -269,7 +269,7 @@ contract Pool is PoolSetters, Liquidity, PoolUpgradable {
 
             uint256 amountToUnstream = value.sub(staged);
             uint256 newLpReserved = unreleasedLpAmount(msg.sender).sub(amountToUnstream, "Pool: insufficient balance");
-            if (newLpReserved >= 0) {
+            if (newLpReserved > 0) {
                 setStream(
                     streamLp(msg.sender),
                     newLpReserved,
