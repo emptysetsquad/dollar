@@ -166,7 +166,10 @@ contract Pool is PoolSetters, Liquidity, PoolUpgradable {
         require(value > 0, "Pool: must stream non-zero amount");
 
         cancelRewardStream();
+
         decrementBalanceOfClaimable(msg.sender, value, "Pool: insufficient claimable balance");
+        incrementTotalRewardStreamable(value);
+
         setStream(streamReward(msg.sender), value, Constants.getPoolRewardExitStreamPeriod());
 
         balanceCheck();
@@ -181,13 +184,20 @@ contract Pool is PoolSetters, Liquidity, PoolUpgradable {
         }
 
         releaseReward();
-        uint256 amountToStaged = unreleasedRewardAmount(msg.sender);
-        incrementBalanceOfClaimable(msg.sender, amountToStaged);
+
+        uint256 amountToClaimable = unreleasedRewardAmount(msg.sender);
+
+        // UIP-3 fix
+        if (streamedRewardFrom(msg.sender) >= upgradeTimestamp()) {
+            decrementTotalRewardStreamable(amountToClaimable, "Pool: insufficient total streamable reward");
+        }
+
+        incrementBalanceOfClaimable(msg.sender, amountToClaimable);
         resetStream(streamReward(msg.sender));
 
         balanceCheck();
 
-        emit StreamCancelReward(msg.sender, amountToStaged);
+        emit StreamCancelReward(msg.sender, amountToClaimable);
     }
 
     function boostRewardStream() external returns (uint256) {
@@ -202,6 +212,13 @@ contract Pool is PoolSetters, Liquidity, PoolUpgradable {
         uint256 timeleft = Decimal.from(streamedRewardUntil(msg.sender).sub(blockTimestamp()))
                                     .div(Constants.getPoolExitBoostCoefficient())
                                     .asUint256();
+
+        // UIP-3 fix
+        if (streamedRewardFrom(msg.sender) >= upgradeTimestamp()) {
+            decrementTotalRewardStreamable(penalty, "Pool: insufficient total streamable reward");
+        } else {
+            incrementTotalRewardStreamable(unreleased.sub(penalty));
+        }
 
         setStream(
             streamReward(msg.sender),
@@ -227,6 +244,11 @@ contract Pool is PoolSetters, Liquidity, PoolUpgradable {
 
         if (unreleasedReward == 0) {
             return;
+        }
+
+        // UIP-3 fix
+        if (streamedRewardFrom(msg.sender) >= upgradeTimestamp()) {
+            decrementTotalRewardStreamable(unreleasedReward, "Pool: insufficient total streamable reward");
         }
 
         incrementReleased(streamReward(msg.sender), unreleasedReward);
@@ -337,6 +359,11 @@ contract Pool is PoolSetters, Liquidity, PoolUpgradable {
 
     function upgrade(address newPoolImplementation) external onlyDao {
         upgradeTo(newPoolImplementation);
+    }
+
+    // UIP-3 fix
+    function initAfterUpgrade() external onlyDao {
+        setUpgradeTimestamp();
     }
 
     function balanceCheck() private {

@@ -33,6 +33,18 @@ contract PoolSetters is PoolState, PoolGetters, StreamingSetters {
         _state.paused = true;
     }
 
+    function setUpgradeTimestamp() internal {
+        _upgradeTimestamp = blockTimestamp();
+    }
+
+    function incrementTotalRewardStreamable(uint256 amount) internal {
+        _totalRewardStreamable = _totalRewardStreamable.add(amount);
+    }
+
+    function decrementTotalRewardStreamable(uint256 amount, string memory reason) internal {
+        _totalRewardStreamable = _totalRewardStreamable.sub(amount, reason);
+    }
+
     /**
      * Account
      */

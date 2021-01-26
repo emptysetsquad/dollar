@@ -62,12 +62,21 @@ contract PoolGetters is PoolState, StreamingGetters {
         return _state.balance.phantom;
     }
 
+    function totalRewardStreamable() public view returns (uint256) {
+        return _totalRewardStreamable;
+    }
+
     function totalRewarded() public view returns (uint256) {
-        return dollar().balanceOf(address(this)).sub(totalClaimable());
+        return dollar().balanceOf(address(this)).sub(totalClaimable()).sub(totalRewardStreamable());
     }
 
     function paused() public view returns (bool) {
         return _state.paused;
+    }
+
+    // internal getter
+    function upgradeTimestamp() internal view returns (uint256) {
+        return _upgradeTimestamp;
     }
 
     /**

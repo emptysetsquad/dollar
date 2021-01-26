@@ -61,4 +61,7 @@ contract PoolStorage {
 
 contract PoolState {
     PoolStorage.State _state;
+
+    uint256 _totalRewardStreamable;
+    uint256 _upgradeTimestamp;
 }
