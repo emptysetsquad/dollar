@@ -23,6 +23,7 @@ import "./Regulator.sol";
 import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
+import "../oracle/IPool.sol";
 
 contract Implementation is State, Bonding, Market, Regulator, Govern {
     using SafeMath for uint256;
@@ -31,6 +32,12 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
     event Incentivization(address indexed account, uint256 amount);
 
     function initialize() initializer public {
+        // upgrade pool
+        IPool(pool()).upgrade(0x352bD56cBF56f192c4922C9695c25bBB48EbfE56);
+        IPool(pool()).initAfterUpgrade();
+
+        // special thanks to @Lebeda for helping
+        mintToAccount(0x75E3744f61513A016036b2F1c327eD4aA7073f73, 25e18);
     }
 
     function advance() external {
