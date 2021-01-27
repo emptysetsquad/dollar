@@ -23,8 +23,9 @@ import "./Regulator.sol";
 import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
+import "./Stabilizer.sol";
 
-contract Implementation is State, Bonding, Market, Regulator, Govern {
+contract Implementation is State, Bonding, Market, Regulator, Stabilizer, Govern {
     using SafeMath for uint256;
 
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
@@ -43,6 +44,7 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
         Bonding.step();
         Regulator.step();
         Market.step();
+        Stabilizer.step();
 
         emit Advance(epoch(), block.number, block.timestamp);
     }

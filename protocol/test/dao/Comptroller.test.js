@@ -370,4 +370,32 @@ describe('Comptroller', function () {
       });
     });
   });
+
+  describe('stabilityReward', function () {
+    describe('no bonded', function () {
+      beforeEach(async function () {
+        await this.comptroller.stabilityRewardE(new BN(100));
+      });
+
+      it('doesnt mint Dollar tokens', async function () {
+        expect(await this.comptroller.totalBonded()).to.be.bignumber.equal(new BN(0));
+        expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(0));
+        expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(0));
+      });
+    });
+
+    describe('no bonded', function () {
+      beforeEach(async function () {
+        await this.comptroller.mintToE(this.comptroller.address, new BN(1000));
+        await this.comptroller.incrementTotalBondedE(new BN(1000));
+        await this.comptroller.stabilityRewardE(new BN(100));
+      });
+
+      it('mints Dollar tokens', async function () {
+        expect(await this.comptroller.totalBonded()).to.be.bignumber.equal(new BN(1100));
+        expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(1100));
+        expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(1100));
+      });
+    });
+  });
 });

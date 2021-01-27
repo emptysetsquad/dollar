@@ -99,16 +99,19 @@ contract Comptroller is Setters {
         }
 
         // 2. Payout to DAO
-        if (totalBonded() == 0) {
-            newSupply = 0;
-        }
-        if (newSupply > 0) {
-            mintToDAO(newSupply);
-        }
+        bool canMintDAO = mintToDAO(newSupply);
 
         balanceCheck();
 
-        return (newRedeemable, newSupply.add(rewards));
+        return (newRedeemable, (canMintDAO ? newSupply : 0).add(rewards));
+    }
+
+    function stabilityReward(uint256 amount) internal returns (uint256) {
+        bool canMint = mintToDAO(amount);
+
+        balanceCheck();
+
+        return canMint ? amount : 0;
     }
 
     function resetDebt(Decimal.D256 memory targetDebtRatio) internal returns (uint256) {
@@ -133,8 +136,9 @@ contract Comptroller is Setters {
         );
     }
 
-    function mintToDAO(uint256 amount) private {
-        if (amount > 0) {
+    function mintToDAO(uint256 amount) private returns (bool canMint) {
+        canMint = totalBonded() != 0;
+        if (amount > 0 && canMint) {
             dollar().mint(address(this), amount);
             incrementTotalBonded(amount);
         }
