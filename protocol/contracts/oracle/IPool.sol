@@ -18,5 +18,4 @@ pragma solidity ^0.5.17;
 
 contract IPool {
     function upgrade(address newPoolImplementation) external;
-    function initAfterUpgrade() external;
 }

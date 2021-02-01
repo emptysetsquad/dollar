@@ -28,7 +28,8 @@ contract MockRegulator is MockComptroller, Regulator {
     }
 
     function stepE() external {
-        super.step();
+        Decimal.D256 memory price = oracleCapture();
+        super.step(price);
     }
 
     function bootstrappingAt(uint256 epoch) public view returns (bool) {

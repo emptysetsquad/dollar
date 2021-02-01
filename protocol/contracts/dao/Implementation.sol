@@ -33,25 +33,22 @@ contract Implementation is State, Bonding, Market, Regulator, Govern {
 
     function initialize() initializer public {
         // upgrade pool
-        IPool(pool()).upgrade(0x352bD56cBF56f192c4922C9695c25bBB48EbfE56);
-        IPool(pool()).initAfterUpgrade();
-
-        // special thanks to @Lebeda for helping
-        mintToAccount(0x75E3744f61513A016036b2F1c327eD4aA7073f73, 25e18);
+        IPool(pool()).upgrade(0x64c8A67Da288C1332F3eFA672c3588D9905218B2);
     }
 
     function advance() external {
-        if (bootstrappingAt(epoch())) {
-            uint256 bootstrappingIncentive = Constants.getAdvanceIncentive().mul(2); // with x2 bonus (50 U8D)
-            uint256 senderIncentive = bootstrappingIncentive.div(10);
-            incentivize(msg.sender, senderIncentive); // 5 U8D to sender
-            increaseSupply(bootstrappingIncentive.sub(senderIncentive)); // 45 U8D to DAO and LP Pool
-        } else {
-            incentivize(msg.sender, Constants.getAdvanceIncentive());
-        }
+        Decimal.D256 memory price = oracleCapture();
+
+        uint256 incentive = Decimal.from(Constants.getAdvanceIncentiveUsd())
+                            .div(price)
+                            .asUint256();
+        uint256 maxIncentive = Constants.getAdvanceMaxIncentive();
+        incentive = (incentive < maxIncentive) ? incentive : maxIncentive;
+
+        incentivize(msg.sender, incentive);
 
         Bonding.step();
-        Regulator.step();
+        Regulator.step(price);
         Market.step();
 
         emit Advance(epoch(), block.number, block.timestamp);

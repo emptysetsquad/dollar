@@ -46,7 +46,7 @@ library Constants {
     uint256 private constant EPOCH_PERIOD = 1 hours;
 
     /* Governance */
-    uint256 private constant GOVERNANCE_PERIOD = 48; // 48 epochs
+    uint256 private constant GOVERNANCE_PERIOD = 24; // 24 epochs
     uint256 private constant GOVERNANCE_EXPIRATION = 16; // 16 + 1 epochs
     uint256 private constant GOVERNANCE_QUORUM = 20e16; // 20%
     uint256 private constant GOVERNANCE_PROPOSAL_THRESHOLD = 1e16; // 1%
@@ -54,16 +54,17 @@ library Constants {
     uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 12; // 12 epochs
 
     /* DAO */
-    uint256 private constant ADVANCE_INCENTIVE = 25e18; // 25 U8D
-    uint256 private constant DAO_EXIT_STREAM_PERIOD = 72 hours; // 3 days of DAO streaming
+    uint256 private constant ADVANCE_INCENTIVE_USD = 70e18; // 70 USD
+    uint256 private constant ADVANCE_MAX_INCENTIVE = 200e18; // 200 U8D
+    uint256 private constant DAO_EXIT_STREAM_PERIOD = 120 hours; // 5 days of DAO streaming
 
     uint256 private constant DAO_EXIT_MAX_BOOST = uint256(-1);  // infinity - without max boost
     uint256 private constant DAO_EXIT_BOOST_COEFFICIENT = 200e16; // 200% (x2) – DAO boosting coefficient for fast streaming
     uint256 private constant DAO_EXIT_BOOST_PENALTY = 25e16; // 25% – penalty for DAO stream boosting
 
     /* Pool */
-    uint256 private constant POOL_LP_EXIT_STREAM_PERIOD = 36 hours; // 1.5 days of Pool LP streaming
-    uint256 private constant POOL_REWARD_EXIT_STREAM_PERIOD = 36 hours; // 1.5 days of Pool Reward streaming
+    uint256 private constant POOL_LP_EXIT_STREAM_PERIOD = 72 hours; // 3 days of Pool LP streaming
+    uint256 private constant POOL_REWARD_EXIT_STREAM_PERIOD = 72 hours; // 3 days of Pool Reward streaming
 
     uint256 private constant POOL_EXIT_MAX_BOOST = uint256(-1);  // infinity - without max boost
     uint256 private constant POOL_EXIT_BOOST_COEFFICIENT = 200e16; // 200% (x2) – Pool boosting coefficient for fast streaming
@@ -75,7 +76,7 @@ library Constants {
 
     /* Regulator */
     uint256 private constant SUPPLY_CHANGE_LIMIT = 3e16; // 3%
-    uint256 private constant SUPPLY_CHANGE_DIVISOR = 24e18; // 24
+    uint256 private constant SUPPLY_CHANGE_DIVISOR = 48e18; // 48
     uint256 private constant COUPON_SUPPLY_CHANGE_LIMIT = 6e16; // 6%
     uint256 private constant NEGATIVE_SUPPLY_CHANGE_DIVISOR = 12e18; // 12
     uint256 private constant ORACLE_POOL_RATIO = 30; // 30%
@@ -140,8 +141,12 @@ library Constants {
         return GOVERNANCE_EMERGENCY_DELAY;
     }
 
-    function getAdvanceIncentive() internal pure returns (uint256) {
-        return ADVANCE_INCENTIVE;
+    function getAdvanceIncentiveUsd() internal pure returns (uint256) {
+        return ADVANCE_INCENTIVE_USD;
+    }
+
+    function getAdvanceMaxIncentive() internal pure returns (uint256) {
+        return ADVANCE_MAX_INCENTIVE;
     }
 
     /* DAO */
