@@ -361,11 +361,6 @@ contract Pool is PoolSetters, Liquidity, PoolUpgradable {
         upgradeTo(newPoolImplementation);
     }
 
-    // UIP-3 fix
-    function initAfterUpgrade() external onlyDao {
-        setUpgradeTimestamp();
-    }
-
     function balanceCheck() private {
         Require.that(
             univ2().balanceOf(address(this)) >= totalStaged().add(totalBonded()),

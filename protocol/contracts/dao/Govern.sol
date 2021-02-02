@@ -49,15 +49,8 @@ contract Govern is Setters, Permission, Upgradeable {
                 "Not enough stake to propose"
             );
 
-            uint256 governancePeriod = Constants.getGovernancePeriod();
-
-            // bootstrapping governance period is 8 times shorter (6 epochs)
-            if (bootstrappingAt(epoch())) {
-                governancePeriod = governancePeriod.div(8);
-            }
-
-            createCandidate(candidate, governancePeriod);
-            emit Proposal(candidate, msg.sender, epoch(), governancePeriod);
+            createCandidate(candidate, Constants.getGovernancePeriod());
+            emit Proposal(candidate, msg.sender, epoch(), Constants.getGovernancePeriod());
         }
 
         Require.that(
