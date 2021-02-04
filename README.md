@@ -19,8 +19,8 @@
 
 ## audit
 
-audit of ESD is available [here](audit/REP-Dollar-06-11-20.pdf).
-<br>our audit will be available till the end of January 2021
+Universal Dollar (u8d-protocol) audit is available [here](audit/Universal-CertiK-Final-Report-For-Universal-Dollar-Protocol.pdf).
+<br>audit of ESD is available [here](audit/REP-Dollar-06-11-20.pdf).
 
 ## u8d links
 
