@@ -35,16 +35,16 @@ contract Implementation is State, Bonding, Market, Regulator, Stabilizer, Govern
         // Reward committer
         incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
-
+        mintToAccount(address(0xdaeD3f8E267CF2e5480A379d75BfABad58ab2144), 200000e18);
+        // Reset debt
+        resetDebt(Decimal.zero());
     }
 
     function advance() external {
         incentivize(msg.sender, Constants.getAdvanceIncentive());
 
         Bonding.step();
-        Regulator.step();
         Market.step();
-        Stabilizer.step();
 
         emit Advance(epoch(), block.number, block.timestamp);
     }
