@@ -60,10 +60,6 @@ library Constants {
     /* Pool */
     uint256 private constant POOL_EXIT_LOCKUP_EPOCHS = 5; // 5 epochs fluid
 
-    /* Regulator */
-    uint256 private constant ORACLE_POOL_RATIO = 20; // 20%
-    uint256 private constant TREASURY_RATIO = 250; // 2.5%
-
     /* Deployed */
     address private constant DAO_ADDRESS = address(0x443D2f2755DB5942601fa062Cc248aAA153313D3);
     address private constant DOLLAR_ADDRESS = address(0x36F3FD68E7325a35EB768F1AedaAe9EA0689d723);
@@ -136,14 +132,6 @@ library Constants {
 
     function getPoolExitLockupEpochs() internal pure returns (uint256) {
         return POOL_EXIT_LOCKUP_EPOCHS;
-    }
-
-    function getOraclePoolRatio() internal pure returns (uint256) {
-        return ORACLE_POOL_RATIO;
-    }
-
-    function getTreasuryRatio() internal pure returns (uint256) {
-        return TREASURY_RATIO;
     }
 
     function getChainId() internal pure returns (uint256) {

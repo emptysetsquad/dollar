@@ -31,35 +31,33 @@ contract MockState is Setters {
      */
 
     function incrementTotalBondedE(uint256 amount) external {
-        super.incrementTotalBonded(amount);
+        _state.balance.bonded = _state.balance.bonded.add(amount);
     }
 
     function decrementTotalBondedE(uint256 amount, string calldata reason) external {
-        super.decrementTotalBonded(amount, reason);
+        _state.balance.bonded = _state.balance.bonded.sub(amount, reason);
     }
-
-    function incrementTotalRedeemableE(uint256 amount) external {
-        super.incrementTotalRedeemable(amount);
-    }
-
-    function decrementTotalRedeemableE(uint256 amount, string calldata reason) external {
-        super.decrementTotalRedeemable(amount, reason);
-    }
-
     /**
      * Account
      */
 
     function incrementBalanceOfE(address account, uint256 amount) external {
-        super.incrementBalanceOf(account, amount);
+        _state.accounts[account].balance = _state.accounts[account].balance.add(amount);
+        _state.balance.supply = _state.balance.supply.add(amount);
+
+        emit Transfer(address(0), account, amount);
     }
 
     function decrementBalanceOfE(address account, uint256 amount, string calldata reason) external {
-        super.decrementBalanceOf(account, amount, reason);
+        _state.accounts[account].balance = _state.accounts[account].balance.sub(amount, reason);
+        _state.balance.supply = _state.balance.supply.sub(amount, reason);
+
+        emit Transfer(account, address(0), amount);
     }
 
     function incrementBalanceOfStagedE(address account, uint256 amount) external {
-        super.incrementBalanceOfStaged(account, amount);
+        _state.accounts[account].staged = _state.accounts[account].staged.add(amount);
+        _state.balance.staged = _state.balance.staged.add(amount);
     }
 
     function decrementBalanceOfStagedE(address account, uint256 amount, string calldata reason) external {
@@ -75,7 +73,7 @@ contract MockState is Setters {
     }
 
     function unfreezeE(address account) external {
-        super.unfreeze(account);
+        _state.accounts[account].fluidUntil = epoch().add(1);
     }
 
     function updateAllowanceCouponsE(address owner, address spender, uint256 amount) external {

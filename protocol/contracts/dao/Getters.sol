@@ -79,32 +79,12 @@ contract Getters is State {
         return _state.balance.staged;
     }
 
-    function totalDebt() public view returns (uint256) {
-        return _state.balance.debt;
-    }
-
-    function totalRedeemable() public view returns (uint256) {
-        return _state.balance.redeemable;
-    }
-
     function totalCouponUnderlying() public view returns (uint256) {
         return _state16.couponUnderlying;
     }
 
-    function totalCoupons() public view returns (uint256) {
-        return 0;
-    }
-
     function totalNet() public view returns (uint256) {
         return dollar().totalSupply().sub(totalDebt());
-    }
-
-    function eraStatus() public view returns (Era.Status) {
-        return _state18.era.status;
-    }
-
-    function eraStart() public view returns (uint256) {
-        return _state18.era.start;
     }
 
     /**
@@ -121,10 +101,6 @@ contract Getters is State {
             return 0;
         }
         return totalBonded().mul(balanceOf(account)).div(totalSupply);
-    }
-
-    function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
-        return 0;
     }
 
     function balanceOfCouponUnderlying(address account, uint256 epoch) public view returns (uint256) {
@@ -178,10 +154,6 @@ contract Getters is State {
     // Overridable for testing
     function blockTimestamp() internal view returns (uint256) {
         return block.timestamp;
-    }
-
-    function outstandingCoupons(uint256 epoch) public view returns (uint256) {
-        return 0;
     }
 
     function couponsExpiration(uint256 epoch) public view returns (uint256) {
@@ -241,5 +213,44 @@ contract Getters is State {
         assembly {
             impl := sload(slot)
         }
+    }
+
+    /*
+     * DEPRECATED
+     */
+    function totalCoupons() public view returns (uint256) {
+        return 0;
+    }
+
+    function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
+        return 0;
+    }
+
+    function outstandingCoupons(uint256 epoch) public view returns (uint256) {
+        return 0;
+    }
+
+    function bootstrappingAt(uint256 epoch) public view returns (bool) {
+        return false;
+    }
+
+    function eraStatus() public view returns (Era.Status) {
+        return Era.Status.CONTRACTION;
+    }
+
+    function eraStart() public view returns (uint256) {
+        return 0;
+    }
+
+    function couponPremium(uint256 amount) public view returns (uint256) {
+        return 0;
+    }
+
+    function totalDebt() public view returns (uint256) {
+        return 0;
+    }
+
+    function totalRedeemable() public view returns (uint256) {
+        return 0;
     }
 }
