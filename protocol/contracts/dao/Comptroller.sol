@@ -32,42 +32,12 @@ contract Comptroller is Setters {
         balanceCheck();
     }
 
-    function burnFromAccount(address account, uint256 amount) internal {
-        dollar().transferFrom(account, address(this), amount);
-        dollar().burn(amount);
-        decrementTotalDebt(amount, "Comptroller: not enough outstanding debt");
-
-        balanceCheck();
-    }
-
     function redeemToAccount(address account, uint256 amount, uint256 couponAmount) internal {
         dollar().mint(account, amount);
         if (couponAmount != 0) {
             dollar().transfer(account, couponAmount);
             decrementTotalRedeemable(couponAmount, "Comptroller: not enough redeemable balance");
         }
-
-        balanceCheck();
-    }
-
-    function burnRedeemable(uint256 amount) internal {
-        dollar().burn(amount);
-        decrementTotalRedeemable(amount, "Comptroller: not enough redeemable balance");
-
-        balanceCheck();
-    }
-
-    function increaseDebt(uint256 amount) internal returns (uint256) {
-        incrementTotalDebt(amount);
-        uint256 lessDebt = resetDebt(Constants.getDebtRatioCap());
-
-        balanceCheck();
-
-        return lessDebt > amount ? 0 : amount.sub(lessDebt);
-    }
-
-    function decreaseDebt(uint256 amount) internal {
-        decrementTotalDebt(amount, "Comptroller: not enough debt");
 
         balanceCheck();
     }
@@ -101,28 +71,6 @@ contract Comptroller is Setters {
         balanceCheck();
 
         return (newRedeemable, (canMintDAO ? newSupply : 0).add(rewards));
-    }
-
-    function stabilityReward(uint256 amount) internal returns (uint256) {
-        bool canMint = mintToDAO(amount);
-
-        balanceCheck();
-
-        return canMint ? amount : 0;
-    }
-
-    function resetDebt(Decimal.D256 memory targetDebtRatio) internal returns (uint256) {
-        uint256 targetDebt = targetDebtRatio.mul(dollar().totalSupply()).asUint256();
-        uint256 currentDebt = totalDebt();
-
-        if (currentDebt > targetDebt) {
-            uint256 lessDebt = currentDebt.sub(targetDebt);
-            decreaseDebt(lessDebt);
-
-            return lessDebt;
-        }
-
-        return 0;
     }
 
     function balanceCheck() private {

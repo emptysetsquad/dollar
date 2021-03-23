@@ -54,14 +54,6 @@ contract Setters is State, Getters {
         _state.balance.bonded = _state.balance.bonded.sub(amount, reason);
     }
 
-    function incrementTotalDebt(uint256 amount) internal {
-        _state.balance.debt = _state.balance.debt.add(amount);
-    }
-
-    function decrementTotalDebt(uint256 amount, string memory reason) internal {
-        _state.balance.debt = _state.balance.debt.sub(amount, reason);
-    }
-
     function incrementTotalRedeemable(uint256 amount) internal {
         _state.balance.redeemable = _state.balance.redeemable.add(amount);
     }
@@ -148,20 +140,6 @@ contract Setters is State, Getters {
 
     function snapshotTotalBonded() internal {
         _state.epochs[epoch()].bonded = totalSupply();
-    }
-
-    function initializeCouponsExpiration(uint256 epoch, uint256 expiration) internal {
-        _state.epochs[epoch].coupons.expiration = expiration;
-        _state.epochs[expiration].coupons.expiring.push(epoch);
-    }
-
-    function eliminateOutstandingCoupons(uint256 epoch) internal {
-        uint256 outstandingCouponsForEpoch = outstandingCoupons(epoch);
-        if(outstandingCouponsForEpoch == 0) {
-            return;
-        }
-        _state.balance.coupons = _state.balance.coupons.sub(outstandingCouponsForEpoch);
-        _state.epochs[epoch].coupons.outstanding = 0;
     }
 
     /**

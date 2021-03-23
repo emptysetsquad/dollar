@@ -38,14 +38,6 @@ contract MockState is Setters {
         super.decrementTotalBonded(amount, reason);
     }
 
-    function incrementTotalDebtE(uint256 amount) external {
-        super.incrementTotalDebt(amount);
-    }
-
-    function decrementTotalDebtE(uint256 amount, string calldata reason) external {
-        super.decrementTotalDebt(amount, reason);
-    }
-
     function incrementTotalRedeemableE(uint256 amount) external {
         super.incrementTotalRedeemable(amount);
     }
@@ -121,14 +113,6 @@ contract MockState is Setters {
 
     function snapshotTotalBondedE() external {
         super.snapshotTotalBonded();
-    }
-
-    function initializeCouponsExpirationE(uint256 epoch, uint256 expiration) external {
-        super.initializeCouponsExpiration(epoch, expiration);
-    }
-
-    function eliminateOutstandingCouponsE(uint256 epoch) external {
-       super.eliminateOutstandingCoupons(epoch);
     }
 
     /**

@@ -203,10 +203,6 @@ contract Getters is State {
         return _state.epochs[epoch].bonded;
     }
 
-    function bootstrappingAt(uint256 epoch) public view returns (bool) {
-        return epoch <= Constants.getBootstrappingPeriod();
-    }
-
     /**
      * Governance
      */

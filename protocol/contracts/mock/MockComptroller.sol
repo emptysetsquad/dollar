@@ -31,36 +31,17 @@ contract MockComptroller is Comptroller, MockState {
         super.mintToAccount(account, amount);
     }
 
-    function burnFromAccountE(address account, uint256 amount) external {
-        super.burnFromAccount(account, amount);
-    }
-
     function redeemToAccountE(address account, uint256 amount, uint256 couponAmount) external {
         super.redeemToAccount(account, amount, couponAmount);
-    }
-
-    function burnRedeemableE(uint256 amount) external {
-        super.burnRedeemable(amount);
-    }
-
-    function increaseDebtE(uint256 amount) external {
-        super.increaseDebt(amount);
-    }
-
-    function decreaseDebtE(uint256 amount) external {
-        super.decreaseDebt(amount);
-    }
-
-    function resetDebtE(uint256 percent) external {
-        super.resetDebt(Decimal.ratio(percent, 100));
-    }
-
-    function stabilityRewardE(uint256 amount) external {
-        super.stabilityReward(amount);
     }
 
     /* For testing only */
     function mintToE(address account, uint256 amount) external {
         dollar().mint(account, amount);
+    }
+
+    /* For testing only */
+    function burnFromE(address account, uint256 amount) external {
+        dollar().burnFrom(account, amount);
     }
 }

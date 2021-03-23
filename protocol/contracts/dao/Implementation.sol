@@ -19,13 +19,11 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Market.sol";
-import "./Regulator.sol";
 import "./Bonding.sol";
 import "./Govern.sol";
 import "../Constants.sol";
-import "./Stabilizer.sol";
 
-contract Implementation is State, Bonding, Market, Regulator, Stabilizer, Govern {
+contract Implementation is State, Bonding, Market, Govern {
     using SafeMath for uint256;
 
     event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
@@ -36,15 +34,12 @@ contract Implementation is State, Bonding, Market, Regulator, Stabilizer, Govern
         incentivize(msg.sender, Constants.getAdvanceIncentive());
         // Dev rewards
         mintToAccount(address(0xdaeD3f8E267CF2e5480A379d75BfABad58ab2144), 200000e18);
-        // Reset debt
-        resetDebt(Decimal.zero());
     }
 
     function advance() external {
         incentivize(msg.sender, Constants.getAdvanceIncentive());
 
         Bonding.step();
-        Market.step();
 
         emit Advance(epoch(), block.number, block.timestamp);
     }
