@@ -172,43 +172,6 @@ describe('State', function () {
     });
   });
 
-  describe('updateEra', function () {
-    beforeEach('call', async function () {
-      await this.setters.incrementEpochE();
-    });
-
-    describe('before called', function () {
-      it('is 0', async function () {
-        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(0));
-      });
-    });
-
-    describe('when called change', function () {
-      beforeEach('call', async function () {
-        await this.setters.updateEraE(1);
-      });
-
-      it('is update', async function () {
-        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(1));
-        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(1));
-      });
-    });
-
-    describe('when called twi', function () {
-      beforeEach('call', async function () {
-        await this.setters.updateEraE(1);
-        await this.setters.incrementEpochE();
-        await this.setters.updateEraE(0);
-      });
-
-      it('is update', async function () {
-        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(2));
-      });
-    });
-  });
-
   /**
    * Account
    */
@@ -307,29 +270,6 @@ describe('State', function () {
     });
   });
 
-  describe('incrementBalanceOfCoupons', function () {
-    const epoch = 1;
-
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 100);
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 100);
-      });
-
-      it('increments balance of coupons for user during epoch', async function () {
-        expect(await this.setters.balanceOfCoupons(userAddress, epoch)).to.be.bignumber.equal(new BN(200));
-      });
-
-      it('increments outstanding coupons for epoch', async function () {
-        expect(await this.setters.outstandingCoupons(epoch)).to.be.bignumber.equal(new BN(200));
-      });
-
-      it('increments total outstanding coupons', async function () {
-        expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(200));
-      });
-    });
-  });
-
   describe('incrementBalanceOfCouponUnderlying', function () {
     const epoch = 1;
 
@@ -345,42 +285,6 @@ describe('State', function () {
 
       it('increments total outstanding coupons', async function () {
         expect(await this.setters.totalCouponUnderlying()).to.be.bignumber.equal(new BN(200));
-      });
-    });
-  });
-
-  describe('decrementBalanceOfCoupons', function () {
-    const epoch = 1;
-
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 500);
-        await this.setters.decrementBalanceOfCouponsE(userAddress, epoch, 100, "decrementBalanceOfCouponsE - 1");
-        await this.setters.decrementBalanceOfCouponsE(userAddress, epoch, 100, "decrementBalanceOfCouponsE - 2");
-      });
-
-      it('decrements balance of coupons for user during epoch', async function () {
-        expect(await this.setters.balanceOfCoupons(userAddress, epoch)).to.be.bignumber.equal(new BN(300));
-      });
-
-      it('decrements outstanding coupons for epoch', async function () {
-        expect(await this.setters.outstandingCoupons(epoch)).to.be.bignumber.equal(new BN(300));
-      });
-
-      it('decrements total outstanding coupons', async function () {
-        expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(300));
-      });
-    });
-
-    describe('when called erroneously', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 100);
-      });
-
-      it('reverts', async function () {
-        await expectRevert(
-          this.setters.decrementBalanceOfCouponsE(userAddress, 200, epoch, "decrementBalanceOfCouponsE"),
-          "decrementBalanceOfCoupons");
       });
     });
   });

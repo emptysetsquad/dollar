@@ -61,13 +61,8 @@ contract Market is Comptroller {
         require(sender != address(0), "Market: Coupon transfer from the zero address");
         require(recipient != address(0), "Market: Coupon transfer to the zero address");
 
-        uint256 couponAmount = 0;
-
         decrementBalanceOfCouponUnderlying(sender, epoch, amount, "Market: Insufficient coupon underlying balance");
         incrementBalanceOfCouponUnderlying(recipient, epoch, amount);
-
-        decrementBalanceOfCoupons(sender, epoch, couponAmount, "Market: Insufficient coupon balance");
-        incrementBalanceOfCoupons(recipient, epoch, couponAmount);
 
         if (msg.sender != sender && allowanceCoupons(sender, msg.sender) != uint256(-1)) {
             decrementAllowanceCoupons(sender, msg.sender, amount, "Market: Insufficient coupon approval");

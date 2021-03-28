@@ -42,69 +42,11 @@ contract Comptroller is Setters {
         balanceCheck();
     }
 
-    function increaseSupply(uint256 newSupply) internal returns (uint256, uint256) {
-        // 0-a. Pay out to Pool
-        uint256 poolReward = newSupply.mul(Constants.getOraclePoolRatio()).div(100);
-        mintToPool(poolReward);
-
-        // 0-b. Pay out to Treasury
-        uint256 treasuryReward = newSupply.mul(Constants.getTreasuryRatio()).div(10000);
-        mintToTreasury(treasuryReward);
-
-        uint256 rewards = poolReward.add(treasuryReward);
-        newSupply = newSupply > rewards ? newSupply.sub(rewards) : 0;
-
-        // 1. True up redeemable pool
-        uint256 newRedeemable = 0;
-        uint256 totalRedeemable = totalRedeemable();
-        uint256 totalCoupons = totalCoupons();
-        if (totalRedeemable < totalCoupons) {
-            newRedeemable = totalCoupons.sub(totalRedeemable);
-            newRedeemable = newRedeemable > newSupply ? newSupply : newRedeemable;
-            mintToRedeemable(newRedeemable);
-            newSupply = newSupply.sub(newRedeemable);
-        }
-
-        // 2. Payout to DAO
-        bool canMintDAO = mintToDAO(newSupply);
-
-        balanceCheck();
-
-        return (newRedeemable, (canMintDAO ? newSupply : 0).add(rewards));
-    }
-
     function balanceCheck() private {
         Require.that(
             dollar().balanceOf(address(this)) >= totalBonded().add(totalStaged()).add(totalRedeemable()),
             FILE,
             "Inconsistent balances"
         );
-    }
-
-    function mintToDAO(uint256 amount) private returns (bool canMint) {
-        canMint = totalBonded() != 0;
-        if (amount > 0 && canMint) {
-            dollar().mint(address(this), amount);
-            incrementTotalBonded(amount);
-        }
-    }
-
-    function mintToPool(uint256 amount) private {
-        if (amount > 0) {
-            dollar().mint(pool(), amount);
-        }
-    }
-
-    function mintToTreasury(uint256 amount) private {
-        if (amount > 0) {
-            dollar().mint(Constants.getTreasuryAddress(), amount);
-        }
-    }
-
-    function mintToRedeemable(uint256 amount) private {
-        dollar().mint(address(this), amount);
-        incrementTotalRedeemable(amount);
-
-        balanceCheck();
     }
 }
