@@ -521,33 +521,30 @@ describe('State', function () {
 
       it('is fluid', async function () {
         expect(await this.setters.statusOf(userAddress)).to.be.bignumber.equal(new BN(1));
-        expect(await this.setters.fluidUntil(userAddress)).to.be.bignumber.equal(new BN(15));
+        expect(await this.setters.fluidUntil(userAddress)).to.be.bignumber.equal(new BN(1));
       });
     });
 
     describe('when called then advanced within lockup', function () {
       beforeEach('call', async function () {
         await this.setters.unfreezeE(userAddress);
-        await this.setters.incrementEpochE();
       });
 
       it('is fluid', async function () {
         expect(await this.setters.statusOf(userAddress)).to.be.bignumber.equal(new BN(1));
-        expect(await this.setters.fluidUntil(userAddress)).to.be.bignumber.equal(new BN(15));
+        expect(await this.setters.fluidUntil(userAddress)).to.be.bignumber.equal(new BN(1));
       });
     });
 
     describe('when called then advanced after lockup', function () {
       beforeEach('call', async function () {
         await this.setters.unfreezeE(userAddress);
-        for (var i = 0; i < 15; i++) {
-          await this.setters.incrementEpochE();
-        }
+        await this.setters.incrementEpochE();
       });
 
       it('is frozen', async function () {
         expect(await this.setters.statusOf(userAddress)).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.fluidUntil(userAddress)).to.be.bignumber.equal(new BN(15));
+        expect(await this.setters.fluidUntil(userAddress)).to.be.bignumber.equal(new BN(1));
       });
     });
   });

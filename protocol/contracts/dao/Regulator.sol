@@ -31,21 +31,7 @@ contract Regulator is Comptroller {
     event SupplyNeutral(uint256 indexed epoch);
 
     function step() internal {
-        Decimal.D256 memory price = oracleCapture();
-
-        if (price.greaterThan(Decimal.one())) {
-            if (eraStatus() == Era.Status.CONTRACTION) updateEra(Era.Status.EXPANSION);
-            growSupply(price);
-            return;
-        }
-
-        if (price.lessThan(Decimal.one())) {
-            if (eraStatus() == Era.Status.EXPANSION) updateEra(Era.Status.CONTRACTION);
-            shrinkSupply(price);
-            return;
-        }
-
-        emit SupplyNeutral(epoch());
+        // NoOp
     }
 
     function shrinkSupply(Decimal.D256 memory price) private {
@@ -69,7 +55,7 @@ contract Regulator is Comptroller {
     function limit(Decimal.D256 memory delta, Decimal.D256 memory price) private view returns (Decimal.D256 memory) {
 
         Decimal.D256 memory supplyChangeLimit = Constants.getSupplyChangeLimit();
-        
+
         uint256 totalRedeemable = totalRedeemable();
         uint256 totalCoupons = totalCoupons();
         if (price.greaterThan(Decimal.one()) && (totalRedeemable < totalCoupons)) {

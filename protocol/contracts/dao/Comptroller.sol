@@ -28,9 +28,6 @@ contract Comptroller is Setters {
 
     function mintToAccount(address account, uint256 amount) internal {
         dollar().mint(account, amount);
-        if (!bootstrappingAt(epoch())) {
-            increaseDebt(amount);
-        }
 
         balanceCheck();
     }

@@ -77,10 +77,6 @@ describe('Comptroller', function () {
           expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(0));
           expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(100));
         });
-
-        it('updates total debt', async function () {
-          expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(100));
-        });
       });
 
       describe('multiple calls', function () {
@@ -93,10 +89,6 @@ describe('Comptroller', function () {
           expect(await this.dollar.totalSupply()).to.be.bignumber.equal(new BN(10300));
           expect(await this.dollar.balanceOf(this.comptroller.address)).to.be.bignumber.equal(new BN(0));
           expect(await this.dollar.balanceOf(userAddress)).to.be.bignumber.equal(new BN(300));
-        });
-
-        it('updates total debt', async function () {
-          expect(await this.comptroller.totalDebt()).to.be.bignumber.equal(new BN(300));
         });
       });
     });
