@@ -133,45 +133,6 @@ describe('State', function () {
     });
   });
 
-  describe('incrementTotalDebt', function () {
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementTotalDebtE(100);
-        await this.setters.incrementTotalDebtE(100);
-      });
-
-      it('increments total debt', async function () {
-        expect(await this.setters.totalDebt()).to.be.bignumber.equal(new BN(200));
-      });
-    });
-  });
-
-  describe('decrementTotalDebt', function () {
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementTotalDebtE(500);
-        await this.setters.decrementTotalDebtE(100, "decrementTotalDebtE - 1");
-        await this.setters.decrementTotalDebtE(100, "decrementTotalDebtE - 2");
-      });
-
-      it('decrements total debt', async function () {
-        expect(await this.setters.totalDebt()).to.be.bignumber.equal(new BN(300));
-      });
-    });
-
-    describe('when called erroneously', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementTotalDebtE(100);
-      });
-
-      it('reverts', async function () {
-        await expectRevert(
-          this.setters.decrementTotalDebtE(200, "decrementTotalDebtE"),
-          "decrementTotalDebtE");
-      });
-    });
-  });
-
   describe('incrementTotalRedeemable', function () {
     describe('when called', function () {
       beforeEach('call', async function () {
@@ -207,43 +168,6 @@ describe('State', function () {
         await expectRevert(
           this.setters.decrementTotalRedeemableE(200, "decrementTotalRedeemableE"),
           "decrementTotalRedeemableE");
-      });
-    });
-  });
-
-  describe('updateEra', function () {
-    beforeEach('call', async function () {
-      await this.setters.incrementEpochE();
-    });
-
-    describe('before called', function () {
-      it('is 0', async function () {
-        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(0));
-      });
-    });
-
-    describe('when called change', function () {
-      beforeEach('call', async function () {
-        await this.setters.updateEraE(1);
-      });
-
-      it('is update', async function () {
-        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(1));
-        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(1));
-      });
-    });
-
-    describe('when called twi', function () {
-      beforeEach('call', async function () {
-        await this.setters.updateEraE(1);
-        await this.setters.incrementEpochE();
-        await this.setters.updateEraE(0);
-      });
-
-      it('is update', async function () {
-        expect(await this.setters.eraStatus()).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.eraStart()).to.be.bignumber.equal(new BN(2));
       });
     });
   });
@@ -346,29 +270,6 @@ describe('State', function () {
     });
   });
 
-  describe('incrementBalanceOfCoupons', function () {
-    const epoch = 1;
-
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 100);
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 100);
-      });
-
-      it('increments balance of coupons for user during epoch', async function () {
-        expect(await this.setters.balanceOfCoupons(userAddress, epoch)).to.be.bignumber.equal(new BN(200));
-      });
-
-      it('increments outstanding coupons for epoch', async function () {
-        expect(await this.setters.outstandingCoupons(epoch)).to.be.bignumber.equal(new BN(200));
-      });
-
-      it('increments total outstanding coupons', async function () {
-        expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(200));
-      });
-    });
-  });
-
   describe('incrementBalanceOfCouponUnderlying', function () {
     const epoch = 1;
 
@@ -384,42 +285,6 @@ describe('State', function () {
 
       it('increments total outstanding coupons', async function () {
         expect(await this.setters.totalCouponUnderlying()).to.be.bignumber.equal(new BN(200));
-      });
-    });
-  });
-
-  describe('decrementBalanceOfCoupons', function () {
-    const epoch = 1;
-
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 500);
-        await this.setters.decrementBalanceOfCouponsE(userAddress, epoch, 100, "decrementBalanceOfCouponsE - 1");
-        await this.setters.decrementBalanceOfCouponsE(userAddress, epoch, 100, "decrementBalanceOfCouponsE - 2");
-      });
-
-      it('decrements balance of coupons for user during epoch', async function () {
-        expect(await this.setters.balanceOfCoupons(userAddress, epoch)).to.be.bignumber.equal(new BN(300));
-      });
-
-      it('decrements outstanding coupons for epoch', async function () {
-        expect(await this.setters.outstandingCoupons(epoch)).to.be.bignumber.equal(new BN(300));
-      });
-
-      it('decrements total outstanding coupons', async function () {
-        expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(300));
-      });
-    });
-
-    describe('when called erroneously', function () {
-      beforeEach('call', async function () {
-        await this.setters.incrementBalanceOfCouponsE(userAddress, epoch, 100);
-      });
-
-      it('reverts', async function () {
-        await expectRevert(
-          this.setters.decrementBalanceOfCouponsE(userAddress, 200, epoch, "decrementBalanceOfCouponsE"),
-          "decrementBalanceOfCoupons");
       });
     });
   });
@@ -777,60 +642,6 @@ describe('State', function () {
 
       it('is bonded', async function () {
         expect(await this.setters.epoch()).to.be.bignumber.equal(new BN(2));
-      });
-    });
-  });
-
-  describe('initializeCouponsExpiration', function () {
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.initializeCouponsExpirationE(2, 91);
-      });
-
-      it('has expiration set', async function () {
-        expect(await this.setters.couponsExpiration(2)).to.be.bignumber.equal(new BN(91));
-        expect(await this.setters.expiringCoupons(91)).to.be.bignumber.equal(new BN(1));
-        expect(await this.setters.expiringCouponsAtIndex(91, 0)).to.be.bignumber.equal(new BN(2));
-      });
-    });
-  });
-
-  describe('eliminateOutstandingCoupons', function () {
-    beforeEach('call', async function () {
-      await this.setters.incrementBalanceOfCouponsE(userAddress, 1, 100);
-    });
-
-    describe('when called', function () {
-      beforeEach('call', async function () {
-        await this.setters.eliminateOutstandingCouponsE(1);
-      });
-
-      it('has expiration set', async function () {
-        expect(await this.setters.totalCoupons()).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.outstandingCoupons(1)).to.be.bignumber.equal(new BN(0));
-        expect(await this.setters.balanceOfCoupons(userAddress, 1)).to.be.bignumber.equal(new BN(0));
-      });
-    });
-  });
-
-  describe('bootstrappingAt', function () {
-    describe('while bootstrapping', function () {
-      it('is bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(0)).to.be.equal(true);
-      });
-
-      it('is bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(1)).to.be.equal(true);
-      });
-
-      it('is bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(90)).to.be.equal(true);
-      });
-    });
-
-    describe('bootstrapped', function () {
-      it('isnt bootstrapping', async function () {
-        expect(await this.setters.bootstrappingAt(91)).to.be.equal(false);
       });
     });
   });

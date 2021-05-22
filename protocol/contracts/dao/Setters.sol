@@ -54,25 +54,12 @@ contract Setters is State, Getters {
         _state.balance.bonded = _state.balance.bonded.sub(amount, reason);
     }
 
-    function incrementTotalDebt(uint256 amount) internal {
-        _state.balance.debt = _state.balance.debt.add(amount);
-    }
-
-    function decrementTotalDebt(uint256 amount, string memory reason) internal {
-        _state.balance.debt = _state.balance.debt.sub(amount, reason);
-    }
-
     function incrementTotalRedeemable(uint256 amount) internal {
         _state.balance.redeemable = _state.balance.redeemable.add(amount);
     }
 
     function decrementTotalRedeemable(uint256 amount, string memory reason) internal {
         _state.balance.redeemable = _state.balance.redeemable.sub(amount, reason);
-    }
-
-    function updateEra(Era.Status status) internal {
-        _state18.era.status = status;
-        _state18.era.start = epoch();
     }
 
     /**
@@ -103,21 +90,9 @@ contract Setters is State, Getters {
         _state.balance.staged = _state.balance.staged.sub(amount, reason);
     }
 
-    function incrementBalanceOfCoupons(address account, uint256 epoch, uint256 amount) internal {
-        _state.accounts[account].coupons[epoch] = _state.accounts[account].coupons[epoch].add(amount);
-        _state.epochs[epoch].coupons.outstanding = _state.epochs[epoch].coupons.outstanding.add(amount);
-        _state.balance.coupons = _state.balance.coupons.add(amount);
-    }
-
     function incrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount) internal {
         _state16.couponUnderlyingByAccount[account][epoch] = _state16.couponUnderlyingByAccount[account][epoch].add(amount);
         _state16.couponUnderlying = _state16.couponUnderlying.add(amount);
-    }
-
-    function decrementBalanceOfCoupons(address account, uint256 epoch, uint256 amount, string memory reason) internal {
-        _state.accounts[account].coupons[epoch] = _state.accounts[account].coupons[epoch].sub(amount, reason);
-        _state.epochs[epoch].coupons.outstanding = _state.epochs[epoch].coupons.outstanding.sub(amount, reason);
-        _state.balance.coupons = _state.balance.coupons.sub(amount, reason);
     }
 
     function decrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount, string memory reason) internal {
@@ -148,20 +123,6 @@ contract Setters is State, Getters {
 
     function snapshotTotalBonded() internal {
         _state.epochs[epoch()].bonded = totalSupply();
-    }
-
-    function initializeCouponsExpiration(uint256 epoch, uint256 expiration) internal {
-        _state.epochs[epoch].coupons.expiration = expiration;
-        _state.epochs[expiration].coupons.expiring.push(epoch);
-    }
-
-    function eliminateOutstandingCoupons(uint256 epoch) internal {
-        uint256 outstandingCouponsForEpoch = outstandingCoupons(epoch);
-        if(outstandingCouponsForEpoch == 0) {
-            return;
-        }
-        _state.balance.coupons = _state.balance.coupons.sub(outstandingCouponsForEpoch);
-        _state.epochs[epoch].coupons.outstanding = 0;
     }
 
     /**

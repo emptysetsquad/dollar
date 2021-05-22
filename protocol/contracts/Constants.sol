@@ -23,11 +23,6 @@ library Constants {
     /* Chain */
     uint256 private constant CHAIN_ID = 1; // Mainnet
 
-    /* Bootstrapping */
-    uint256 private constant BOOTSTRAPPING_PERIOD = 90;
-    uint256 private constant BOOTSTRAPPING_PRICE = 11e17; // 1.10 USDC
-    uint256 private constant BOOTSTRAPPING_SPEEDUP_FACTOR = 3; // 30 days @ 8 hours
-
     /* Oracle */
     address private constant USDC = address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     uint256 private constant ORACLE_RESERVE_MINIMUM = 1e10; // 10,000 USDC
@@ -65,18 +60,9 @@ library Constants {
     /* Pool */
     uint256 private constant POOL_EXIT_LOCKUP_EPOCHS = 5; // 5 epochs fluid
 
-    /* Market */
-    uint256 private constant COUPON_EXPIRATION = 90;
-    uint256 private constant DEBT_RATIO_CAP = 20e16; // 20%
-    uint256 private constant COUPON_PRORATED_START = 420; // epoch 420
-
     /* Regulator */
-    uint256 private constant SUPPLY_CHANGE_LIMIT = 3e16; // 3%
-    uint256 private constant COUPON_SUPPLY_CHANGE_LIMIT = 6e16; // 6%
     uint256 private constant ORACLE_POOL_RATIO = 20; // 20%
     uint256 private constant TREASURY_RATIO = 250; // 2.5%
-    uint256 private constant STABILITY_REWARD_MIN = 0.3e14; // 0.3 bps
-    uint256 private constant STABILITY_REWARD_RATE = 5e14; // 5 bps
 
     /* Deployed */
     address private constant DAO_ADDRESS = address(0x443D2f2755DB5942601fa062Cc248aAA153313D3);
@@ -116,18 +102,6 @@ library Constants {
         return INITIAL_STAKE_MULTIPLE;
     }
 
-    function getBootstrappingPeriod() internal pure returns (uint256) {
-        return BOOTSTRAPPING_PERIOD;
-    }
-
-    function getBootstrappingPrice() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: BOOTSTRAPPING_PRICE});
-    }
-
-    function getBootstrappingSpeedupFactor() internal pure returns (uint256) {
-        return BOOTSTRAPPING_SPEEDUP_FACTOR;
-    }
-
     function getGovernancePeriod() internal pure returns (uint256) {
         return GOVERNANCE_PERIOD;
     }
@@ -164,40 +138,12 @@ library Constants {
         return POOL_EXIT_LOCKUP_EPOCHS;
     }
 
-    function getCouponExpiration() internal pure returns (uint256) {
-        return COUPON_EXPIRATION;
-    }
-
-    function getDebtRatioCap() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: DEBT_RATIO_CAP});
-    }
-
-    function getCouponProratedStart() internal pure returns (uint256) {
-        return COUPON_PRORATED_START;
-    }
-
-    function getSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: SUPPLY_CHANGE_LIMIT});
-    }
-
-    function getCouponSupplyChangeLimit() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: COUPON_SUPPLY_CHANGE_LIMIT});
-    }
-
     function getOraclePoolRatio() internal pure returns (uint256) {
         return ORACLE_POOL_RATIO;
     }
 
     function getTreasuryRatio() internal pure returns (uint256) {
         return TREASURY_RATIO;
-    }
-
-    function getStabilityRewardMin() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: STABILITY_REWARD_MIN});
-    }
-
-    function getStabilityRewardRate() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: STABILITY_REWARD_RATE});
     }
 
     function getChainId() internal pure returns (uint256) {

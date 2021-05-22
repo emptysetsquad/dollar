@@ -92,7 +92,7 @@ contract Getters is State {
     }
 
     function totalCoupons() public view returns (uint256) {
-        return _state.balance.coupons;
+        return 0;
     }
 
     function totalNet() public view returns (uint256) {
@@ -124,10 +124,7 @@ contract Getters is State {
     }
 
     function balanceOfCoupons(address account, uint256 epoch) public view returns (uint256) {
-        if (outstandingCoupons(epoch) == 0) {
-            return 0;
-        }
-        return _state.accounts[account].coupons[epoch];
+        return 0;
     }
 
     function balanceOfCouponUnderlying(address account, uint256 epoch) public view returns (uint256) {
@@ -184,7 +181,7 @@ contract Getters is State {
     }
 
     function outstandingCoupons(uint256 epoch) public view returns (uint256) {
-        return _state.epochs[epoch].coupons.outstanding;
+        return 0;
     }
 
     function couponsExpiration(uint256 epoch) public view returns (uint256) {
@@ -201,10 +198,6 @@ contract Getters is State {
 
     function totalBondedAt(uint256 epoch) public view returns (uint256) {
         return _state.epochs[epoch].bonded;
-    }
-
-    function bootstrappingAt(uint256 epoch) public view returns (bool) {
-        return epoch <= Constants.getBootstrappingPeriod();
     }
 
     /**

@@ -18,11 +18,10 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./Curve.sol";
 import "./Comptroller.sol";
 import "../Constants.sol";
 
-contract Market is Comptroller, Curve {
+contract Market is Comptroller {
     using SafeMath for uint256;
 
     bytes32 private constant FILE = "Market";
@@ -33,76 +32,8 @@ contract Market is Comptroller, Curve {
     event CouponTransfer(address indexed from, address indexed to, uint256 indexed epoch, uint256 value);
     event CouponApproval(address indexed owner, address indexed spender, uint256 value);
 
-    function step() internal {
-        // Expire prior coupons
-        for (uint256 i = 0; i < expiringCoupons(epoch()); i++) {
-            expireCouponsForEpoch(expiringCouponsAtIndex(epoch(), i));
-        }
-
-        // Record expiry for current epoch's coupons
-        uint256 expirationEpoch = epoch().add(Constants.getCouponExpiration());
-        initializeCouponsExpiration(epoch(), expirationEpoch);
-    }
-
-    function expireCouponsForEpoch(uint256 epoch) private {
-        uint256 couponsForEpoch = outstandingCoupons(epoch);
-        (uint256 lessRedeemable, uint256 newBonded) = (0, 0);
-
-        eliminateOutstandingCoupons(epoch);
-
-        uint256 totalRedeemable = totalRedeemable();
-        uint256 totalCoupons = totalCoupons();
-
-        if (totalRedeemable > totalCoupons) {
-            lessRedeemable = totalRedeemable.sub(totalCoupons);
-            burnRedeemable(lessRedeemable);
-            (, newBonded) = increaseSupply(lessRedeemable);
-        }
-
-        emit CouponExpiration(epoch, couponsForEpoch, lessRedeemable, 0, newBonded);
-    }
-
     function couponPremium(uint256 amount) public view returns (uint256) {
-        return calculateCouponPremium(dollar().totalSupply(), totalDebt(), amount);
-    }
-
-    function migrateCoupons(uint256 couponEpoch) external {
-        uint256 balanceOfCoupons = balanceOfCoupons(msg.sender, couponEpoch);
-        require(balanceOfCoupons > 0, "Market: No coupons");
-        require(balanceOfCouponUnderlying(msg.sender, couponEpoch) == 0, "Market: Already migrated");
-
-        uint256 couponUnderlying = balanceOfCoupons.div(2);
-
-        incrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, couponUnderlying);
-        decrementBalanceOfCoupons(msg.sender, couponEpoch, couponUnderlying, "Market: Insufficient coupon balance");
-
-        emit CouponRedemption(msg.sender, couponEpoch, 0, couponUnderlying);
-        emit CouponPurchase(msg.sender, couponEpoch, couponUnderlying, 0);
-    }
-
-    function purchaseCoupons(uint256 amount) external returns (uint256) {
-        Require.that(
-            amount > 0,
-            FILE,
-            "Must purchase non-zero amount"
-        );
-
-        Require.that(
-            totalDebt() >= amount,
-            FILE,
-            "Not enough debt"
-        );
-
-        uint256 epoch = epoch();
-        uint256 couponAmount = couponPremium(amount);
-        incrementBalanceOfCoupons(msg.sender, epoch, couponAmount);
-        incrementBalanceOfCouponUnderlying(msg.sender, epoch, amount);
-
-        burnFromAccount(msg.sender, amount);
-
-        emit CouponPurchase(msg.sender, epoch, amount, couponAmount);
-
-        return couponAmount;
+        return 0;
     }
 
     // @notice: logic overview
@@ -118,14 +49,6 @@ contract Market is Comptroller, Curve {
         emit CouponRedemption(msg.sender, couponEpoch, amount, 0);
     }
 
-    function computeLastContractionEpoch() private view returns (uint256) {
-        if (eraStatus() == Era.Status.EXPANSION) {
-            uint256 eraStart = eraStart();
-            return eraStart == 0 ? 0 : eraStart.sub(1);
-        }
-        return epoch().sub(1);
-    }
-
     function approveCoupons(address spender, uint256 amount) external {
         require(spender != address(0), "Market: Coupon approve to the zero address");
 
@@ -138,24 +61,13 @@ contract Market is Comptroller, Curve {
         require(sender != address(0), "Market: Coupon transfer from the zero address");
         require(recipient != address(0), "Market: Coupon transfer to the zero address");
 
-        uint256 couponAmount = balanceOfCoupons(sender, epoch)
-            .mul(amount).div(balanceOfCouponUnderlying(sender, epoch), "Market: No underlying");
-
         decrementBalanceOfCouponUnderlying(sender, epoch, amount, "Market: Insufficient coupon underlying balance");
         incrementBalanceOfCouponUnderlying(recipient, epoch, amount);
-
-        decrementBalanceOfCoupons(sender, epoch, couponAmount, "Market: Insufficient coupon balance");
-        incrementBalanceOfCoupons(recipient, epoch, couponAmount);
 
         if (msg.sender != sender && allowanceCoupons(sender, msg.sender) != uint256(-1)) {
             decrementAllowanceCoupons(sender, msg.sender, amount, "Market: Insufficient coupon approval");
         }
 
         emit CouponTransfer(sender, recipient, epoch, amount);
-    }
-
-    // overridable for testing
-    function couponProratedStart() internal view returns (uint256) {
-        return Constants.getCouponProratedStart();
     }
 }
