@@ -43,26 +43,6 @@ contract Setters is State, Getters {
     }
 
     /**
-     * Global
-     */
-
-    function incrementTotalBonded(uint256 amount) internal {
-        _state.balance.bonded = _state.balance.bonded.add(amount);
-    }
-
-    function decrementTotalBonded(uint256 amount, string memory reason) internal {
-        _state.balance.bonded = _state.balance.bonded.sub(amount, reason);
-    }
-
-    function incrementTotalRedeemable(uint256 amount) internal {
-        _state.balance.redeemable = _state.balance.redeemable.add(amount);
-    }
-
-    function decrementTotalRedeemable(uint256 amount, string memory reason) internal {
-        _state.balance.redeemable = _state.balance.redeemable.sub(amount, reason);
-    }
-
-    /**
      * Account
      */
 
@@ -71,18 +51,6 @@ contract Setters is State, Getters {
         _state.balance.supply = _state.balance.supply.add(amount);
 
         emit Transfer(address(0), account, amount);
-    }
-
-    function decrementBalanceOf(address account, uint256 amount, string memory reason) internal {
-        _state.accounts[account].balance = _state.accounts[account].balance.sub(amount, reason);
-        _state.balance.supply = _state.balance.supply.sub(amount, reason);
-
-        emit Transfer(account, address(0), amount);
-    }
-
-    function incrementBalanceOfStaged(address account, uint256 amount) internal {
-        _state.accounts[account].staged = _state.accounts[account].staged.add(amount);
-        _state.balance.staged = _state.balance.staged.add(amount);
     }
 
     function decrementBalanceOfStaged(address account, uint256 amount, string memory reason) internal {
@@ -98,10 +66,6 @@ contract Setters is State, Getters {
     function decrementBalanceOfCouponUnderlying(address account, uint256 epoch, uint256 amount, string memory reason) internal {
         _state16.couponUnderlyingByAccount[account][epoch] = _state16.couponUnderlyingByAccount[account][epoch].sub(amount, reason);
         _state16.couponUnderlying = _state16.couponUnderlying.sub(amount, reason);
-    }
-
-    function unfreeze(address account) internal {
-        _state.accounts[account].fluidUntil = epoch().add(Constants.getDAOExitLockupEpochs());
     }
 
     function updateAllowanceCoupons(address owner, address spender, uint256 amount) internal {

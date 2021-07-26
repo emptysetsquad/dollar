@@ -17,7 +17,7 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "../oracle/IDAO.sol";
+import "../dao/interfaces/IDAO.sol";
 
 contract MockSettableDAO is IDAO {
     uint256 internal _epoch;

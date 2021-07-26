@@ -19,7 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../token/IDollar.sol";
-import "./IDAO.sol";
+import "../dao/interfaces/IDAO.sol";
 import "./IUSDC.sol";
 
 contract PoolAccount {

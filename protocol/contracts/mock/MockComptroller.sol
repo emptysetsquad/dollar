@@ -1,12 +1,9 @@
 /*
     Copyright 2020 Empty Set Squad <emptysetsquad@protonmail.com>
-
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,22 +14,13 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "../dao/Comptroller.sol";
 import "../token/Dollar.sol";
 import "./MockState.sol";
 
-contract MockComptroller is Comptroller, MockState {
+contract MockComptroller is MockState {
     constructor(address pool) public {
         _state.provider.dollar = new Dollar();
         _state.provider.pool = pool;
-    }
-
-    function mintToAccountE(address account, uint256 amount) external {
-        super.mintToAccount(account, amount);
-    }
-
-    function redeemToAccountE(address account, uint256 amount, uint256 couponAmount) external {
-        super.redeemToAccount(account, amount, couponAmount);
     }
 
     /* For testing only */
@@ -40,7 +28,6 @@ contract MockComptroller is Comptroller, MockState {
         dollar().mint(account, amount);
     }
 
-    /* For testing only */
     function burnFromE(address account, uint256 amount) external {
         dollar().burnFrom(account, amount);
     }

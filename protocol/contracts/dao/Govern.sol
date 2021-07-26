@@ -35,6 +35,17 @@ contract Govern is Setters, Permission, Upgradeable {
     event Vote(address indexed account, address indexed candidate, Candidate.Vote vote, uint256 bonded);
     event Commit(address indexed account, address indexed candidate);
 
+    function step() internal {
+        Require.that(
+            epochTime() > epoch(),
+            FILE,
+            "Still current epoch"
+        );
+
+        snapshotTotalBonded();
+        incrementEpoch();
+    }
+
     function vote(address candidate, Candidate.Vote vote) external onlyFrozenOrLocked(msg.sender) {
         Require.that(
             balanceOf(msg.sender) > 0,

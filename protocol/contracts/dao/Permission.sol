@@ -24,17 +24,6 @@ contract Permission is Setters {
 
     bytes32 private constant FILE = "Permission";
 
-    // Can modify account state
-    modifier onlyFrozenOrFluid(address account) {
-        Require.that(
-            statusOf(account) != Account.Status.Locked,
-            FILE,
-            "Not frozen or fluid"
-        );
-
-        _;
-    }
-
     // Can participate in balance-dependant activities
     modifier onlyFrozenOrLocked(address account) {
         Require.that(

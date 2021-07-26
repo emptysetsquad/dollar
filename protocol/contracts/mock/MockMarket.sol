@@ -17,10 +17,10 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
-import "../dao/Market.sol";
+import "../dao/Implementation.sol";
 import "./MockState.sol";
 import "./MockComptroller.sol";
 
-contract MockMarket is MockState, MockComptroller, Market {
+contract MockMarket is MockState, MockComptroller, Implementation {
     constructor(address pool) MockComptroller(pool) public { }
 }

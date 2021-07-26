@@ -18,13 +18,13 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "./MockState.sol";
-import "../dao/Bonding.sol";
+import "../dao/Implementation.sol";
 import "./MockComptroller.sol";
 
-contract MockBonding is MockComptroller, Bonding {
+contract MockBonding is MockComptroller, Implementation {
     constructor() MockComptroller(address(0)) public { }
 
     function stepE() external {
-        Bonding.step();
+        Govern.step();
     }
 }
