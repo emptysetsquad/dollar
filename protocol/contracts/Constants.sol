@@ -37,25 +37,8 @@ library Constants {
         uint256 period;
     }
 
-    uint256 private constant PREVIOUS_EPOCH_OFFSET = 91;
-    uint256 private constant PREVIOUS_EPOCH_START = 1600905600;
-    uint256 private constant PREVIOUS_EPOCH_PERIOD = 86400;
-
-    uint256 private constant CURRENT_EPOCH_OFFSET = 106;
-    uint256 private constant CURRENT_EPOCH_START = 1602201600;
-    uint256 private constant CURRENT_EPOCH_PERIOD = 28800;
-
-    /* Governance */
-    uint256 private constant GOVERNANCE_PERIOD = 9; // 9 epochs
-    uint256 private constant GOVERNANCE_EXPIRATION = 2; // 2 + 1 epochs
-    uint256 private constant GOVERNANCE_QUORUM = 20e16; // 20%
-    uint256 private constant GOVERNANCE_PROPOSAL_THRESHOLD = 5e15; // 0.5%
-    uint256 private constant GOVERNANCE_SUPER_MAJORITY = 40e16; // 40%
-    uint256 private constant GOVERNANCE_EMERGENCY_DELAY = 6; // 6 epochs
-
     /* DAO */
     uint256 private constant ADVANCE_INCENTIVE = 2500e18; // 2500 ESD
-    uint256 private constant DAO_EXIT_LOCKUP_EPOCHS = 1; // 1 epoch fluid
 
     /* Pool */
     uint256 private constant POOL_EXIT_LOCKUP_EPOCHS = 5; // 5 epochs fluid
@@ -65,6 +48,10 @@ library Constants {
     address private constant DOLLAR_ADDRESS = address(0x36F3FD68E7325a35EB768F1AedaAe9EA0689d723);
     address private constant PAIR_ADDRESS = address(0x88ff79eB2Bc5850F27315415da8685282C7610F9);
     address private constant TREASURY_ADDRESS = address(0x460661bd4A5364A3ABCc9cfc4a8cE7038d05Ea22);
+    address private constant POOL_ADDRESS = address(0x4082D11E506e3250009A991061ACd2176077C88f);
+    address private constant ORACLE_ADDRESS = address(0xea9f8bb8B5e8BA3D38628f0E18Ee82300eddBa0E);
+    address private constant V2_MIGRATOR_ADDRESS = address(0xC61D12896421613b30D56F85c093CdDa43Ab2CE7);
+    address private constant V2_DAO_ADDRESS = address(0x1bba92F379375387bf8F927058da14D47464cB7A);
 
     /**
      * Getters
@@ -78,56 +65,12 @@ library Constants {
         return ORACLE_RESERVE_MINIMUM;
     }
 
-    function getPreviousEpochStrategy() internal pure returns (EpochStrategy memory) {
-        return EpochStrategy({
-            offset: PREVIOUS_EPOCH_OFFSET,
-            start: PREVIOUS_EPOCH_START,
-            period: PREVIOUS_EPOCH_PERIOD
-        });
-    }
-
-    function getCurrentEpochStrategy() internal pure returns (EpochStrategy memory) {
-        return EpochStrategy({
-            offset: CURRENT_EPOCH_OFFSET,
-            start: CURRENT_EPOCH_START,
-            period: CURRENT_EPOCH_PERIOD
-        });
-    }
-
     function getInitialStakeMultiple() internal pure returns (uint256) {
         return INITIAL_STAKE_MULTIPLE;
     }
 
-    function getGovernancePeriod() internal pure returns (uint256) {
-        return GOVERNANCE_PERIOD;
-    }
-
-    function getGovernanceExpiration() internal pure returns (uint256) {
-        return GOVERNANCE_EXPIRATION;
-    }
-
-    function getGovernanceQuorum() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: GOVERNANCE_QUORUM});
-    }
-
-    function getGovernanceProposalThreshold() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: GOVERNANCE_PROPOSAL_THRESHOLD});
-    }
-
-    function getGovernanceSuperMajority() internal pure returns (Decimal.D256 memory) {
-        return Decimal.D256({value: GOVERNANCE_SUPER_MAJORITY});
-    }
-
-    function getGovernanceEmergencyDelay() internal pure returns (uint256) {
-        return GOVERNANCE_EMERGENCY_DELAY;
-    }
-
     function getAdvanceIncentive() internal pure returns (uint256) {
         return ADVANCE_INCENTIVE;
-    }
-
-    function getDAOExitLockupEpochs() internal pure returns (uint256) {
-        return DAO_EXIT_LOCKUP_EPOCHS;
     }
 
     function getPoolExitLockupEpochs() internal pure returns (uint256) {
@@ -152,5 +95,21 @@ library Constants {
 
     function getTreasuryAddress() internal pure returns (address) {
         return TREASURY_ADDRESS;
+    }
+
+    function getPoolAddress() internal pure returns (address) {
+        return POOL_ADDRESS;
+    }
+
+    function getOracleAddress() internal pure returns (address) {
+        return ORACLE_ADDRESS;
+    }
+
+    function getV2MigratorAddress() internal pure returns (address) {
+        return V2_MIGRATOR_ADDRESS;
+    }
+
+    function getV2DaoAddress() internal pure returns (address) {
+        return V2_DAO_ADDRESS;
     }
 }

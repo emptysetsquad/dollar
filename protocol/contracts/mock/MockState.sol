@@ -94,45 +94,12 @@ contract MockState is Setters {
     }
 
     function incrementEpochE() external {
-        super.incrementEpoch();
-    }
-
-    function snapshotTotalBondedE() external {
-        super.snapshotTotalBonded();
+        _state.epoch.current = epoch().add(1);
     }
 
     /**
      * Governance
      */
-
-    function createCandidateE(address candidate, uint256 period) external {
-        super.createCandidate(candidate, period);
-    }
-
-    function recordVoteE(address account, address candidate, Candidate.Vote vote) external {
-        super.recordVote(account, candidate, vote);
-    }
-
-    function incrementApproveForE(address candidate, uint256 amount) external {
-        super.incrementApproveFor(candidate, amount);
-    }
-
-    function decrementApproveForE(address candidate, uint256 amount, string calldata reason) external {
-        super.decrementApproveFor(candidate, amount, reason);
-    }
-
-    function incrementRejectForE(address candidate, uint256 amount) external {
-        super.incrementRejectFor(candidate, amount);
-    }
-
-    function decrementRejectForE(address candidate, uint256 amount, string calldata reason) external {
-        super.decrementRejectFor(candidate, amount, reason);
-    }
-
-    function placeLockE(address account, address candidate) external {
-        super.placeLock(account, candidate);
-    }
-
     function initializedE(address candidate) external {
         super.initialized(candidate);
     }

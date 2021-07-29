@@ -45,6 +45,12 @@ contract Setters is State, Getters {
     /**
      * Account
      */
+    function decrementBalanceOf(address account, uint256 amount, string memory reason) internal {
+        _state.accounts[account].balance = _state.accounts[account].balance.sub(amount, reason);
+        _state.balance.supply = _state.balance.supply.sub(amount, reason);
+
+        emit Transfer(account, address(0), amount);
+    }
 
     function incrementBalanceOf(address account, uint256 amount) internal {
         _state.accounts[account].balance = _state.accounts[account].balance.add(amount);
@@ -78,55 +84,32 @@ contract Setters is State, Getters {
     }
 
     /**
-     * Epoch
+     * Governance
      */
-
-    function incrementEpoch() internal {
-        _state.epoch.current = _state.epoch.current.add(1);
-    }
-
-    function snapshotTotalBonded() internal {
-        _state.epochs[epoch()].bonded = totalSupply();
+    function initialized(address candidate) internal {
+        _state.candidates[candidate].initialized = true;
     }
 
     /**
-     * Governance
+     * Pool Migration - EIP25
      */
-
-    function createCandidate(address candidate, uint256 period) internal {
-        _state.candidates[candidate].start = epoch();
-        _state.candidates[candidate].period = period;
+    function snapshotPoolTotalRewarded(uint256 totalRewarded) internal {
+        _state25.poolTotalRewarded = totalRewarded;
     }
 
-    function recordVote(address account, address candidate, Candidate.Vote vote) internal {
-        _state.candidates[candidate].votes[account] = vote;
+    function snapshotPoolTotalDollar(uint256 total) internal {
+        _state25.poolDollarWithdrawable = total;
     }
 
-    function incrementApproveFor(address candidate, uint256 amount) internal {
-        _state.candidates[candidate].approve = _state.candidates[candidate].approve.add(amount);
+    function decrementPoolDollarWithdrawable(uint256 amount, string memory reason) internal {
+        _state25.poolDollarWithdrawable = _state25.poolDollarWithdrawable.sub(amount, reason);
     }
 
-    function decrementApproveFor(address candidate, uint256 amount, string memory reason) internal {
-        _state.candidates[candidate].approve = _state.candidates[candidate].approve.sub(amount, reason);
+    function poolMarkWithdrawn(address account) internal {
+        _state25.poolWithdrawn[account] = true;
     }
 
-    function incrementRejectFor(address candidate, uint256 amount) internal {
-        _state.candidates[candidate].reject = _state.candidates[candidate].reject.add(amount);
-    }
-
-    function decrementRejectFor(address candidate, uint256 amount, string memory reason) internal {
-        _state.candidates[candidate].reject = _state.candidates[candidate].reject.sub(amount, reason);
-    }
-
-    function placeLock(address account, address candidate) internal {
-        uint256 currentLock = _state.accounts[account].lockedUntil;
-        uint256 newLock = startFor(candidate).add(periodFor(candidate));
-        if (newLock > currentLock) {
-            _state.accounts[account].lockedUntil = newLock;
-        }
-    }
-
-    function initialized(address candidate) internal {
-        _state.candidates[candidate].initialized = true;
+    function setOwner(address newOwner) internal {
+        _state25.owner = newOwner;
     }
 }

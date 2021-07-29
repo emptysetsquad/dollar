@@ -17,8 +17,15 @@
 pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
+import "../State.sol";
+
 contract IDAO {
     function epoch() external view returns (uint256);
+
+    event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
+    event Incentivization(address indexed account, uint256 amount);
+    event IncentivizationWithStake(address indexed account, uint256 amount);
+    event OwnerChanged(address indexed previousOwner, address indexed newOwner);
 
     event TokenSplitSnapshot(uint256 totalBonded, uint256 totalStake);
 
@@ -42,4 +49,9 @@ contract IDAO {
     event CouponRedemption(address indexed account, uint256 indexed epoch, uint256 amount, uint256 couponAmount);
     event CouponTransfer(address indexed from, address indexed to, uint256 indexed epoch, uint256 value);
     event CouponApproval(address indexed owner, address indexed spender, uint256 value);
+
+    /* Governance */
+    event Proposal(address indexed candidate, address indexed account, uint256 indexed start, uint256 period);
+    event Vote(address indexed account, address indexed candidate, Candidate.Vote vote, uint256 bonded);
+    event Commit(address indexed account, address indexed candidate);
 }

@@ -121,6 +121,13 @@ contract Storage {
     struct State18 {
         Era.State era;
     }
+
+    struct State25 {
+        uint256 poolTotalRewarded;
+        uint256 poolDollarWithdrawable;
+        mapping(address => bool) poolWithdrawn;
+        address owner;
+    }
 }
 
 contract State {
@@ -131,4 +138,7 @@ contract State {
 
     // EIP-18
     Storage.State18 _state18;
+
+    // EIP-25
+    Storage.State25 _state25;
 }

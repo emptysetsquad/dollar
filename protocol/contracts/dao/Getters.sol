@@ -19,6 +19,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./State.sol";
+import "./interfaces/IPool.sol";
 import "../Constants.sol";
 
 contract Getters is State {
@@ -60,15 +61,27 @@ contract Getters is State {
      */
 
     function dollar() public view returns (IDollar) {
-        return _state.provider.dollar;
+        return IDollar(Constants.getDollarAddress());
     }
 
     function oracle() public view returns (IOracle) {
-        return _state.provider.oracle;
+        return IOracle(Constants.getOracleAddress());
     }
 
-    function pool() public view returns (address) {
-        return _state.provider.pool;
+    function pool() public view returns (IPool) {
+        return IPool(Constants.getPoolAddress());
+    }
+
+    function univ2() public view returns (IERC20) {
+        return IERC20(Constants.getPairAddress());
+    }
+
+    function v2Migrator() public view returns (address) {
+        return Constants.getV2MigratorAddress();
+    }
+
+    function owner() public view returns (address) {
+        return _state25.owner;
     }
 
     function totalBonded() public view returns (uint256) {
@@ -136,12 +149,7 @@ contract Getters is State {
     }
 
     function epochTime() public view returns (uint256) {
-        Constants.EpochStrategy memory current = Constants.getCurrentEpochStrategy();
-        Constants.EpochStrategy memory previous = Constants.getPreviousEpochStrategy();
-
-        return blockTimestamp() < current.start ?
-            epochTimeWithStrategy(previous) :
-            epochTimeWithStrategy(current);
+        return epoch();
     }
 
     function epochTimeWithStrategy(Constants.EpochStrategy memory strategy) private view returns (uint256) {
@@ -213,6 +221,50 @@ contract Getters is State {
         assembly {
             impl := sload(slot)
         }
+    }
+
+    /**
+     * Pool Migration
+     */
+    function poolTotalRewarded() public view returns (uint256) {
+        return _state25.poolTotalRewarded;
+    }
+
+    function poolHasWithdrawn(address account) public view returns (bool) {
+        return _state25.poolWithdrawn[account];
+    }
+
+    function poolWithdrawable(address account) public view returns (uint256, uint256) {
+        if (poolHasWithdrawn(account)) {
+            return (0, 0);
+        }
+
+        uint256 univ2Amount = pool().balanceOfBonded(account).add(pool().balanceOfStaged(account));
+        uint256 dollarAmount = pool().balanceOfClaimable(account).add(poolBalanceOfRewarded(account));
+
+        return (univ2Amount, dollarAmount);
+    }
+
+    function poolBalanceOfRewarded(address account) internal view returns (uint256) {
+        uint256 totalBonded = pool().totalBonded();
+        if (totalBonded == 0) {
+            return 0;
+        }
+
+        uint256 totalRewardedWithPhantom = poolTotalRewarded().add(pool().totalPhantom());
+        uint256 balanceOfRewardedWithPhantom = totalRewardedWithPhantom
+            .mul(pool().balanceOfBonded(account))
+            .div(totalBonded);
+
+        uint256 balanceOfPhantom = pool().balanceOfPhantom(account);
+        if (balanceOfRewardedWithPhantom > balanceOfPhantom) {
+            return balanceOfRewardedWithPhantom.sub(balanceOfPhantom);
+        }
+        return 0;
+    }
+
+    function poolDollarWithdrawable() public view returns (uint256) {
+        return _state25.poolDollarWithdrawable;
     }
 
     /*
