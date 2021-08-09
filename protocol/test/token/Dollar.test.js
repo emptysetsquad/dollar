@@ -14,7 +14,7 @@ const {
 const { expect } = require("chai");
 const { signTypedData } = require("eth-sig-util");
 
-const MockMarket = contract.fromArtifact("MockMarket");
+const MockImpl = contract.fromArtifact("MockImpl25");
 const Dollar = contract.fromArtifact("Dollar");
 
 const domain = [
@@ -64,7 +64,7 @@ describe("Dollar", function () {
   const [_, userPrivateKey] = privateKeys;
 
   beforeEach(async function () {
-    this.dao = await MockMarket.new(poolAddress, {
+    this.dao = await MockImpl.new(poolAddress, {
       from: ownerAddress,
       gas: 8000000,
     });

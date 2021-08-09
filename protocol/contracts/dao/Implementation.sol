@@ -18,38 +18,77 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+
 import "./interfaces/IDAO.sol";
-import "./Govern.sol";
+import "./Setters.sol";
+import "./Getters.sol";
 import "./Permission.sol";
+import "./Upgradeable.sol";
+
 import "../Constants.sol";
 
-contract Implementation is IDAO, State, Permission, Govern {
+contract Implementation is IDAO, Setters, Permission, Upgradeable  {
     using SafeMath for uint256;
-
-    event Advance(uint256 indexed epoch, uint256 block, uint256 timestamp);
-    event Incentivization(address indexed account, uint256 amount);
-    event IncentivizationWithStake(address indexed account, uint256 amount);
 
     function initialize() initializer public {
         // Reward committer
         incentivize(msg.sender, Constants.getAdvanceIncentive());
 
-        // emit final ratio
-        emit TokenSplitSnapshot(totalBonded(), totalSupply());
-
-        // Burn bonded
-        dollar().burn(totalBonded());
-
         // Dev rewards
-        incentivizeWithStake(address(0xdaeD3f8E267CF2e5480A379d75BfABad58ab2144), 2000000e18);
+        incentivizeWithStake(address(0xdaeD3f8E267CF2e5480A379d75BfABad58ab2144), 3000000e18);
+
+        /*
+        EIP25 Pool Migration:
+            1. emergencyPause() the pool
+            2. snapshot poolBalance = pool().totalRewarded()
+            3. emergencyWithdraw(dollar(), poolBalance)
+            4. emergencyWithdraw(univ2(), uniV2Balance) univ2Balance = pool.totalBonded + pool.totalStaged
+            5. Set the owner to v2 DAO
+        */
+        // Emergency Pause the Pool
+        pool().emergencyPause();
+
+        // Snapshot pool total rewarded
+        snapshotPoolTotalRewarded(pool().totalRewarded());
+
+        uint256 poolDollar = dollar().balanceOf(address(pool()));
+        snapshotPoolTotalDollar(poolDollar);
+
+        // Withdraw dollar and univ2
+        pool().emergencyWithdraw(address(dollar()), poolDollar);
+        pool().emergencyWithdraw(address(pool().univ2()), pool().univ2().balanceOf(address(pool())));
+
+        // set owner
+        setOwner(Constants.getV2DaoAddress()); // V2 DAO
     }
 
-    function advance() external {
-        incentivize(msg.sender, Constants.getAdvanceIncentive());
+    /*
+     * Continuous Dollar Migration
+    */
+    function burn(address account, uint256 amount) external onlyV2Migrator {
+        decrementBalanceOf(account, amount, "V1_DAO: insufficient staked balance");
+    }
 
-        Govern.step();
+    /**
+     * Pool Withdraw
+     */
+    function poolWithdraw() external {
+        require(!poolHasWithdrawn(msg.sender), "Pool Withdraw: already withdrawn");
 
-        emit Advance(epoch(), block.number, block.timestamp);
+        (uint256 univ2Amount, uint256 dollarAmount) = poolWithdrawable(msg.sender);
+
+        if (univ2Amount > 0) {
+            // Transfer univ2
+            pool().univ2().transfer(msg.sender, univ2Amount);
+        }
+
+        if (dollarAmount > 0) {
+            // Transfer dollar
+            dollar().transfer(msg.sender, dollarAmount);
+            decrementPoolDollarWithdrawable(dollarAmount, "Pool Withdraw: insufficient Dollar");
+        }
+
+        poolMarkWithdrawn(msg.sender);
     }
 
     function incentivize(address account, uint256 amount) private {
@@ -63,9 +102,23 @@ contract Implementation is IDAO, State, Permission, Govern {
     }
 
     /*
+     * Admin
+     */
+    function commit(address candidate) external onlyOwner {
+        upgradeTo(candidate);
+        emit Commit(msg.sender, candidate);
+    }
+
+    function changeOwner(address newOwner) external onlyOwner {
+        address prevOwner = owner();
+        setOwner(newOwner);
+        emit OwnerChanged(prevOwner, newOwner);
+    }
+
+    /*
      * Bonding Functions
      */
-    function withdraw(uint256 value) external onlyFrozenOrLocked(msg.sender) {
+    function withdraw(uint256 value) external {
         dollar().transfer(msg.sender, value);
         decrementBalanceOfStaged(msg.sender, value, "Bonding: insufficient staged balance");
 

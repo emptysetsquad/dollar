@@ -18,22 +18,12 @@ pragma solidity ^0.5.17;
 pragma experimental ABIEncoderV2;
 
 import "./Setters.sol";
+import "../Constants.sol";
 import "../external/Require.sol";
 
 contract Permission is Setters {
 
     bytes32 private constant FILE = "Permission";
-
-    // Can participate in balance-dependant activities
-    modifier onlyFrozenOrLocked(address account) {
-        Require.that(
-            statusOf(account) != Account.Status.Fluid,
-            FILE,
-            "Not frozen or locked"
-        );
-
-        _;
-    }
 
     modifier initializer() {
         Require.that(
@@ -44,6 +34,24 @@ contract Permission is Setters {
 
         initialized(implementation());
 
+        _;
+    }
+
+    modifier onlyV2Migrator() {
+        Require.that(
+            msg.sender == v2Migrator(), // v2 Migrator
+            FILE,
+            "Not migrator"
+        );
+        _;
+    }
+
+    modifier onlyOwner() {
+        Require.that(
+            msg.sender == owner(), // v2 DAO
+            FILE,
+            "Not owner"
+        );
         _;
     }
 }
