@@ -76,6 +76,10 @@ contract Getters is State {
         return IERC20(Constants.getPairAddress());
     }
 
+    function ess() public view returns (IERC20) {
+        return IERC20(Constants.getV2EssAddress());
+    }
+
     function v2Migrator() public view returns (address) {
         return Constants.getV2MigratorAddress();
     }
