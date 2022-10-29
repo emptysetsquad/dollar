@@ -12,7 +12,7 @@ const Dollar = contract.fromArtifact("Dollar");
 RESERVE_ADDRESS = "0x0000000000000000000000000000000000000000"
 RATIO = "3216807417426974641"
 
-describe.only("Implementation", function () {
+describe("Implementation", function () {
   const [ownerAddress, userAddress, userAddress1, newOwner] = accounts;
   beforeEach(async function () {
     this.usdc = await MockToken.new("USD//C", "USDC", 18, {

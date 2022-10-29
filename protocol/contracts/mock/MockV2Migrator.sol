@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../token/IDollar.sol";
 
-contract IDAO {
+contract MockIDAO {
     function totalSupply() external view returns (uint256);
     function totalCouponUnderlying() external view returns (uint256);
     function burn(address account, uint256 stakeAmount) external;
@@ -15,12 +15,12 @@ contract MockV2Migrator {
     using SafeMath for uint256;
 
     uint256 public ratio;
-    IDAO public dao;
+    MockIDAO public dao;
     address public dollar;
     address public stake;
     address public reserve;
 
-    constructor(uint256 ratio_, IDAO dao_, address dollar_, address stake_, address reserve_) public {
+    constructor(uint256 ratio_, MockIDAO dao_, address dollar_, address stake_, address reserve_) public {
         ratio = ratio_;
         dao = dao_;
         dollar = dollar_;
