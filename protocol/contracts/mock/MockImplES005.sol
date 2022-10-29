@@ -25,10 +25,27 @@ contract MockImplES005 is MockState, Implementation {
     address private _dollar;
     address private _ess;
     address private _migrator;
+    address private _pool;
 
-    constructor(address ess) public {
+    constructor(address pool, address ess) public {
         _dollar = address(new Dollar());
         _ess = ess;
+        _pool = pool;
+    }
+
+    function poolWithdrawSetup() external {
+        // Emergency Pause the Pool
+        pool().emergencyPause();
+
+        // Snapshot pool total rewarded
+        snapshotPoolTotalRewarded(pool().totalRewarded());
+
+        uint256 poolDollar = dollar().balanceOf(address(pool()));
+        snapshotPoolTotalDollar(poolDollar);
+
+        // Withdraw dollar and univ2
+        pool().emergencyWithdraw(address(dollar()), poolDollar);
+        pool().emergencyWithdraw(address(pool().univ2()), pool().univ2().balanceOf(address(pool())));
     }
 
     /* For testing only */
@@ -38,6 +55,10 @@ contract MockImplES005 is MockState, Implementation {
 
     function burnFromE(address account, uint256 amount) external {
         dollar().burnFrom(account, amount);
+    }
+
+    function pool() public view returns (IPool) {
+        return IPool(_pool);
     }
 
     function dollar() public view returns (IDollar) {

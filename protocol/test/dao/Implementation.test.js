@@ -4,20 +4,34 @@ const { expect } = require("chai");
 
 const MockImpl = contract.fromArtifact("MockImplES005");
 const MockV2Migrator = contract.fromArtifact("MockV2Migrator");
+const MockUniswapV2PairLiquidity = contract.fromArtifact("MockUniswapV2PairLiquidity");
 const MockToken = contract.fromArtifact("MockToken");
+const MockPool = contract.fromArtifact("MockPool");
 const Dollar = contract.fromArtifact("Dollar");
 
 RESERVE_ADDRESS = "0x0000000000000000000000000000000000000000"
 RATIO = "3216807417426974641"
 
-describe("Implementation", function () {
+describe.only("Implementation", function () {
   const [ownerAddress, userAddress, userAddress1, newOwner] = accounts;
   beforeEach(async function () {
+    this.usdc = await MockToken.new("USD//C", "USDC", 18, {
+      from: ownerAddress,
+      gas: 8000000,
+    });
+    this.univ2 = await MockUniswapV2PairLiquidity.new({
+      from: ownerAddress,
+      gas: 8000000,
+    });
     this.ess = await MockToken.new("Empty Set Share", "ESS", 18, {
       from: ownerAddress,
       gas: 8000000,
     });
-    this.dao = await MockImpl.new(this.ess.address, {
+    this.pool = await MockPool.new(this.usdc.address, {
+      from: ownerAddress,
+      gas: 8000000,
+    });
+    this.dao = await MockImpl.new(this.pool.address, this.ess.address, {
       from: ownerAddress,
       gas: 8000000,
     });
@@ -27,26 +41,35 @@ describe("Implementation", function () {
       gas: 8000000,
     });
 
+    await this.pool.set(
+      this.dao.address,
+      this.dollar.address,
+      this.univ2.address
+    );
+
     await this.dao.setV2MigratorE(this.migrator.address);
     await this.dao.setOwnerE(ownerAddress);
   });
 
   describe("initialize", function () {
     beforeEach(async function () {
-      // DAO total bonded
-      await this.dao.incrementTotalCouponUnderlyingE(1000000);
+      // Mint ESS to Migrator
+      await this.ess.mint(this.migrator.address, new BN("750_000_000_000_000_000_000_000_000"));
+
+      // Setup claimable coupon underlying
+      await this.dao.incrementBalanceOfCouponUnderlyingE(userAddress, 17, 1000000);
+
       await this.dao.initialize({ from: ownerAddress, gas: 8000000 });
     });
 
     it("mints remaining ESD", async function () {
-      expect(await this.dollar.balanceOf(this.dao.address)).to.be.bignumber.equal(
-          new BN(1000000)
-      );
+      expect(await this.dollar.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(1000000));
     });
 
-    it("stops future ESD minting", async function () {
-      const totalSupply = await this.dollar.totalSupply()
-      expect(await this.pool.paused()).to.be.true;
+    it("sunsets migrator", async function () {
+      expect(await this.ess.balanceOf(this.migrator.address)).to.be.bignumber.equal(new BN(0));
+      expect(await this.ess.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(0));
+      expect(await this.ess.balanceOf(ownerAddress)).to.be.bignumber.equal(new BN("750_000_000_000_000_000_000_000_000"));
     });
   });
 
@@ -71,7 +94,7 @@ describe("Implementation", function () {
 
       // DAO total bonded
       await this.dao.incrementTotalBondedE(1000000);
-      await this.dao.initialize({ from: ownerAddress, gas: 8000000 });
+      await this.dao.poolWithdrawSetup();
 
       // User Withdraw
       await this.dao.poolWithdraw({ from: userAddress });
@@ -108,7 +131,7 @@ describe("Implementation", function () {
 
   describe("commit", async function () {
     beforeEach(async function () {
-      this.newImpl = await MockImpl.new(this.pool.address, {
+      this.newImpl = await MockImpl.new(this.pool.address, this.ess.address, {
         from: userAddress,
         gas: 8000000,
       });

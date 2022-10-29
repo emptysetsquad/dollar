@@ -11,7 +11,7 @@ contract IDAO {
     function burn(address account, uint256 stakeAmount) external;
 }
 
-contract Migrator {
+contract MockV2Migrator {
     using SafeMath for uint256;
 
     uint256 public ratio;
