@@ -107,7 +107,7 @@ describe("Market", function () {
         expect(
           await this.dollar.balanceOf(this.market.address)
         ).to.be.bignumber.closeTo(
-          new BN(100000 + extraBalance + redeemableReturned),
+          new BN(extraBalance + redeemableReturned),
           new BN(1)
         );
         expect(await this.market.totalCoupons()).to.be.bignumber.equal(
