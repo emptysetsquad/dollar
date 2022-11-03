@@ -84,6 +84,10 @@ contract Getters is State {
         return Constants.getV2MigratorAddress();
     }
 
+    function v2Reserve() public view returns (address) {
+        return Constants.getV2ReserveAddress();
+    }
+
     function owner() public view returns (address) {
         return _state25.owner;
     }

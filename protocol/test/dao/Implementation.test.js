@@ -9,7 +9,7 @@ const MockToken = contract.fromArtifact("MockToken");
 const MockPool = contract.fromArtifact("MockPool");
 const Dollar = contract.fromArtifact("Dollar");
 
-RESERVE_ADDRESS = "0x0000000000000000000000000000000000000000"
+RESERVE_ADDRESS = "0x0000000000000000000000000000000000000123"
 RATIO = "3216807417426974641"
 
 describe("Implementation", function () {
@@ -31,7 +31,7 @@ describe("Implementation", function () {
       from: ownerAddress,
       gas: 8000000,
     });
-    this.dao = await MockImpl.new(this.pool.address, this.ess.address, {
+    this.dao = await MockImpl.new(this.pool.address, this.ess.address, RESERVE_ADDRESS, {
       from: ownerAddress,
       gas: 8000000,
     });
@@ -69,7 +69,7 @@ describe("Implementation", function () {
     it("sunsets migrator", async function () {
       expect(await this.ess.balanceOf(this.migrator.address)).to.be.bignumber.equal(new BN(0));
       expect(await this.ess.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(0));
-      expect(await this.ess.balanceOf(ownerAddress)).to.be.bignumber.equal(new BN("750_000_000_000_000_000_000_000_000"));
+      expect(await this.ess.balanceOf(RESERVE_ADDRESS)).to.be.bignumber.equal(new BN("750_000_000_000_000_000_000_000_000"));
     });
   });
 
@@ -131,7 +131,7 @@ describe("Implementation", function () {
 
   describe("commit", async function () {
     beforeEach(async function () {
-      this.newImpl = await MockImpl.new(this.pool.address, this.ess.address, {
+      this.newImpl = await MockImpl.new(this.pool.address, this.ess.address, RESERVE_ADDRESS, {
         from: userAddress,
         gas: 8000000,
       });

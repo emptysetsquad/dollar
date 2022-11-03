@@ -25,11 +25,13 @@ contract MockImplES005 is MockState, Implementation {
     address private _dollar;
     address private _ess;
     address private _migrator;
+    address private _reserve;
     address private _pool;
 
-    constructor(address pool, address ess) public {
+    constructor(address pool, address ess, address reserve) public {
         _dollar = address(new Dollar());
         _ess = ess;
+        _reserve = reserve;
         _pool = pool;
     }
 
@@ -75,6 +77,10 @@ contract MockImplES005 is MockState, Implementation {
 
     function v2Migrator() public view returns (address) {
         return _migrator;
+    }
+
+    function v2Reserve() public view returns (address) {
+        return _reserve;
     }
 
     function setOwnerE(address newOwner) public {

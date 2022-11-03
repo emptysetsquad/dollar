@@ -23,6 +23,7 @@ const daoPrevContract = new web3.eth.Contract(prevImplABI, DAOAddress);
 
 // Holder Addresses
 const daoOwner = "0x1bba92F379375387bf8F927058da14D47464cB7A";
+const reserve = "0xD05aCe63789cCb35B9cE71d01e4d632a0486Da4B";
 const etherHolder = "0x06920C9fC643De77B99cB7670A944AD31eaAA260";
 const poolUser1 = "0x4f295d8eabfc0e11d99db02bc02a265d82d7ba76";
 const poolUser2 = "0x52A5711Dc4fe437E81205bfaD22fFC43F1818Df7";
@@ -32,7 +33,7 @@ const Dollar = artifacts.require("Dollar");
 const Pool = artifacts.require("Pool");
 const Implementation = artifacts.require("Implementation");
 const ERC20 = artifacts.require("ERC20");
-let impl, pool, dollar, dao, migrator, ess;
+let impl, pool, dollar, dao, ess;
 
 contract("Implementation", function ([user]) {
   before(async function () {
@@ -58,14 +59,20 @@ contract("Implementation", function ([user]) {
 
   describe("initialize", async function () {
     it("initializes successfully", async function () {
+      const initialReserveBalance = new BN("112697668800000000000000")
+      const initialCouponUnderlying = new BN("4039416620730362753483229")
+      const initialDollarBalance = new BN("12378881578723891659040747")
+      const initialMigratorBalance = new BN("683885662970034185268677057")
+
       // mints all withdrawable coupon underlying
-      const expectedDollarBalance = new BN("12378881578723891659040747").add(await dao.totalCouponUnderlying());
+      const expectedDollarBalance = initialDollarBalance.add(initialCouponUnderlying);
       expect(await dollar.balanceOf(dao.address)).to.be.bignumber.equal(expectedDollarBalance);
 
       // sunsets migrator
       expect(await ess.balanceOf(dao.address)).to.be.bignumber.equal(new BN(0));
       expect(await ess.balanceOf(MigratorAddress)).to.be.bignumber.equal(new BN(0));
-      expect(await ess.balanceOf(daoOwner)).to.be.bignumber.equal(new BN("710654608442370624605020906"));
+      const expectedReserveBalance = initialReserveBalance.add(initialMigratorBalance)
+      expect(await ess.balanceOf(reserve)).to.be.bignumber.equal(expectedReserveBalance);
 
       expect(await dao.owner()).to.be.equal(daoOwner);
     });

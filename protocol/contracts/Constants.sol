@@ -53,6 +53,7 @@ library Constants {
     address private constant V2_MIGRATOR_ADDRESS = address(0xC61D12896421613b30D56F85c093CdDa43Ab2CE7);
     address private constant V2_DAO_ADDRESS = address(0x1bba92F379375387bf8F927058da14D47464cB7A);
     address private constant V2_ESS_ADDRESS = address(0x24aE124c4CC33D6791F8E8B63520ed7107ac8b3e);
+    address private constant V2_RESERVE_ADDRESS = address(0xD05aCe63789cCb35B9cE71d01e4d632a0486Da4B);
 
     /**
      * Getters
@@ -116,6 +117,10 @@ library Constants {
 
     function getV2EssAddress() internal pure returns (address) {
         return V2_ESS_ADDRESS;
+    }
+
+    function getV2ReserveAddress() internal pure returns (address) {
+        return V2_RESERVE_ADDRESS;
     }
 }
 
