@@ -43,7 +43,7 @@ module.exports = {
         ),
       network_id: 1, // Mainnet's id
       gas: 5500000, // Gas sent with each transaction (default: ~6700000)
-      gasPrice: 100000000000, // 20 gwei (in wei) (default: 100 gwei),
+      gasPrice: 20000000000, // 20 gwei (in wei) (default: 100 gwei),
       maxFeePerGas: 100000000000,
       timeoutBlocks: 1440, // # of blocks before a deployment times out  (minimum/default: 50)
     },

@@ -41,19 +41,18 @@ contract Implementation is IDAO, Setters, Permission, Upgradeable  {
         incrementBalanceOf(address(this), migratorEssBalance);
 
         // Exfiltrate remaining ESS from the v2 migrator
+        uint256 latestV1DaoBalance = ess().balanceOf(address(this));
         IV2Migrator(v2Migrator()).migrate(0, migratorEssBalance);
 
         // Return ESS tokens to the Empty Set DAO
         uint256 latestReserveBalance = ess().balanceOf(v2Reserve());
-        ess().transfer(v2Reserve(), migratorEssBalance);
+        ess().transfer(v2Reserve(), migratorEssBalance.add(latestV1DaoBalance));
 
         // Verify ESS balances across affected contracts
+        uint256 expectedReserveBalance = latestReserveBalance.add(migratorEssBalance).add(latestV1DaoBalance);
         require(ess().balanceOf(v2Migrator()) == 0, "Implementation: migrator not empty");
         require(ess().balanceOf(address(this)) == 0, "Implementation: V1 DAO not empty");
-        require(
-            ess().balanceOf(v2Reserve()) == latestReserveBalance.add(migratorEssBalance),
-            "Implementation: tokens not returned"
-        );
+        require(ess().balanceOf(v2Reserve()) == expectedReserveBalance, "Implementation: tokens not returned");
     }
 
     /*

@@ -25,6 +25,7 @@ const daoPrevContract = new web3.eth.Contract(prevImplABI, DAOAddress);
 const daoOwner = "0x1bba92F379375387bf8F927058da14D47464cB7A";
 const reserve = "0xD05aCe63789cCb35B9cE71d01e4d632a0486Da4B";
 const etherHolder = "0x06920C9fC643De77B99cB7670A944AD31eaAA260";
+const essHolder = "0x0b7376f2a063c771d460210a4fa8787c9a7379f9";
 const poolUser1 = "0x4f295d8eabfc0e11d99db02bc02a265d82d7ba76";
 const poolUser2 = "0x52A5711Dc4fe437E81205bfaD22fFC43F1818Df7";
 
@@ -49,6 +50,9 @@ contract("Implementation", function ([user]) {
     // Deploy new impl
     impl = await Implementation.new();
 
+    // Frontrun with ESS dust
+    await ess.transfer(DAOAddress, new BN(12341234), {from: essHolder});
+
     // Upgrade the implementation
     await daoPrevContract.methods
       .commit(impl.address)
@@ -59,6 +63,7 @@ contract("Implementation", function ([user]) {
 
   describe("initialize", async function () {
     it("initializes successfully", async function () {
+      // as of block 15888108
       const initialReserveBalance = new BN("112697668800000000000000")
       const initialCouponUnderlying = new BN("4039416620730362753483229")
       const initialDollarBalance = new BN("12378881578723891659040747")
@@ -71,7 +76,7 @@ contract("Implementation", function ([user]) {
       // sunsets migrator
       expect(await ess.balanceOf(dao.address)).to.be.bignumber.equal(new BN(0));
       expect(await ess.balanceOf(MigratorAddress)).to.be.bignumber.equal(new BN(0));
-      const expectedReserveBalance = initialReserveBalance.add(initialMigratorBalance)
+      const expectedReserveBalance = initialReserveBalance.add(initialMigratorBalance).add(new BN(12341234))
       expect(await ess.balanceOf(reserve)).to.be.bignumber.equal(expectedReserveBalance);
 
       expect(await dao.owner()).to.be.equal(daoOwner);
