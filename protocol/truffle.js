@@ -34,19 +34,6 @@ module.exports = {
    */
 
   networks: {
-    // Useful for testing. The `development` name is special - truffle uses it by default
-    // if it's defined here and no other network is specified at the command line.
-    // You should run a client (like ganache-cli, geth or parity) in a separate terminal
-    // tab if you use this network and you must also set the `host`, `port` and `network_id`
-    // options below to some value.
-    //
-    development: {
-      host: "127.0.0.1", // Localhost (default: none)
-      port: 7545, // Standard Ethereum port (default: none)
-      network_id: "*", // Any network (default: none)
-      gas: 8000000,
-    },
-
     //Another network with more advanced options...
     mainnet: {
       provider: () =>
@@ -56,7 +43,8 @@ module.exports = {
         ),
       network_id: 1, // Mainnet's id
       gas: 5500000, // Gas sent with each transaction (default: ~6700000)
-      gasPrice: 20000000000, // 20 gwei (in wei) (default: 100 gwei)
+      gasPrice: 20000000000, // 20 gwei (in wei) (default: 100 gwei),
+      maxFeePerGas: 100000000000,
       timeoutBlocks: 1440, // # of blocks before a deployment times out  (minimum/default: 50)
     },
 
@@ -98,7 +86,8 @@ module.exports = {
       host: "127.0.0.1", // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-      gasPrice: 2000000000, // 2 gwei (in wei) (default: 100 gwei)
+      gasPrice: 2000000000, // 2 gwei (in wei) (default: 100 gwei),
+      maxFeePerGas: 100000000000
     },
   },
 

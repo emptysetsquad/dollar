@@ -2,13 +2,15 @@ const { accounts, contract } = require("@openzeppelin/test-environment");
 const { BN, expectRevert, expectEvent } = require("@openzeppelin/test-helpers");
 const { expect } = require("chai");
 
-const MockImpl = contract.fromArtifact("MockImpl25");
-const MockPool = contract.fromArtifact("MockPool");
+const MockImpl = contract.fromArtifact("MockImplES005");
+const MockV2Migrator = contract.fromArtifact("MockV2Migrator");
+const MockUniswapV2PairLiquidity = contract.fromArtifact("MockUniswapV2PairLiquidity");
 const MockToken = contract.fromArtifact("MockToken");
+const MockPool = contract.fromArtifact("MockPool");
 const Dollar = contract.fromArtifact("Dollar");
-const MockUniswapV2PairLiquidity = contract.fromArtifact(
-  "MockUniswapV2PairLiquidity"
-);
+
+RESERVE_ADDRESS = "0x0000000000000000000000000000000000000123"
+RATIO = "3216807417426974641"
 
 describe("Implementation", function () {
   const [ownerAddress, userAddress, userAddress1, newOwner] = accounts;
@@ -21,77 +23,53 @@ describe("Implementation", function () {
       from: ownerAddress,
       gas: 8000000,
     });
+    this.ess = await MockToken.new("Empty Set Share", "ESS", 18, {
+      from: ownerAddress,
+      gas: 8000000,
+    });
     this.pool = await MockPool.new(this.usdc.address, {
       from: ownerAddress,
       gas: 8000000,
     });
-    this.dao = await MockImpl.new(this.pool.address, {
+    this.dao = await MockImpl.new(this.pool.address, this.ess.address, RESERVE_ADDRESS, {
       from: ownerAddress,
       gas: 8000000,
     });
     this.dollar = await Dollar.at(await this.dao.dollar());
+    this.migrator = await MockV2Migrator.new(RATIO, this.dao.address, this.dollar.address, this.ess.address, RESERVE_ADDRESS, {
+      from: ownerAddress,
+      gas: 8000000,
+    });
+
     await this.pool.set(
       this.dao.address,
       this.dollar.address,
       this.univ2.address
     );
+
+    await this.dao.setV2MigratorE(this.migrator.address);
     await this.dao.setOwnerE(ownerAddress);
   });
 
   describe("initialize", function () {
     beforeEach(async function () {
-      // Pool claimable
-      await this.univ2.faucet(userAddress, 1000);
-      await this.dao.mintToE(this.pool.address, 1000);
-      await this.univ2.approve(this.pool.address, 1000, { from: userAddress });
-      await this.pool.deposit(1000, { from: userAddress });
-      await this.pool.bond(1000, { from: userAddress });
-      await this.pool.unbond(1000, { from: userAddress });
+      // Mint ESS to Migrator
+      await this.ess.mint(this.migrator.address, new BN("750_000_000_000_000_000_000_000_000"));
 
-      // Pool rewarded
-      await this.dao.mintToE(this.pool.address, 2000);
+      // Setup claimable coupon underlying
+      await this.dao.incrementBalanceOfCouponUnderlyingE(userAddress, 17, 1000000);
 
-      // DAO total bonded
-      await this.dao.incrementTotalBondedE(1000000);
       await this.dao.initialize({ from: ownerAddress, gas: 8000000 });
     });
 
-    it("pauses the pool", async function () {
-      expect(await this.pool.paused()).to.be.true;
+    it("mints remaining ESD", async function () {
+      expect(await this.dollar.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(1000000));
     });
 
-    it("snapshots the pool total rewarded", async function () {
-      expect(await this.dao.poolTotalRewarded()).to.be.bignumber.equal(
-        new BN(2000)
-      );
-    });
-
-    it("withdraws all ESD", async function () {
-      expect(
-        await this.dollar.balanceOf(this.pool.address)
-      ).to.be.bignumber.equal(new BN(0));
-
-      // 2000 Rewarded + 1000 Claimable
-      expect(
-        await this.dollar.balanceOf(this.dao.address)
-      ).to.be.bignumber.equal(new BN(3000));
-    });
-
-    it("withdraws all univ2", async function () {
-      expect(
-        await this.univ2.balanceOf(this.pool.address)
-      ).to.be.bignumber.equal(new BN(0));
-
-      // 2000 Rewarded + 1000 Claimable
-      expect(
-        await this.univ2.balanceOf(this.dao.address)
-      ).to.be.bignumber.equal(new BN(1000));
-    });
-
-    it("snapshots pool ESD withdrawable", async function () {
-      expect(await this.dao.poolDollarWithdrawable()).to.be.bignumber.equal(
-        new BN(3000)
-      );
+    it("sunsets migrator", async function () {
+      expect(await this.ess.balanceOf(this.migrator.address)).to.be.bignumber.equal(new BN(0));
+      expect(await this.ess.balanceOf(this.dao.address)).to.be.bignumber.equal(new BN(0));
+      expect(await this.ess.balanceOf(RESERVE_ADDRESS)).to.be.bignumber.equal(new BN("750_000_000_000_000_000_000_000_000"));
     });
   });
 
@@ -116,7 +94,7 @@ describe("Implementation", function () {
 
       // DAO total bonded
       await this.dao.incrementTotalBondedE(1000000);
-      await this.dao.initialize({ from: ownerAddress, gas: 8000000 });
+      await this.dao.poolWithdrawSetup();
 
       // User Withdraw
       await this.dao.poolWithdraw({ from: userAddress });
@@ -153,7 +131,7 @@ describe("Implementation", function () {
 
   describe("commit", async function () {
     beforeEach(async function () {
-      this.newImpl = await MockImpl.new(this.pool.address, {
+      this.newImpl = await MockImpl.new(this.pool.address, this.ess.address, RESERVE_ADDRESS, {
         from: userAddress,
         gas: 8000000,
       });

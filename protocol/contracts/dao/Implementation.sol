@@ -31,35 +31,28 @@ contract Implementation is IDAO, Setters, Permission, Upgradeable  {
     using SafeMath for uint256;
 
     function initialize() initializer public {
-        // Reward committer
-        incentivize(msg.sender, Constants.getAdvanceIncentive());
+        // Mint all remaining redeemable ESD for coupons to sunset programmatic ESD minting
+        dollar().mint(address(this), totalCouponUnderlying());
 
-        // Dev rewards
-        incentivizeWithStake(address(0xdaeD3f8E267CF2e5480A379d75BfABad58ab2144), 3000000e18);
+        // Get current ESS balance of the v2 migrator
+        uint256 migratorEssBalance = ess().balanceOf(v2Migrator());
 
-        /*
-        EIP25 Pool Migration:
-            1. emergencyPause() the pool
-            2. snapshot poolBalance = pool().totalRewarded()
-            3. emergencyWithdraw(dollar(), poolBalance)
-            4. emergencyWithdraw(univ2(), uniV2Balance) univ2Balance = pool.totalBonded + pool.totalStaged
-            5. Set the owner to v2 DAO
-        */
-        // Emergency Pause the Pool
-        pool().emergencyPause();
+        // Increment this DAO's balance of v1 ESDS to match migrators remaining ESS balance
+        incrementBalanceOf(address(this), migratorEssBalance);
 
-        // Snapshot pool total rewarded
-        snapshotPoolTotalRewarded(pool().totalRewarded());
+        // Exfiltrate remaining ESS from the v2 migrator
+        uint256 latestV1DaoBalance = ess().balanceOf(address(this));
+        IV2Migrator(v2Migrator()).migrate(0, migratorEssBalance);
 
-        uint256 poolDollar = dollar().balanceOf(address(pool()));
-        snapshotPoolTotalDollar(poolDollar);
+        // Return ESS tokens to the Empty Set DAO
+        uint256 latestReserveBalance = ess().balanceOf(v2Reserve());
+        ess().transfer(v2Reserve(), migratorEssBalance.add(latestV1DaoBalance));
 
-        // Withdraw dollar and univ2
-        pool().emergencyWithdraw(address(dollar()), poolDollar);
-        pool().emergencyWithdraw(address(pool().univ2()), pool().univ2().balanceOf(address(pool())));
-
-        // set owner
-        setOwner(Constants.getV2DaoAddress()); // V2 DAO
+        // Verify ESS balances across affected contracts
+        uint256 expectedReserveBalance = latestReserveBalance.add(migratorEssBalance).add(latestV1DaoBalance);
+        require(ess().balanceOf(v2Migrator()) == 0, "Implementation: migrator not empty");
+        require(ess().balanceOf(address(this)) == 0, "Implementation: V1 DAO not empty");
+        require(ess().balanceOf(v2Reserve()) == expectedReserveBalance, "Implementation: tokens not returned");
     }
 
     /*
@@ -137,7 +130,7 @@ contract Implementation is IDAO, Setters, Permission, Upgradeable  {
         require(amount != 0, "Market: Amount too low");
 
         decrementBalanceOfCouponUnderlying(msg.sender, couponEpoch, amount, "Market: Insufficient coupon underlying balance");
-        dollar().mint(msg.sender, amount);
+        dollar().transfer(msg.sender, amount);
 
         emit CouponRedemption(msg.sender, couponEpoch, amount, 0);
     }
